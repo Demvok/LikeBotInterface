@@ -20,10 +20,13 @@ export class Posts {
   loading: boolean = true;
   filter: { post_id?: number; chat_id?: number; validated_only?: boolean } = {};
 
+  lastUpdate: string = '';
+
   constructor(private postsService: PostsService) {}
 
   ngOnInit() {
     this.getPosts();
+  this.lastUpdate = this.formatDate(new Date());
   }
 
   getPosts() {
@@ -32,13 +35,20 @@ export class Posts {
       (data: Post[]) => {
         this.posts = data;
         this.loading = false;
+  this.lastUpdate = this.formatDate(new Date());
       },
       (error: any) => {
         console.error('Error fetching posts:', error);
         this.posts = [];
         this.loading = false;
+  this.lastUpdate = this.formatDate(new Date());
       }
     );
+  }
+  formatDate(date: Date): string {
+    // Format as 'dd.MM.yyyy HH:mm:ss'
+    const pad = (n: number) => n < 10 ? '0' + n : n;
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
   }
 
   resetFilters() {

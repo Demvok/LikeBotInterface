@@ -1,9 +1,6 @@
 <div class="content-wrapper">
     <header>
         <h1>Posts</h1>
-    </header>
-    <main>
-        <div *ngIf="loading" class="loading">Loading posts...</div>
         <form class="filter-form" (ngSubmit)="getPosts()" autocomplete="off">
             <label>
                 Post ID:
@@ -20,11 +17,14 @@
             <button type="submit">Filter</button>
             <button type="button" (click)="resetFilters()">Reset</button>
         </form>
+    </header>
+    <main>
+        <div *ngIf="loading" class="loading">Loading posts...</div>
         <table *ngIf="!loading && posts.length > 0" class="posts-table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Message Link</th>
+                    <th>Link</th>
                     <th>Chat ID</th>
                     <th>Message ID</th>
                     <th>Created</th>
@@ -35,7 +35,14 @@
             <tbody>
                 <tr *ngFor="let post of posts">
                     <td>{{ post.post_id }}</td>
-                    <td><a [href]="post.message_link" target="_blank">{{ post.message_link }}</a></td>
+                    <td>
+                        <a [href]="post.message_link" target="_blank" class="svg-link-btn" title="Open Message">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 192 192" style="enable-background:new 0 0 192 192" xml:space="preserve">
+                                <path d="M84 128.6H54.6C36.6 128.6 22 114 22 96c0-9 3.7-17.2 9.6-23.1 5.9-5.9 14.1-9.6 23.1-9.6H84m24 65.3h29.4c9 0 17.2-3.7 23.1-9.6 5.9-5.9 9.6-14.1 9.6-23.1 0-18-14.6-32.6-32.6-32.6H108M67.9 96h56.2" style="fill:none;stroke:#000000;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"/>
+                                <path d="M84 128.6H54.6C36.6 128.6 22 114 22 96c0-9 3.7-17.2 9.6-23.1 5.9-5.9 14.1-9.6 23.1-9.6H84m24 65.3h29.4c9 0 17.2-3.7 23.1-9.6 5.9-5.9 9.6-14.1 9.6-23.1 0-18-14.6-32.6-32.6-32.6H108M67.9 96h56.2" style="fill:none;stroke:#000000;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"/>
+                            </svg>
+                        </a>
+                    </td>
                     <td>{{ post.chat_id }}</td>
                     <td>{{ post.message_id }}</td>
                     <td>{{ post.created_at | date:'short' }}</td>
@@ -50,7 +57,5 @@
         </table>
         <div *ngIf="!loading && posts.length === 0" class="no-posts">No posts found.</div>
     </main>
-    <footer>
-        <p>&copy; 2024 LikeBot. All rights reserved.</p>
-    </footer>  
+    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
 </div>

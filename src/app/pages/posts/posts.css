@@ -10,25 +10,125 @@
 }
 
 header, main, footer {
-  margin: 1%;
   width: 100%;
   justify-content: center;
   align-items: center;
 }
 
 header {
+  display: flex;
+  flex-direction: column;
   height: 3vh;
+  min-height: fit-content;
+  padding: 1%;
+  background-color: var(--color-bg-light);
+  border-radius: 10px;
+  margin-bottom: 2%;
 }
 
 header h1 {
   height: 100%;
   width: 100%;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color:var(--color-text);
+  letter-spacing: 2px;
+  margin: 10px 0;
 }
 
+header form {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+header form label {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+header form button {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-bg-accented);
+  color: var(--color-text-dark);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
 footer {
-  height: 3vh;
+  height: fit-content;
+  text-align: center;
+  margin-top: 1%;
 }
 
 main {
+  padding: 1%;
   flex: 1;
+  border-radius: 10px;
+  background-color: var(--color-bg-light);
+  
+}
+
+main .loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
+}
+
+main table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1%;
+}
+
+thead{
+  background-color: var(--color-bg-accented);
+  border-radius: 5px;
+}
+
+thead tr {
+  border-bottom: 2px solid var(--color-bg-dark);
+  /* th:first-child {
+    padding-left: 1.5%;
+  }
+  th:last-child {    
+    padding-right: 1.5%;
+  } */
+}
+
+thead tr th {
+  padding: 1% 0;
+  min-width: fit-content;
+  text-align: center;
+}
+
+thead tr th {
+  font-weight: bolder;
+  font-size: 1.1rem;
+  color: var(--color-text-dark);
+}
+
+tbody tr td {
+  text-align: center;
+  justify-content: center;
+}
+
+.svg-link-btn {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+}
+
+.svg-link-btn svg path {
+  stroke: #5E503F !important;
 }
