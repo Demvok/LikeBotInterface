@@ -1,1 +1,67 @@
-/* You can add global styles to this file, and also import other style files */
+/* Reset all standard CSS styles */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: 0;
+    font: inherit;
+    vertical-align: baseline;
+    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    line-height: 1;
+    background: none;
+    color: inherit;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+button, input, select, textarea {
+    background: none;
+    border: none;
+    outline: none;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+}
+
+:root {
+    -webkit-tap-highlight-color: transparent;
+    --color-bg: #0A0908;
+    --color-bg-alt: #22333B;
+    --color-text: #5E503F;
+    
+    --color-primary: #C6AC8F;
+    --color-primary-alt: #EAE0D5;
+    --color-secondary: #5E503F;
+    /*  */
+    --color-accent: #D9B08C;
+    --color-success: #3A6D4D;
+    --color-warning: #E07A5F;
+    --color-error: #9E2A2B;
+    --color-info: #3F88C5;
+    /*  */
+}
