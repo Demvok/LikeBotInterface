@@ -3,14 +3,16 @@
    <aside class="sidebar">
     <div class="sidebar-content">
       <div class="sidebar-title">
-        <h2>Menu</h2>
+        <h2><a routerLink="/home" routerLinkActive="active">Menu</a></h2>
         <hr>
       </div>
 
       <nav class="sidebar-nav">
-        <div class="sidebar-nav-item"><a routerLink="/home" routerLinkActive="active">Home</a></div>
-        <div class="sidebar-nav-item"><a routerLink="/about" routerLinkActive="active">About</a></div>
-        <div class="sidebar-nav-item"><a routerLink="/contact" routerLinkActive="active">Contact</a></div>
+        <div class="sidebar-nav-item"><a routerLink="/tasks" routerLinkActive="active">Завдання</a></div>
+        <div class="sidebar-nav-item"><a routerLink="/about" routerLinkActive="active">Акаунти</a></div>
+        <div class="sidebar-nav-item"><a routerLink="/posts" routerLinkActive="active">Всі пости</a></div>
+        <div class="sidebar-nav-item"><a routerLink="/logs" routerLinkActive="active">Логи</a></div>
+        <div class="sidebar-nav-item"><a routerLink="/settings" routerLinkActive="active">Конфігурація</a></div>
       </nav>
 
     </div>
@@ -19,9 +21,7 @@
 
    <!-- Content -->
     <main class="content">
-      <div class="content-wrapper">
-        <router-outlet></router-outlet>
-      </div>      
+      <router-outlet></router-outlet>     
     </main>
 
 </div>

@@ -52,7 +52,9 @@ button, input, select, textarea {
     -webkit-tap-highlight-color: transparent;
     --color-bg: #0A0908;
     --color-bg-alt: #22333B;
+    --color-bg-alt2: #EAE0D5;
     --color-text: #5E503F;
+    --color-text-alt: #C6AC8F;
     
     --color-primary: #C6AC8F;
     --color-primary-alt: #EAE0D5;

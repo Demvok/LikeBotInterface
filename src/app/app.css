@@ -19,24 +19,31 @@
 }
 
 .sidebar-content .sidebar-title {
-    padding: 5%;
-    width: 100%;
+  padding: 5%;
+  width: 100%;
 }
 
 .sidebar-content .sidebar-title hr {
-    border: none;
-    border-top: 3px solid var(--color-text);
-    border-radius: 5px;
-    width: 100%;
-    margin-top: 10px;
+  border: none;
+  border-top: 3px solid var(--color-text);
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
 }
 
 .sidebar-content .sidebar-title h2 {
   text-align: center;
   font-size: 2rem;
-  font-weight: bolder;
+  font-weight: bold;
   color: var(--color-text);
-  letter-spacing: 15%;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-content .sidebar-title h2:hover {
+  letter-spacing: 5px;
+  transition: all 0.3s ease;
 }
 
 .sidebar-nav {
@@ -48,31 +55,31 @@
 .sidebar-nav-item {
   display: flex;
   margin: 5% 3%;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   background-color: var(--color-primary);
   padding: 5%;
   border-radius: 5px;
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav-item:hover {
+  background-color: var(--color-accent);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .sidebar-nav-item a {
-  color: white;
-  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .sidebar-nav-item a.active {
-  font-weight: bold;
+  font-weight: bolder;
+  text-decoration: underline;
 }
 
 .content {
   flex: 1;
   padding: 20px;
-}
-
-.content-wrapper {
-  width: 100%;
-  height: 100%;
-  background-color: var(--color-bg-alt);
-  padding: 1%;
-  border-radius: 10px;
 }
