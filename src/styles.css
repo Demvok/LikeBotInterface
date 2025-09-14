@@ -50,20 +50,13 @@ button, input, select, textarea {
 
 :root {
     -webkit-tap-highlight-color: transparent;
-    --color-bg: #0A0908;
-    --color-bg-alt: #22333B;
-    --color-bg-alt2: #EAE0D5;
-    --color-text: #5E503F;
-    --color-text-alt: #C6AC8F;
     
-    --color-primary: #C6AC8F;
-    --color-primary-alt: #EAE0D5;
-    --color-secondary: #5E503F;
-    /*  */
-    --color-accent: #D9B08C;
-    --color-success: #3A6D4D;
-    --color-warning: #E07A5F;
-    --color-error: #9E2A2B;
-    --color-info: #3F88C5;
-    /*  */
+    --color-bg: #25201a;
+    --color-bg-alt: #22333B;
+    --color-bg-light: #EAE0D5;
+    --color-bg-accented: #C6AC8F;
+
+    --color-text: #5E503F;
+    --color-text-alt: #C6AC8F;    
+    --color-text-dark: #0A0908;
 }

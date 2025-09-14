@@ -16,7 +16,7 @@ main {
   justify-content: center;
   align-items: center;
   padding: 3%;
-  background-color: var(--color-bg-alt2);
+  background-color: var(--color-bg-light);
   border-radius: 10px;
 }
 

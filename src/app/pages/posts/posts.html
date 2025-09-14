@@ -3,7 +3,52 @@
         <h1>Posts</h1>
     </header>
     <main>
-        <p>Welcome to LikeBot!</p>
+        <div *ngIf="loading" class="loading">Loading posts...</div>
+        <form class="filter-form" (ngSubmit)="getPosts()" autocomplete="off">
+            <label>
+                Post ID:
+                <input type="number" [(ngModel)]="filter.post_id" name="post_id" />
+            </label>
+            <label>
+                Chat ID:
+                <input type="number" [(ngModel)]="filter.chat_id" name="chat_id" />
+            </label>
+            <label>
+                Validated Only:
+                <input type="checkbox" [(ngModel)]="filter.validated_only" name="validated_only" />
+            </label>
+            <button type="submit">Filter</button>
+            <button type="button" (click)="resetFilters()">Reset</button>
+        </form>
+        <table *ngIf="!loading && posts.length > 0" class="posts-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Message Link</th>
+                    <th>Chat ID</th>
+                    <th>Message ID</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let post of posts">
+                    <td>{{ post.post_id }}</td>
+                    <td><a [href]="post.message_link" target="_blank">{{ post.message_link }}</a></td>
+                    <td>{{ post.chat_id }}</td>
+                    <td>{{ post.message_id }}</td>
+                    <td>{{ post.created_at | date:'short' }}</td>
+                    <td>{{ post.updated_at | date:'short' }}</td>
+                    <td>
+                        <button (click)="validatePost(post)">Validate</button>
+                        <button (click)="editPost(post)">Edit</button>
+                        <button (click)="deletePost(post)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="!loading && posts.length === 0" class="no-posts">No posts found.</div>
     </main>
     <footer>
         <p>&copy; 2024 LikeBot. All rights reserved.</p>
