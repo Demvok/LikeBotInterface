@@ -54,9 +54,14 @@ button, input, select, textarea {
     --color-bg: #25201a;
     --color-bg-alt: #22333B;
     --color-bg-light: #EAE0D5;
+    --color-bg-dark: #5E503F;
     --color-bg-accented: #C6AC8F;
 
     --color-text: #5E503F;
-    --color-text-alt: #C6AC8F;    
+    --color-text-alt: #C6AC8F;
+    --color-text-light: #EAE0D5;
     --color-text-dark: #0A0908;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

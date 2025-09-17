@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, viewChild, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule],
   templateUrl: './posts.html',
   styleUrls: ['./posts.css']
 })
@@ -16,7 +20,18 @@ import { Post } from '../../services/api.models';
 
 
 export class Posts {
-  posts: Post[] = [];
+  posts = new MatTableDataSource<Post>([]);
+
+  displayedColumns: string[] = [
+    'post_id',
+    'message_link',
+    'chat_id',
+    'message_id',
+    'created_at',
+    'updated_at',
+    'actions'
+  ];
+
   loading: boolean = true;
   filter: { post_id?: number; chat_id?: number; validated_only?: boolean } = {};
 
@@ -24,29 +39,38 @@ export class Posts {
 
   constructor(private postsService: PostsService) {}
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   ngOnInit() {
     this.getPosts();
-  this.lastUpdate = this.formatDate(new Date());
+    this.lastUpdate = this.formatDate(new Date());
+  }
+
+  ngAfterViewInit() {
+    this.posts.paginator = this.paginator;
+    this.posts.sort = this.sort;
   }
 
   getPosts() {
     this.loading = true;
     this.postsService.getPosts(this.filter).subscribe(
       (data: Post[]) => {
-        this.posts = data;
+        this.posts.data = data;
         this.loading = false;
-  this.lastUpdate = this.formatDate(new Date());
+        this.lastUpdate = this.formatDate(new Date());
       },
       (error: any) => {
         console.error('Error fetching posts:', error);
-        this.posts = [];
+        this.posts.data = [];
         this.loading = false;
-  this.lastUpdate = this.formatDate(new Date());
+        this.lastUpdate = this.formatDate(new Date());
       }
     );
   }
+
   formatDate(date: Date): string {
-    // Format as 'dd.MM.yyyy HH:mm:ss'
+    // Format as 'HH:mm:ss dd.MM.yyyy'
     const pad = (n: number) => n < 10 ? '0' + n : n;
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
   }

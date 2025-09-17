@@ -21,9 +21,9 @@ header {
   height: 3vh;
   min-height: fit-content;
   padding: 1%;
-  background-color: var(--color-bg-light);
+  background-color: var(--color-bg-accented);
   border-radius: 10px;
-  margin-bottom: 2%;
+  margin-bottom: 1%;
 }
 
 header h1 {
@@ -34,7 +34,8 @@ header h1 {
   font-weight: bold;
   color:var(--color-text);
   letter-spacing: 2px;
-  margin: 10px 0;
+  margin-top: 0.75%;
+  margin-bottom: 1%;
 }
 
 header form {
@@ -51,10 +52,19 @@ header form label {
   color: var(--color-text);
 }
 
+header form label input {
+  border-radius: 5px;
+  background-color: var(--color-bg-light);
+  margin-left: 10px;
+  line-height: 1.5;
+}
+
 header form button {
   padding: 0.5rem 1rem;
-  background-color: var(--color-bg-accented);
-  color: var(--color-text-dark);
+  font-weight: bold;
+  letter-spacing: 1px;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -72,7 +82,6 @@ main {
   flex: 1;
   border-radius: 10px;
   background-color: var(--color-bg-light);
-  
 }
 
 main .loading {
@@ -83,42 +92,48 @@ main .loading {
   margin-top: 2%;
 }
 
-main table {
+
+
+.mat-mdc-table {
   width: 100%;
-  border-collapse: collapse;
   margin-top: 1%;
+  background: var(--color-bg-light); 
 }
 
-thead{
+.mat-mdc-header-row {
   background-color: var(--color-bg-accented);
-  border-radius: 5px;
 }
 
-thead tr {
-  border-bottom: 2px solid var(--color-bg-dark);
-  /* th:first-child {
-    padding-left: 1.5%;
-  }
-  th:last-child {    
-    padding-right: 1.5%;
-  } */
+.mat-mdc-header-cell, .mat-mdc-cell {
+  vertical-align: middle !important;
 }
 
-thead tr th {
-  padding: 1% 0;
-  min-width: fit-content;
-  text-align: center;
+.table-header {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--color-text);
 }
 
-thead tr th {
-  font-weight: bolder;
-  font-size: 1.1rem;
+.mat-mdc-header-cell {
+  font-weight: bold;
+  background: var(--color-bg-accented);
   color: var(--color-text-dark);
 }
 
-tbody tr td {
-  text-align: center;
+.table-cell, .table-header {
+  display: flex;
   justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%; 
+}
+
+.mat-mdc-row:nth-child(even) .mat-mdc-cell {
+  background: var(--color-bg-accented);
+}
+
+.table-cell {
+  font-size: 1rem;
 }
 
 .svg-link-btn {
@@ -131,4 +146,21 @@ tbody tr td {
 
 .svg-link-btn svg path {
   stroke: #5E503F !important;
+}
+
+.svg-link-btn {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+}
+
+.svg-link-btn svg path {
+  stroke: #5E503F !important;
+}
+
+.post-action-button {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
 }
