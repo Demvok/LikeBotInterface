@@ -40,8 +40,39 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+
+        <!-- Floating Add Button -->
+        <button class="fab-add-account" title="Add Account" (click)="openAddAccountModal()">
+            <span class="fab-plus">+</span>
+        </button>
+
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
         <div *ngIf="!loading && accounts.data.length === 0" class="no-accounts">No accounts found.</div>
     </main>
-    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
+        <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
+
+        <!-- Modal for Account Creation -->
+        <div class="modal-backdrop" *ngIf="showAddModal">
+            <div class="modal-window">
+                <h2>Add Account</h2>
+                <form (ngSubmit)="submitAddAccount()" #addAccountForm="ngForm" autocomplete="off">
+                    <label>
+                        <span class="label-text">Phone Number: <span class="star">*</span></span>
+                        <input type="text" name="phone_number" [(ngModel)]="newAccount.phone_number" required />
+                    </label>
+                    <label>
+                        <span class="label-text">Account ID:</span>
+                        <input type="text" name="account_id" [(ngModel)]="newAccount.account_id" />
+                    </label>
+                    <label>
+                        <span class="label-text">Session Name:</span>
+                        <input type="text" name="session_name" [(ngModel)]="newAccount.session_name" />
+                    </label>
+                    <div class="modal-actions">
+                        <button type="submit" [disabled]="addAccountForm.invalid">Create</button>
+                        <button type="button" (click)="closeAddAccountModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 </div>

@@ -32,6 +32,9 @@ export class Accounts {
 
   lastUpdate: string = '';
 
+  showAddModal: boolean = false;
+  newAccount: Partial<Account> = {};
+
   constructor(private accountsService: AccountsService) {}
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -90,6 +93,34 @@ export class Accounts {
       },
       (err) => {
         alert('Failed to delete account.');
+      }
+    );
+  }
+
+  openAddAccountModal() {
+    this.newAccount = {};
+    this.showAddModal = true;
+  }
+
+  closeAddAccountModal() {
+    this.showAddModal = false;
+  }
+
+  submitAddAccount() {
+    const { phone_number, account_id, session_name } = this.newAccount;
+    if (!phone_number || !account_id || !session_name) return;
+    const account: Account = {
+      phone_number: phone_number as string,
+      account_id: account_id as string,
+      session_name: session_name as string
+    };
+    this.accountsService.createAccount(account).subscribe(
+      (res) => {
+        this.getAccounts();
+        this.closeAddAccountModal();
+      },
+      (err) => {
+        alert('Failed to create account.');
       }
     );
   }
