@@ -74,6 +74,7 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow-y: auto;
 }
 
 main .loading {
@@ -89,10 +90,12 @@ main .loading {
     flex-direction: column;
     flex: 1;
     width: 100%;
+    height: 100%;
+    gap: 1rem;
 }
 
 .mat-mdc-card, .mdc-card, .task-card {
-    background-color: var(--color-bg-accented);
+    background-color: var(--color-bg-accented-lighter);
     color: var(--color-text);
 }
 
@@ -123,6 +126,10 @@ main .loading {
     font-family: inherit !important;
     font-weight: bolder !important;
     height: fit-content !important;
+    background-color: var(--color-bg-light);
+    padding: 0 1%;
+    border-radius: 5px;
+    text-align: center;
 }
 
 ::ng-deep .status-pending    { color: var(--color-text-waiting) !important; }
@@ -143,4 +150,49 @@ main .loading {
 
 ::ng-deep .mat-mdc-card-content {
     padding: 16px !important;
+    display: flex !important;
+    flex-direction: row;    
+    flex: 1;
+    justify-content: space-between;
+}
+
+.text-block-head {
+    display: flex !important;
+    flex-direction: row;
+    padding-bottom: 2%;
+    gap: 5%;
+    font-size: 1.1rem;
+}
+
+.text-block-head b {
+    font-weight: bolder;
+}
+
+
+.action-type, .action-info {
+    min-width: fit-content;
+}
+
+
+.buttons-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: fit-content;
+}
+
+.buttons-block button {
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    background-color: var(--color-bg-light);
+    color: var(--color-text);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buttons-block button:hover {
+    background-color: var(--color-bg-accented-darker);
+    transition: background-color 0.3s ease;
 }

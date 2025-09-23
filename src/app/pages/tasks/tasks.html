@@ -7,19 +7,30 @@
             <ng-container *ngIf="loading">Loading tasks...</ng-container>
             <ng-container *ngIf="error">{{ error }}</ng-container>
             <ng-container *ngIf="!loading && !error">
-                <mat-card *ngFor="let task of tasks" class="task-card" style="margin-bottom: 1rem;">
+                <mat-card *ngFor="let task of tasks" class="task-card">
                     <mat-card-header>
                         <mat-card-title>{{ task.name }}</mat-card-title>
                         <mat-card-subtitle [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</mat-card-subtitle>
                     </mat-card-header>
                     <mat-card-content>
-                        <div *ngIf="task.description">{{ task.description }}</div>
-                        <div><b>Accounts:</b> {{ task.accounts.join(', ') }}</div>
-                        <div><b>Posts:</b> {{ task.post_ids.join(', ') }}</div>
-                        <div><b>Action:</b> {{ task.action.type }}
-                            <ng-container *ngIf="task.action.type === 'react'"> ({{ task.action.palette }})</ng-container>
-                            <ng-container *ngIf="task.action.type === 'comment'">: {{ task.action.content }}</ng-container>
+                        <div class="text-block">
+                            <div class="text-block-head">
+                                <div class="action-type" *ngIf="task.action.type"><b>Action type:</b> {{ task.action.type }}</div>
+                                <div class="action-type" *ngIf="!task.action.type"><b>NO ACTION PROVIDED</b></div>
+                                <div class="action-info"><ng-container *ngIf="task.action.type === 'react'"><b>Palette:</b> {{ task.action.palette }}</ng-container></div>
+                                <!-- <ng-container class='action-info' *ngIf="task.action.type === 'comment'"><b>Content:</b> {{ task.action.content }}</ng-container> -->
+                            </div>
+
+                            <div *ngIf="task.description">{{ task.description }}</div>
+                            <div *ngIf="!task.description">No description available</div>
                         </div>
+                        <div class="buttons-block">
+                            <!-- <div><b>Accounts:</b> {{ task.accounts.join(', ') }}</div>
+                            <div><b>Posts:</b> {{ task.post_ids.join(', ') }}</div> -->
+                            <button>View accounts</button>
+                            <button>View posts</button>
+                            <button>View report</button>
+                        </div>                        
                     </mat-card-content>
                     <mat-card-footer>
                         <div><b>Created:</b> {{ task.created_at | date:'dd.MM.yyyy HH:mm' }}</div>

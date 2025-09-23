@@ -58,6 +58,8 @@ button, input, select, textarea {
     --color-bg-darker-disabled: #988d81;
     --color-bg-dark: #5E503F;
     --color-bg-accented: #C6AC8F;
+    --color-bg-accented-lighter: #cdb8a2;
+    --color-bg-accented-darker: #c6ac8f;
 
     --color-text: #5E503F;
     --color-text-alt: #C6AC8F;
