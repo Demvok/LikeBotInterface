@@ -63,4 +63,9 @@ button, input, select, textarea {
     --color-text-alt: #C6AC8F;
     --color-text-light: #EAE0D5;
     --color-text-dark: #0A0908;
+    --color-text-waiting: #073b4c;
+    --color-text-running: #118ab2;
+    --color-text-success: #06d6a0;
+    --color-text-error: #ef476f;
+    --color-text-warning: #ffd166;    
 }

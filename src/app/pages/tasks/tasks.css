@@ -75,3 +75,72 @@ main {
   flex-direction: column;
   position: relative;
 }
+
+main .loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
+}
+
+.main-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+}
+
+.mat-mdc-card, .mdc-card, .task-card {
+    background-color: var(--color-bg-accented);
+    color: var(--color-text);
+}
+
+::ng-deep .mat-mdc-card-header-text {
+    display: flex;
+    width: 100%;
+    flex-direction: row;    
+    gap: 20px;
+    align-items: flex-end;
+
+    color: inherit !important;
+    font-family: inherit !important;
+    line-height: normal !important;
+    font-size: inherit !important;
+    letter-spacing: normal !important;
+    font-weight: normal !important;
+}
+
+::ng-deep .mat-mdc-card-title {
+    font-weight: bolder !important;
+    font-family: inherit !important;
+    font-size: 1.4rem !important;
+    letter-spacing: 0.05rem !important;
+    line-height: normal !important;
+}
+
+::ng-deep .mat-mdc-card-subtitle {
+    font-family: inherit !important;
+    font-weight: bolder !important;
+    height: fit-content !important;
+}
+
+::ng-deep .status-pending    { color: var(--color-text-waiting) !important; }
+::ng-deep .status-running    { color: var(--color-text-running) !important; }
+::ng-deep .status-paused     { color: var(--color-text-paused) !important; }
+::ng-deep .status-finished   { color: var(--color-text-success) !important; }
+::ng-deep .status-crashed    { color: var(--color-text-error) !important; }
+
+::ng-deep .mat-mdc-card-footer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 0 16px 12px 16px !important;
+
+    font-style: italic;
+}
+
+::ng-deep .mat-mdc-card-content {
+    padding: 16px !important;
+}

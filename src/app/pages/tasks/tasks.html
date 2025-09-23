@@ -1,9 +1,35 @@
 <div class="content-wrapper">
-    <header>
+    <!-- <header>
         Header
-    </header>
+    </header> -->
     <main>
-        Main
+        <div class="main-content-wrapper">
+            <ng-container *ngIf="loading">Loading tasks...</ng-container>
+            <ng-container *ngIf="error">{{ error }}</ng-container>
+            <ng-container *ngIf="!loading && !error">
+                <mat-card *ngFor="let task of tasks" class="task-card" style="margin-bottom: 1rem;">
+                    <mat-card-header>
+                        <mat-card-title>{{ task.name }}</mat-card-title>
+                        <mat-card-subtitle [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="task.description">{{ task.description }}</div>
+                        <div><b>Accounts:</b> {{ task.accounts.join(', ') }}</div>
+                        <div><b>Posts:</b> {{ task.post_ids.join(', ') }}</div>
+                        <div><b>Action:</b> {{ task.action.type }}
+                            <ng-container *ngIf="task.action.type === 'react'"> ({{ task.action.palette }})</ng-container>
+                            <ng-container *ngIf="task.action.type === 'comment'">: {{ task.action.content }}</ng-container>
+                        </div>
+                    </mat-card-content>
+                    <mat-card-footer>
+                        <div><b>Created:</b> {{ task.created_at | date:'dd.MM.yyyy HH:mm' }}</div>
+                        <div><b>Updated:</b> {{ task.updated_at | date:'dd.MM.yyyy HH:mm' }}</div>
+                    </mat-card-footer>
+                </mat-card>
+                <div *ngIf="tasks.length === 0">No tasks found.</div>
+            </ng-container>
+        </div>
+        
     </main>
-    <footer>Footer</footer>  
+    <!-- <footer>Footer</footer>   -->
 </div>

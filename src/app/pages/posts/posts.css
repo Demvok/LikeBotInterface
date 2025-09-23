@@ -144,6 +144,7 @@ main .loading {
 
 .mat-mdc-table {
   width: 100%;
+  min-width: fit-content;
   margin-top: 1%;
   background: var(--color-bg-light); 
 }
