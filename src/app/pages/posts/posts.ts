@@ -42,17 +42,36 @@ export class Posts {
 
   constructor(private postsService: PostsService) {}
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  private _paginator!: MatPaginator;
+  private _sort!: MatSort;
+
+  @ViewChild(MatPaginator)
+  set paginator(paginator: MatPaginator) {
+    this._paginator = paginator;
+    this.assignTableFeatures();
+  }
+
+  @ViewChild(MatSort)
+  set sort(sort: MatSort) {
+    this._sort = sort;
+    this.assignTableFeatures();
+  }
 
   ngOnInit() {
     this.getPosts();
     this.lastUpdate = this.formatDate(new Date());
   }
 
+
   ngAfterViewInit() {
-    this.posts.paginator = this.paginator;
-    this.posts.sort = this.sort;
+    this.assignTableFeatures();
+  }
+
+  private assignTableFeatures() {
+    if (this._paginator && this._sort && this.posts) {
+      this.posts.paginator = this._paginator;
+      this.posts.sort = this._sort;
+    }
   }
 
   getPosts() {
@@ -60,9 +79,9 @@ export class Posts {
     this.postsService.getPosts(this.filter).subscribe(
       (data: Post[]) => {
         this.posts.data = data;
-        // Reset paginator to first page after filtering
-        if (this.paginator) {
-          this.paginator.firstPage();
+        this.assignTableFeatures();
+        if (this._paginator) {
+          this._paginator.firstPage();
         }
         this.loading = false;
         this.lastUpdate = this.formatDate(new Date());
@@ -70,6 +89,7 @@ export class Posts {
       (error: any) => {
         console.error('Error fetching posts:', error);
         this.posts.data = [];
+        this.assignTableFeatures();
         this.loading = false;
         this.lastUpdate = this.formatDate(new Date());
       }

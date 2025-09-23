@@ -37,17 +37,36 @@ export class Accounts {
 
   constructor(private accountsService: AccountsService) {}
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  private _paginator!: MatPaginator;
+  private _sort!: MatSort;
+
+  @ViewChild(MatPaginator)
+  set paginator(paginator: MatPaginator) {
+    this._paginator = paginator;
+    this.assignTableFeatures();
+  }
+
+  @ViewChild(MatSort)
+  set sort(sort: MatSort) {
+    this._sort = sort;
+    this.assignTableFeatures();
+  }
 
   ngOnInit() {
     this.getAccounts();
     this.lastUpdate = this.formatDate(new Date());
   }
 
+
   ngAfterViewInit() {
-    this.accounts.paginator = this.paginator;
-    this.accounts.sort = this.sort;
+    this.assignTableFeatures();
+  }
+
+  private assignTableFeatures() {
+    if (this._paginator && this._sort && this.accounts) {
+      this.accounts.paginator = this._paginator;
+      this.accounts.sort = this._sort;
+    }
   }
 
   getAccounts() {
@@ -55,8 +74,9 @@ export class Accounts {
     this.accountsService.getAccounts(this.filter).subscribe(
       (data: Account[]) => {
         this.accounts.data = data;
-        if (this.paginator) {
-          this.paginator.firstPage();
+        this.assignTableFeatures();
+        if (this._paginator) {
+          this._paginator.firstPage();
         }
         this.loading = false;
         this.lastUpdate = this.formatDate(new Date());
@@ -64,6 +84,7 @@ export class Accounts {
       (error: any) => {
         console.error('Error fetching accounts:', error);
         this.accounts.data = [];
+        this.assignTableFeatures();
         this.loading = false;
         this.lastUpdate = this.formatDate(new Date());
       }
@@ -108,11 +129,11 @@ export class Accounts {
 
   submitAddAccount() {
     const { phone_number, account_id, session_name } = this.newAccount;
-    if (!phone_number || !account_id || !session_name) return;
+    if (!phone_number) return;
     const account: Account = {
-      phone_number: phone_number as string,
-      account_id: account_id as string,
-      session_name: session_name as string
+      phone_number: phone_number ?? '',
+      account_id: account_id ?? undefined,
+      session_name: session_name ?? undefined
     };
     this.accountsService.createAccount(account).subscribe(
       (res) => {
