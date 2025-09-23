@@ -1,8 +1,10 @@
-import { Component, viewChild, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
@@ -12,7 +14,7 @@ import { MatSort } from '@angular/material/sort';
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule],
   templateUrl: './posts.html',
   styleUrls: ['./posts.css']
 })
@@ -58,6 +60,10 @@ export class Posts {
     this.postsService.getPosts(this.filter).subscribe(
       (data: Post[]) => {
         this.posts.data = data;
+        // Reset paginator to first page after filtering
+        if (this.paginator) {
+          this.paginator.firstPage();
+        }
         this.loading = false;
         this.lastUpdate = this.formatDate(new Date());
       },

@@ -20,12 +20,12 @@
     </header>
     <main>
         <div *ngIf="loading" class="loading">Loading posts...</div>
-        <table mat-table [dataSource]="posts" *ngIf="!loading && posts.data.length > 0">
+    <table mat-table [dataSource]="posts" matSort *ngIf="!loading && posts.data.length > 0">
             <!-- class="mat-elevation-z8 posts-table" -->
 
             <!-- ID Column -->
             <ng-container matColumnDef="post_id">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">ID</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">ID</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.post_id }}</div></td>
             </ng-container>
 
@@ -46,31 +46,31 @@
 
             <!-- Is Validated Column -->
             <ng-container matColumnDef="is_validated">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Is Validated</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Is Validated</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.is_validated ? 'Yes' : 'No' }}</div></td>
             </ng-container>
 
             <!-- Chat ID Column -->
             <ng-container matColumnDef="chat_id">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Chat ID</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Chat ID</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.chat_id }}</div></td>
             </ng-container>
 
             <!-- Message ID Column -->
             <ng-container matColumnDef="message_id">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Message ID</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Message ID</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.message_id }}</div></td>
             </ng-container>
 
             <!-- Created Column -->
             <ng-container matColumnDef="created_at">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Created</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Created</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.created_at | date:'HH:mm dd.MM.yyyy' }}</div></td>
             </ng-container>
 
             <!-- Updated Column -->
             <ng-container matColumnDef="updated_at">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Updated</div></th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Updated</div></th>
                 <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.updated_at | date:'HH:mm dd.MM.yyyy' }}</div></td>
             </ng-container>
 
@@ -87,7 +87,8 @@
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+    </table>
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
         <div *ngIf="!loading && posts.data.length === 0" class="no-posts">No posts found.</div>
     </main>
     <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
