@@ -60,14 +60,14 @@
   padding: 5%;
   border-radius: 5px;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 .sidebar-nav-item:hover {
-  background-color: var(--color-bg-dark);
+  background-color: var(--color-bg-darker);
   color: var(--color-text-light);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 .sidebar-nav-item a {

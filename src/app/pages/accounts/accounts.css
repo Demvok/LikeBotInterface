@@ -1,3 +1,50 @@
+/* Make the MDC sort header arrow fill the parent header cell and be visually larger */
+::ng-deep .mat-sort-header-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100%;
+}
+/* Center the mat-focus-indicator inside mat-sort-header-container */
+::ng-deep .mat-sort-header-container .mat-focus-indicator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  height: 100%;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 1.5em;
+  min-width: 1.5em;
+  transform: scale(1.7);
+}
+/* Make the sort header arrow bigger and fill the parent height */
+.mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  transform: scale(1.5);
+}
 /* Copy of posts.css with class names adapted for accounts */
 .content-wrapper {
   width: 100%;
