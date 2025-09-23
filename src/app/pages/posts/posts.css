@@ -73,18 +73,6 @@ header {
   margin-bottom: 1%;
 }
 
-header h1 {
-  height: 100%;
-  width: 100%;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color:var(--color-text);
-  letter-spacing: 2px;
-  margin-top: 0.75%;
-  margin-bottom: 1%;
-}
-
 header form {
   display: flex;
   justify-content: left;
@@ -110,7 +98,7 @@ header form button {
   padding: 0.5rem 1rem;
   font-weight: bold;
   letter-spacing: 1px;
-  background-color: var(--color-bg-dark);
+  background-color: var(--color-bg-darker);
   color: var(--color-text-light);
   border-radius: 5px;
   cursor: pointer;
@@ -223,7 +211,16 @@ main .loading {
 }
 
 .post-action-button {
+  background-color: var(--color-bg-darker);
+  transition: all 0.3s ease;
+  border-radius: 25px;
+}
+
+.post-action-button:hover {
   background-color: var(--color-bg-dark);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 span .mat-mdc-button-touch-target {

@@ -1,6 +1,5 @@
 <div class="content-wrapper">
     <header>
-        <h1>Posts</h1>
         <form class="filter-form" (ngSubmit)="getPosts()" autocomplete="off">
             <label>
                 Post ID:
@@ -10,18 +9,13 @@
                 Chat ID:
                 <input type="number" [(ngModel)]="filter.chat_id" name="chat_id" />
             </label>
-            <label>
-                Validated Only:
-                <input type="checkbox" [(ngModel)]="filter.validated_only" name="validated_only" />
-            </label>
-            <button type="submit">Filter</button>
+            <button type="submit">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
         </form>
     </header>
     <main>
         <div *ngIf="loading" class="loading">Loading posts...</div>
     <table mat-table [dataSource]="posts" matSort *ngIf="!loading && posts.data.length > 0">
-            <!-- class="mat-elevation-z8 posts-table" -->
 
             <!-- ID Column -->
             <ng-container matColumnDef="post_id">
