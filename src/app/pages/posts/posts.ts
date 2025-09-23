@@ -24,6 +24,7 @@ export class Posts {
 
   displayedColumns: string[] = [
     'post_id',
+    'is_validated',
     'message_link',
     'chat_id',
     'message_id',

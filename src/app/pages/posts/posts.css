@@ -133,6 +133,8 @@ main .loading {
 }
 
 .table-cell {
+  display: flex;
+  gap: 2%;
   font-size: 1rem;
 }
 
@@ -162,5 +164,14 @@ main .loading {
 
 .post-action-button {
   background-color: var(--color-bg-dark);
+}
+
+span .mat-mdc-button-touch-target {
+  margin: 10% 0 !important;
+}
+
+.mat-mdc-button:not(:disabled) {
+  font-weight: bold;
   color: var(--color-text-light);
+  letter-spacing: 1px;
 }

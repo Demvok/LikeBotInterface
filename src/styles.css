@@ -62,6 +62,3 @@ button, input, select, textarea {
     --color-text-light: #EAE0D5;
     --color-text-dark: #0A0908;
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
