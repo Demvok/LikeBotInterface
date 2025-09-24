@@ -15,6 +15,18 @@
         <a routerLink="/settings" routerLinkActive="active"><div class="sidebar-nav-item">Конфігурація</div></a>
       </nav>
 
+      <ng-container *ngIf="is_task_detailed"><hr></ng-container>      
+
+      <ng-container *ngIf="is_task_detailed">
+        <nav class="sidebar-nav-detailed">
+          <a [routerLink]="'/task/' + task_id" routerLinkActive="active"><div class="sidebar-nav-item">Огляд<hr></div></a>
+          <a [routerLink]="'/task/' + task_id + '/accounts'" routerLinkActive="active"><div class="sidebar-nav-item">Акаунти<hr></div></a>
+          <a [routerLink]="'/task/' + task_id + '/posts'" routerLinkActive="active"><div class="sidebar-nav-item">Пости<hr></div></a>
+          <a [routerLink]="'/task/' + task_id + '/report'" routerLinkActive="active"><div class="sidebar-nav-item">Звіт<hr></div></a>
+        </nav>
+
+      </ng-container>      
+
     </div>
     
    </aside>

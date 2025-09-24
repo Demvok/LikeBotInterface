@@ -26,9 +26,10 @@
                             <div *ngIf="!task.description">No description available</div>
                         </div>
                         <div class="buttons-block" *ngIf="expandedTaskIndex === i">
-                            <button>View accounts</button>
-                            <button>View posts</button>
-                            <button>View report</button>
+                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id]">View in details</button>
+                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'posts']">View posts</button>
+                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'accounts']">View accounts</button>
+                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'report']">View report</button>
                         </div>
                     </mat-card-content>
                     <mat-card-footer *ngIf="expandedTaskIndex === i">
@@ -41,5 +42,5 @@
         </div>
         
     </main>
-    <!-- <footer>Footer</footer>   -->
+    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
 </div>
