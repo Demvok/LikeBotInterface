@@ -3,6 +3,21 @@
         Header
     </header>
     <main>
+        <ng-container *ngIf="loading">Loading tasks...</ng-container>
+        <ng-container *ngIf="error">{{ error }}</ng-container>
+        <ng-container *ngIf="!loading && !error">
+            <ng-container *ngIf="task as t">
+                <span>{{ t.task_id }}</span>
+                <span>{{ t.name }}</span>
+                <span>{{ t.description }}</span>
+                <span>{{ t.post_ids }}</span>
+                <span>{{ t.accounts }}</span>
+                <span>{{ t.action.type }}</span>
+                <span>{{ t.status }}</span>
+                <span>{{ t.created_at }}</span>
+                <span>{{ t.updated_at }}</span>
+            </ng-container>
+        </ng-container>
         Main
     </main>
     <footer>Footer</footer>  

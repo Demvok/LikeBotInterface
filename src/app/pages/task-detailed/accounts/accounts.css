@@ -1,3 +1,51 @@
+/* Make the MDC sort header arrow fill the parent header cell and be visually larger */
+::ng-deep .mat-sort-header-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100%;
+}
+/* Center the mat-focus-indicator inside mat-sort-header-container */
+::ng-deep .mat-sort-header-container .mat-focus-indicator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  height: 100%;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 1.5em;
+  min-width: 1.5em;
+  transform: scale(1.7);
+}
+/* Make the sort header arrow bigger and fill the parent height */
+.mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  transform: scale(1.5);
+}
+
 .content-wrapper {
   width: 100%;
   height: 100%;
@@ -18,16 +66,52 @@ header, main, footer {
 header {
   display: flex;
   flex-direction: column;
-  height: 3vh;
+  height: auto;
   min-height: fit-content;
   padding: 1%;
   color: var(--color-text);
   background-color: var(--color-bg-accented);
   border-radius: 10px;
   margin-bottom: 1%;
+  gap: 1rem;
 }
 
-header form {
+.task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg-light);
+  border-radius: 8px;
+}
+
+.task-info h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--color-text);
+}
+
+.task-info p {
+  margin: 0;
+  color: var(--color-text-alt);
+}
+
+.task-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.task-stats span {
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.filter-form {
   display: flex;
   justify-content: left;
   align-items: center;
@@ -36,19 +120,19 @@ header form {
   flex-wrap: wrap;
 }
 
-header form label {
+.filter-form label {
   font-size: 1rem;
   color: var(--color-text);
 }
 
-header form label input {
+.filter-form label input {
   border-radius: 5px;
   background-color: var(--color-bg-light);
   margin-left: 10px;
   line-height: 1.5;
 }
 
-header form button {
+.filter-form button {
   padding: 0.5rem 1rem;
   font-weight: bold;
   letter-spacing: 1px;
@@ -59,6 +143,22 @@ header form button {
   transition: background-color 0.3s ease;
 }
 
+.view-toggle {
+  margin-left: auto;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+}
 
 footer {
   height: fit-content;
@@ -74,4 +174,254 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+.mat-mdc-paginator {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-light);
+  z-index: 2;
+  border-radius: 0 0 10px 10px;
+}
+
+main .loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
+}
+
+.mat-mdc-table {
+  width: 100%;
+  margin-top: 1%;
+  background: var(--color-bg-light); 
+}
+
+.mat-mdc-header-row {
+  background-color: var(--color-bg-accented);
+}
+
+.mat-mdc-header-cell, .mat-mdc-cell {
+  vertical-align: middle !important;
+}
+
+.table-header {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--color-text);
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  background: var(--color-bg-accented);
+  color: var(--color-text-dark);
+}
+
+.table-cell, .table-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%; 
+}
+
+.mat-mdc-row:nth-child(even) .mat-mdc-cell {
+  background: var(--color-bg-accented);
+}
+
+.table-cell {
+  display: flex;
+  gap: 2%;
+  font-size: 1rem;
+}
+
+.action-buttons {
+  gap: 0.5rem !important;
+  flex-wrap: wrap;
+}
+
+.account-action-button {
+  background-color: var(--color-bg-darker);
+  transition: all 0.3s ease;
+  border-radius: 25px;
+  font-size: 0.8rem !important;
+  padding: 0.4rem 0.8rem !important;
+  min-width: auto !important;
+}
+
+.account-action-button:hover {
+  background-color: var(--color-bg-dark);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.account-action-button.btn-task {
+  background-color: #4CAF50;
+}
+
+.account-action-button.btn-task:hover {
+  background-color: #45a049;
+}
+
+.account-action-button.btn-remove {
+  background-color: #f44336;
+}
+
+.account-action-button.btn-remove:hover {
+  background-color: #da190b;
+}
+
+.task-status {
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  min-height: 30px;
+}
+
+.task-status.in-task {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.task-status.not-in-task {
+  background-color: #f44336;
+  color: white;
+}
+
+span .mat-mdc-button-touch-target {
+  margin: 10% 0 !important;
+}
+
+.mat-mdc-button:not(:disabled) {
+  font-weight: bold;
+  color: var(--color-text-light);
+  letter-spacing: 1px;
+}
+
+/* Floating Add Button (FAB) */
+.fab-add-account {
+  position: sticky;
+  right: 2.5vw;
+  bottom: 3vh;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--color-bg-darker);
+  color: #fff;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  border: none;
+  z-index: 1000;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.fab-add-account:hover {
+  background: var(--color-bg-accented);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.fab-plus {
+  font-weight: bold;
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-window {
+  background: var(--color-bg-light, #fff);
+  color: var(--color-text, #222);
+  border-radius: 12px;
+  padding: 1rem 1.25rem 0.75rem 1.25rem;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.modal-window h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+}
+.modal-window form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.modal-window label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: var(--color-text, #222);
+}
+
+span .star {
+    font-weight: medium;
+    font-size: 1.1rem;
+    color: red;
+}
+
+.modal-window input[type="text"] {
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  background: var(--color-bg-light, #fff);
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.modal-actions button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-weight: bold;
+  background: var(--color-bg-darker);
+  color: var(--color-text-light);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.modal-actions button[type="button"] {
+  background: var(--color-bg-darker);
+}
+.modal-actions button:disabled {
+  background: var(--color-bg-darker-disabled);
+  cursor: not-allowed;
+}
+
+.no-accounts {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
 }

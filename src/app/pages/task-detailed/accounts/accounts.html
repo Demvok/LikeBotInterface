@@ -1,9 +1,121 @@
 <div class="content-wrapper">
     <header>
-        Header
+        <div class="task-info" *ngIf="task">
+            <h2>Task: {{ task.name }}</h2>
+            <p>{{ task.description }}</p>
+            <div class="task-stats">
+                <span>Total Accounts in Task: {{ task.accounts.length }}</span>
+                <span>Task Status: {{ task.status }}</span>
+            </div>
+        </div>
+        
+        <form class="filter-form" (ngSubmit)="getAccounts()" autocomplete="off">
+            <label>
+                Phone Number:
+                <input type="text" [(ngModel)]="filter.phone_number" name="phone_number" />
+            </label>
+            <button type="submit">Search</button>
+            <button type="button" (click)="resetFilters()">Reset</button>
+            
+            <div class="view-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" [(ngModel)]="showTaskAccountsOnly" (change)="toggleTaskFilter()" name="taskFilter" />
+                    Show only task accounts
+                </label>
+            </div>
+        </form>
     </header>
+    
     <main>
-        Main
+        <div *ngIf="loading" class="loading">Loading accounts...</div>
+        
+        <table mat-table [dataSource]="currentDataSource" matSort *ngIf="!loading && currentDataSource.data.length > 0">
+            <!-- Phone Number Column -->
+            <ng-container matColumnDef="phone_number">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Phone Number</div></th>
+                <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.phone_number }}</div></td>
+            </ng-container>
+            
+            <!-- Account ID Column -->
+            <ng-container matColumnDef="account_id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Account ID</div></th>
+                <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.account_id }}</div></td>
+            </ng-container>
+            
+            <!-- Session Name Column -->
+            <ng-container matColumnDef="session_name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Session Name</div></th>
+                <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.session_name }}</div></td>
+            </ng-container>
+            
+            <!-- In Task Column -->
+            <ng-container matColumnDef="in_task">
+                <th mat-header-cell *matHeaderCellDef><div class="table-header">In Task</div></th>
+                <td mat-cell *matCellDef="let account">
+                    <div class="table-cell">
+                        <span class="task-status" [class.in-task]="account.inTask" [class.not-in-task]="!account.inTask">
+                            {{ account.inTask ? '✓' : '✗' }}
+                        </span>
+                    </div>
+                </td>
+            </ng-container>
+            
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
+                <td mat-cell *matCellDef="let account">
+                    <div class="table-cell action-buttons">
+                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)">Edit</button>
+                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)">Delete</button>
+                        <button mat-button class="account-action-button btn-task" 
+                               *ngIf="!account.inTask && task" 
+                               (click)="addToTask(account)">Add to Task</button>
+                        <button mat-button class="account-action-button btn-remove" 
+                               *ngIf="account.inTask && task" 
+                               (click)="removeFromTask(account)">Remove from Task</button>
+                    </div>
+                </td>
+            </ng-container>
+            
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Floating Add Button -->
+        <button class="fab-add-account" title="Add Account" (click)="openAddAccountModal()">
+            <span class="fab-plus">+</span>
+        </button>
+
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
+        <div *ngIf="!loading && currentDataSource.data.length === 0" class="no-accounts">
+            {{ showTaskAccountsOnly ? 'No accounts found in this task.' : 'No accounts found.' }}
+        </div>
     </main>
-    <footer>Footer</footer>  
+    
+    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
+
+    <!-- Modal for Account Creation -->
+    <div class="modal-backdrop" *ngIf="showAddModal">
+        <div class="modal-window">
+            <h2>Add Account</h2>
+            <form (ngSubmit)="submitAddAccount()" #addAccountForm="ngForm" autocomplete="off">
+                <label>
+                    <span class="label-text">Phone Number: <span class="star">*</span></span>
+                    <input type="text" name="phone_number" [(ngModel)]="newAccount.phone_number" required />
+                </label>
+                <label>
+                    <span class="label-text">Account ID:</span>
+                    <input type="text" name="account_id" [(ngModel)]="newAccount.account_id" />
+                </label>
+                <label>
+                    <span class="label-text">Session Name:</span>
+                    <input type="text" name="session_name" [(ngModel)]="newAccount.session_name" />
+                </label>
+                <div class="modal-actions">
+                    <button type="submit" [disabled]="addAccountForm.invalid">Create</button>
+                    <button type="button" (click)="closeAddAccountModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
