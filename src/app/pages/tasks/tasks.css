@@ -86,50 +86,50 @@ main .loading {
 }
 
 .main-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  gap: 1rem;
 }
 
 .mat-mdc-card, .mdc-card, .task-card {
-    background-color: var(--color-bg-accented-lighter);
-    color: var(--color-text);
+  background-color: var(--color-bg-accented-lighter);
+  color: var(--color-text);
 }
 
 ::ng-deep .mat-mdc-card-header-text {
-    display: flex;
-    width: 100%;
-    flex-direction: row;    
-    gap: 20px;
-    align-items: flex-end;
+  display: flex;
+  width: 100%;
+  flex-direction: row;    
+  gap: 20px;
+  align-items: flex-end;
 
-    color: inherit !important;
-    font-family: inherit !important;
-    line-height: normal !important;
-    font-size: inherit !important;
-    letter-spacing: normal !important;
-    font-weight: normal !important;
+  color: inherit !important;
+  font-family: inherit !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  letter-spacing: normal !important;
+  font-weight: normal !important;
 }
 
 ::ng-deep .mat-mdc-card-title {
-    font-weight: bolder !important;
-    font-family: inherit !important;
-    font-size: 1.4rem !important;
-    letter-spacing: 0.05rem !important;
-    line-height: normal !important;
+  font-weight: bolder !important;
+  font-family: inherit !important;
+  font-size: 1.4rem !important;
+  letter-spacing: 0.05rem !important;
+  line-height: normal !important;
 }
 
 ::ng-deep .mat-mdc-card-subtitle {
-    font-family: inherit !important;
-    font-weight: bolder !important;
-    height: fit-content !important;
-    background-color: var(--color-bg-light);
-    padding: 0 1%;
-    border-radius: 5px;
-    text-align: center;
+  font-family: inherit !important;
+  font-weight: bolder !important;
+  height: fit-content !important;
+  background-color: var(--color-bg-light);
+  padding: 0 1%;
+  border-radius: 5px;
+  text-align: center;
 }
 
 ::ng-deep .status-pending    { color: var(--color-text-waiting) !important; }
@@ -139,60 +139,86 @@ main .loading {
 ::ng-deep .status-crashed    { color: var(--color-text-error) !important; }
 
 ::ng-deep .mat-mdc-card-footer {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
-    padding: 0 16px 12px 16px !important;
-
-    font-style: italic;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 0 16px 12px 16px !important;
+  font-style: italic;
 }
 
 ::ng-deep .mat-mdc-card-content {
-    padding: 16px !important;
-    display: flex !important;
-    flex-direction: row;    
-    flex: 1;
-    justify-content: space-between;
+  padding: 16px !important;
+  display: flex !important;
+  flex-direction: row;    
+  flex: 1;
+  justify-content: space-between;
 }
 
 .text-block-head {
-    display: flex !important;
-    flex-direction: row;
-    padding-bottom: 2%;
-    gap: 5%;
-    font-size: 1.1rem;
+  display: flex !important;
+  flex-direction: row;
+  padding-bottom: 2%;
+  gap: 5%;
+  font-size: 1.1rem;
 }
 
 .text-block-head b {
-    font-weight: bolder;
+  font-weight: bolder;
 }
 
 
 .action-type, .action-info {
-    min-width: fit-content;
+  min-width: fit-content;
 }
 
 
 .buttons-block {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: fit-content;
+  justify-content: center;
 }
 
 .buttons-block button {
-    padding: 0.5rem 1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    background-color: var(--color-bg-light);
-    color: var(--color-text);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  background-color: var(--color-bg-light);
+  color: var(--color-text);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .buttons-block button:hover {
-    background-color: var(--color-bg-accented-darker);
-    transition: background-color 0.3s ease;
+  background-color: var(--color-bg-accented-darker);
+  transition: background-color 0.3s ease;
+}
+
+.task-card {
+  background-color: var(--color-bg-accented-lighter);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.task-card.expanded {
+  box-shadow: 0 4px 16px 0 rgba(0,0,0,0.15);
+}
+
+.text-block .truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-height: 3.2em;
+}
+
+.text-block:not(:has(.truncated)) {
+  padding-right: 20px;
 }

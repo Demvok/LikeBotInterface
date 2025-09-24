@@ -7,7 +7,7 @@
             <ng-container *ngIf="loading">Loading tasks...</ng-container>
             <ng-container *ngIf="error">{{ error }}</ng-container>
             <ng-container *ngIf="!loading && !error">
-                <mat-card *ngFor="let task of tasks" class="task-card">
+                <mat-card *ngFor="let task of tasks; let i = index" class="task-card expandable-task-card" (click)="toggleExpand(i)" [class.expanded]="expandedTaskIndex === i">
                     <mat-card-header>
                         <mat-card-title>{{ task.name }}</mat-card-title>
                         <mat-card-subtitle [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</mat-card-subtitle>
@@ -18,21 +18,20 @@
                                 <div class="action-type" *ngIf="task.action.type"><b>Action type:</b> {{ task.action.type }}</div>
                                 <div class="action-type" *ngIf="!task.action.type"><b>NO ACTION PROVIDED</b></div>
                                 <div class="action-info"><ng-container *ngIf="task.action.type === 'react'"><b>Palette:</b> {{ task.action.palette }}</ng-container></div>
-                                <!-- <ng-container class='action-info' *ngIf="task.action.type === 'comment'"><b>Content:</b> {{ task.action.content }}</ng-container> -->
+                                <div class="action-info"><ng-container *ngIf="task.action.type === 'comment'"><b>Content:</b> {{ task.action.content }}</ng-container></div>
                             </div>
-
-                            <div *ngIf="task.description">{{ task.description }}</div>
+                            <div *ngIf="task.description">
+                                <span [ngClass]="{'truncated': expandedTaskIndex !== i}">{{ task.description }}</span>
+                            </div>
                             <div *ngIf="!task.description">No description available</div>
                         </div>
-                        <div class="buttons-block">
-                            <!-- <div><b>Accounts:</b> {{ task.accounts.join(', ') }}</div>
-                            <div><b>Posts:</b> {{ task.post_ids.join(', ') }}</div> -->
+                        <div class="buttons-block" *ngIf="expandedTaskIndex === i">
                             <button>View accounts</button>
                             <button>View posts</button>
                             <button>View report</button>
-                        </div>                        
+                        </div>
                     </mat-card-content>
-                    <mat-card-footer>
+                    <mat-card-footer *ngIf="expandedTaskIndex === i">
                         <div><b>Created:</b> {{ task.created_at | date:'dd.MM.yyyy HH:mm' }}</div>
                         <div><b>Updated:</b> {{ task.updated_at | date:'dd.MM.yyyy HH:mm' }}</div>
                     </mat-card-footer>

@@ -15,6 +15,7 @@ export class Tasks implements OnInit {
   tasks: Task[] = [];
   loading = true;
   error: string | null = null;
+  expandedTaskIndex: number | null = null;
 
   constructor(private tasksService: TasksService) {}
 
@@ -29,5 +30,9 @@ export class Tasks implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  toggleExpand(index: number) {
+    this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
   }
 }
