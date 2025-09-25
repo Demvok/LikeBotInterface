@@ -4,8 +4,8 @@
             <h2>Task: {{ task.name }}</h2>
             <p>{{ task.description }}</p>
             <div class="task-stats">
-                <span>Total Accounts in Task: {{ task.accounts.length }}</span>
-                <span>Task Status: {{ task.status }}</span>
+                <span>Total accounts in task: {{ task.accounts.length }}</span>
+                <span [ngClass]="'status-' + task.status">Task status: {{ task.status }}</span>
             </div>
         </div>
         
@@ -48,7 +48,7 @@
                 <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.session_name }}</div></td>
             </ng-container>
             
-            <!-- In Task Column -->
+            <!-- In Task Column
             <ng-container matColumnDef="in_task">
                 <th mat-header-cell *matHeaderCellDef><div class="table-header">In Task</div></th>
                 <td mat-cell *matCellDef="let account">
@@ -58,7 +58,7 @@
                         </span>
                     </div>
                 </td>
-            </ng-container>
+            </ng-container> -->
             
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">

@@ -1,24 +1,125 @@
 <div class="content-wrapper">
     <header>
-        Header
+        <h1>Task Overview</h1>
+        <div class="task-title" *ngIf="task">{{ task.name }}</div>
     </header>
     <main>
-        <ng-container *ngIf="loading">Loading tasks...</ng-container>
-        <ng-container *ngIf="error">{{ error }}</ng-container>
-        <ng-container *ngIf="!loading && !error">
-            <ng-container *ngIf="task as t">
-                <span>{{ t.task_id }}</span>
-                <span>{{ t.name }}</span>
-                <span>{{ t.description }}</span>
-                <span>{{ t.post_ids }}</span>
-                <span>{{ t.accounts }}</span>
-                <span>{{ t.action.type }}</span>
-                <span>{{ t.status }}</span>
-                <span>{{ t.created_at }}</span>
-                <span>{{ t.updated_at }}</span>
-            </ng-container>
+        <ng-container *ngIf="loading">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading task information...</p>
+            </div>
         </ng-container>
-        Main
+        
+        <ng-container *ngIf="error">
+            <div class="error-state">
+                <div class="error-icon">⚠️</div>
+                <p>{{ error }}</p>
+            </div>
+        </ng-container>
+        
+        <ng-container *ngIf="!loading && !error && task">
+            <div class="task-info-grid">
+                <!-- Status Card -->
+                <div class="info-card status-card">
+                    <div class="card-header">
+                        <h3>Status</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="status-badge" [ngClass]="'status-' + task.status.toLowerCase()">
+                            {{ getStatusText(task.status) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Card -->
+                <div class="info-card action-card">
+                    <div class="card-header">
+                        <h3>Action Details</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="action-type">
+                            <span class="label">Type:</span>
+                            <span class="value action-type-badge" [ngClass]="'action-' + task.action.type">
+                                {{ getActionTypeText(task.action.type) }}
+                            </span>
+                        </div>
+                        <div class="action-details" *ngIf="task.action.type === 'react' && task.action.palette">
+                            <span class="label">Reaction Type:</span>
+                            <span class="value palette-badge" [ngClass]="'palette-' + task.action.palette">
+                                {{ task.action.palette | titlecase }}
+                            </span>
+                        </div>
+                        <div class="action-details" *ngIf="task.action.type === 'comment' && task.action.content">
+                            <span class="label">Comment:</span>
+                            <span class="value comment-preview">"{{ task.action.content }}"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="info-card stats-card">
+                    <div class="card-header">
+                        <h3>Statistics</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ task.post_ids.length }}</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ task.accounts.length }}</div>
+                            <div class="stat-label">Accounts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Card -->
+                <div class="info-card description-card" *ngIf="task.description">
+                    <div class="card-header">
+                        <h3>Description</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="description-text">{{ task.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Timestamps Card -->
+                <div class="info-card timestamps-card">
+                    <div class="card-header">
+                        <h3>Timeline</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="timestamp-item">
+                            <div class="timestamp-label">Created</div>
+                            <div class="timestamp-value">{{ task.created_at | date:'MMM d, y, h:mm a' }}</div>
+                        </div>
+                        <div class="timestamp-item">
+                            <div class="timestamp-label">Last Updated</div>
+                            <div class="timestamp-value">{{ task.updated_at | date:'MMM d, y, h:mm a' }}</div>
+                        </div>
+                        <div class="timestamp-item">
+                            <div class="timestamp-label">Duration</div>
+                            <div class="timestamp-value">{{ getTaskDuration() }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task ID Card -->
+                <div class="info-card id-card">
+                    <div class="card-header">
+                        <h3>Task ID</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="task-id">#{{ task.task_id }}</div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
     </main>
-    <footer>Footer</footer>  
+    <footer>
+        <div class="footer-actions" *ngIf="task && !loading && !error">
+            <span class="last-updated">Last updated: {{ getFormattedTime() }}</span>
+        </div>
+    </footer>  
 </div>

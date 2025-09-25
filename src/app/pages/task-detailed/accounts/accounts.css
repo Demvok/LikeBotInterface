@@ -274,6 +274,12 @@ main .loading {
   background-color: #da190b;
 }
 
+::ng-deep .status-pending    { color: var(--color-text-waiting) !important; }
+::ng-deep .status-running    { color: var(--color-text-running) !important; }
+::ng-deep .status-paused     { color: var(--color-text-warning) !important; }
+::ng-deep .status-finished   { color: var(--color-text-success) !important; }
+::ng-deep .status-crashed    { color: var(--color-text-error) !important; }
+
 .task-status {
   font-weight: bold;
   font-size: 1.2rem;

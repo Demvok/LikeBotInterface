@@ -35,7 +35,7 @@ export class Accounts implements OnInit, OnDestroy {
     'phone_number',
     'account_id', 
     'session_name',
-    'in_task',
+    // 'in_task',
     'actions'
   ];
 
