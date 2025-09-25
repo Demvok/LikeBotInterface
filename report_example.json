@@ -1,0 +1,60 @@
+{
+    "task_id": 3,
+    "report": [
+        {
+            "datetime": 1757674413000,
+            "message": "Client +19708267255 reacted to post 6 with negative",
+            "details": "react",
+            "client": "+19708267255",
+            "message_link": "https://t.me/c/2723750105/32",
+            "palette": "negative",
+            "error": null
+        },
+        {
+            "datetime": 1757674413000,
+            "message": "Client +18563995311 reacted to post 6 with negative",
+            "details": "react",
+            "client": "+18563995311",
+            "message_link": "https://t.me/c/2723750105/32",
+            "palette": "negative",
+            "error": null
+        },
+        {
+            "datetime": 1757674416000,
+            "message": "Client +19283944162 reacted to post 6 with negative",
+            "details": "react",
+            "client": "+19283944162",
+            "message_link": "https://t.me/c/2723750105/32",
+            "palette": "negative",
+            "error": null
+        },
+        {
+            "datetime": 1757674452000,
+            "message": "Client +19708267255 reacted to post 7 with negative",
+            "details": "react",
+            "client": "+19708267255",
+            "message_link": "https://t.me/c/2723750105/33",
+            "palette": "negative",
+            "error": null
+        },
+        {
+            "datetime": 1757674464000,
+            "message": "Client +18563995311 reacted to post 7 with negative",
+            "details": "react",
+            "client": "+18563995311",
+            "message_link": "https://t.me/c/2723750105/33",
+            "palette": "negative",
+            "error": null
+        },
+        {
+            "datetime": 1757674468000,
+            "message": "Client +19283944162 reacted to post 7 with negative",
+            "details": "react",
+            "client": "+19283944162",
+            "message_link": "https://t.me/c/2723750105/33",
+            "palette": "negative",
+            "error": null
+        }
+    ],
+    "run_id": null
+}

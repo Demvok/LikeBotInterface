@@ -4,7 +4,7 @@ This document describes the full CRUD API for the LikeBot automation system.
 
 ## Base URL
 ```
-http://localhost:8000
+http://localhost:8080
 ```
 
 ## Authentication

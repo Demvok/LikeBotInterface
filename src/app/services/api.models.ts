@@ -52,6 +52,22 @@ export interface Stats {
   tasks: { total: number; by_status: Record<string, number> };
 }
 
+export interface ReportEvent {
+  datetime: number;
+  message: string;
+  details: string;
+  client: string;
+  message_link: string;
+  palette: 'positive' | 'negative';
+  error: string | null;
+}
+
+export interface TaskReport {
+  task_id: number;
+  report: ReportEvent[];
+  run_id: string | null;
+}
+
 export interface ApiError {
   detail: string;
 }
