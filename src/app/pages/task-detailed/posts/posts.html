@@ -1,9 +1,97 @@
 <div class="content-wrapper">
     <header>
-        Header
+        <form class="filter-form" (ngSubmit)="getPosts()" autocomplete="off">
+            <label>
+                Post ID:
+                <input type="number" [(ngModel)]="filter.post_id" name="post_id" />
+            </label>
+            <label>
+                Chat ID:
+                <input type="number" [(ngModel)]="filter.chat_id" name="chat_id" />
+            </label>
+            <label>
+                <input type="checkbox" [(ngModel)]="filter.validated_only" name="validated_only" />
+                Validated only
+            </label>
+            <button type="submit">Search</button>
+            <button type="button" (click)="resetFilters()">Reset</button>
+        </form>
     </header>
     <main>
-        Main
+        <div *ngIf="loading" class="loading">Loading posts...</div>
+        <table mat-table [dataSource]="posts" matSort *ngIf="!loading && posts.data.length > 0">
+
+            <!-- ID Column -->
+            <ng-container matColumnDef="post_id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">ID</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.post_id }}</div></td>
+            </ng-container>
+
+            <!-- Link Column -->
+            <ng-container matColumnDef="message_link">
+                <th mat-header-cell *matHeaderCellDef><div class="table-header">Link</div></th>
+                <td mat-cell *matCellDef="let post">
+                    <div class="table-cell">
+                        <a [href]="post.message_link" target="_blank" class="svg-link-btn" title="Open Message">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 192 192" style="enable-background:new 0 0 192 192" xml:space="preserve">
+                                <path d="M84 128.6H54.6C36.6 128.6 22 114 22 96c0-9 3.7-17.2 9.6-23.1 5.9-5.9 14.1-9.6 23.1-9.6H84m24 65.3h29.4c9 0 17.2-3.7 23.1-9.6 5.9-5.9 9.6-14.1 9.6-23.1 0-18-14.6-32.6-32.6-32.6H108M67.9 96h56.2" style="fill:none;stroke:#000000;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"/>
+                                <path d="M84 128.6H54.6C36.6 128.6 22 114 22 96c0-9 3.7-17.2 9.6-23.1 5.9-5.9 14.1-9.6 23.1-9.6H84m24 65.3h29.4c9 0 17.2-3.7 23.1-9.6 5.9-5.9 9.6-14.1 9.6-23.1 0-18-14.6-32.6-32.6-32.6H108M67.9 96h56.2" style="fill:none;stroke:#000000;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Is Validated Column -->
+            <ng-container matColumnDef="is_validated">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Is Validated</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.is_validated ? 'Yes' : 'No' }}</div></td>
+            </ng-container>
+
+            <!-- Chat ID Column -->
+            <ng-container matColumnDef="chat_id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Chat ID</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.chat_id }}</div></td>
+            </ng-container>
+
+            <!-- Message ID Column -->
+            <ng-container matColumnDef="message_id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Message ID</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.message_id }}</div></td>
+            </ng-container>
+
+            <!-- Created Column -->
+            <ng-container matColumnDef="created_at">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Created</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.created_at | date:'HH:mm dd.MM.yyyy' }}</div></td>
+            </ng-container>
+
+            <!-- Updated Column -->
+            <ng-container matColumnDef="updated_at">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Updated</div></th>
+                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.updated_at | date:'HH:mm dd.MM.yyyy' }}</div></td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
+                <td mat-cell *matCellDef="let post">
+                    <div class="table-cell">
+                        <button mat-button class="post-action-button btn-validate" 
+                                (click)="validatePost(post)" 
+                                *ngIf="!post.is_validated"
+                                title="Validate post">Validate</button>
+                        <button mat-button class="post-action-button btn-edit" (click)="editPost(post)">Edit</button>
+                        <button mat-button class="post-action-button btn-delete" (click)="deletePost(post)">Delete</button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
+        <div *ngIf="!loading && posts.data.length === 0" class="no-posts">No posts found for this task.</div>
     </main>
-    <footer>Footer</footer>  
+    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
 </div>

@@ -1,7 +1,15 @@
 <div class="content-wrapper">
     <header>
-        <h1>Task Overview</h1>
-        <div class="task-title" *ngIf="task">{{ task.name }}</div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="task-id-header" *ngIf="task" style="font-size: 1.2rem; font-weight: bold; color: var(--color-text-dark); font-family: 'Courier New', monospace; letter-spacing: 0.1rem; min-width: 120px;">
+                #{{ task.task_id }}
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <h1>Task Overview</h1>
+                <div class="task-title" *ngIf="task">{{ task.name }}</div>
+            </div>
+            <div style="min-width: 120px;"></div> <!-- Spacer for balance -->
+        </div>
     </header>
     <main>
         <ng-container *ngIf="loading">
@@ -20,14 +28,24 @@
         
         <ng-container *ngIf="!loading && !error && task">
             <div class="task-info-grid">
-                <!-- Status Card -->
+                <!-- Status & Statistics Card -->
                 <div class="info-card status-card">
                     <div class="card-header">
-                        <h3>Status</h3>
+                        <h3>Status & Statistics</h3>
                     </div>
                     <div class="card-content">
                         <div class="status-badge" [ngClass]="'status-' + task.status.toLowerCase()">
                             {{ getStatusText(task.status) }}
+                        </div>
+                        <div style="margin-top: 1.5rem; display: flex; justify-content: space-around; text-align: center;">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ task.post_ids.length }}</div>
+                                <div class="stat-label">Posts</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ task.accounts.length }}</div>
+                                <div class="stat-label">Accounts</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -57,33 +75,6 @@
                     </div>
                 </div>
 
-                <!-- Statistics Card -->
-                <div class="info-card stats-card">
-                    <div class="card-header">
-                        <h3>Statistics</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="stat-item">
-                            <div class="stat-value">{{ task.post_ids.length }}</div>
-                            <div class="stat-label">Posts</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ task.accounts.length }}</div>
-                            <div class="stat-label">Accounts</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Description Card -->
-                <div class="info-card description-card" *ngIf="task.description">
-                    <div class="card-header">
-                        <h3>Description</h3>
-                    </div>
-                    <div class="card-content">
-                        <p class="description-text">{{ task.description }}</p>
-                    </div>
-                </div>
-
                 <!-- Timestamps Card -->
                 <div class="info-card timestamps-card">
                     <div class="card-header">
@@ -98,20 +89,20 @@
                             <div class="timestamp-label">Last Updated</div>
                             <div class="timestamp-value">{{ task.updated_at | date:'MMM d, y, h:mm a' }}</div>
                         </div>
-                        <div class="timestamp-item">
+                        <!-- <div class="timestamp-item">
                             <div class="timestamp-label">Duration</div>
                             <div class="timestamp-value">{{ getTaskDuration() }}</div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
-                <!-- Task ID Card -->
-                <div class="info-card id-card">
+                <!-- Description Card -->
+                <div class="info-card description-card" *ngIf="task.description">
                     <div class="card-header">
-                        <h3>Task ID</h3>
+                        <h3>Description</h3>
                     </div>
                     <div class="card-content">
-                        <div class="task-id">#{{ task.task_id }}</div>
+                        <p class="description-text">{{ task.description }}</p>
                     </div>
                 </div>
             </div>

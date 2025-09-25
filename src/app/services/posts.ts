@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Post } from './api.models';
 import { environment } from '../../environments/environment';
 
@@ -34,6 +35,30 @@ export class PostsService {
    */
   getPost(post_id: number): Observable<Post> {
     return this.http.get<Post>(`${this.apiUrl}/${post_id}`);
+  }
+
+  /**
+   * Get posts by array of IDs
+   */
+  getPostsByIds(post_ids: number[]): Observable<Post[]> {
+    if (post_ids.length === 0) {
+      return of([]);
+    }
+    
+    // Make individual requests for each post and combine them
+    // Handle individual failures gracefully - skip posts that can't be loaded
+    const requests = post_ids.map(id => 
+      this.getPost(id).pipe(
+        catchError((error) => {
+          console.warn(`Failed to load post ${id}:`, error);
+          return of(null); // Return null for failed requests
+        })
+      )
+    );
+    
+    return forkJoin(requests).pipe(
+      map(posts => posts.filter(post => post !== null) as Post[])
+    );
   }
 
   /**

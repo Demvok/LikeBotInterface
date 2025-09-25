@@ -1,3 +1,50 @@
+/* Make the MDC sort header arrow fill the parent header cell and be visually larger */
+::ng-deep .mat-sort-header-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100%;
+}
+/* Center the mat-focus-indicator inside mat-sort-header-container */
+::ng-deep .mat-sort-header-container .mat-focus-indicator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  height: 100%;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 1.5em;
+  min-width: 1.5em;
+  transform: scale(1.7);
+}
+/* Make the sort header arrow bigger and fill the parent height */
+.mat-sort-header-arrow {
+  height: 100% !important;
+  min-height: 100% !important;
+  width: 2em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mat-sort-header-arrow svg {
+  height: 100% !important;
+  width: 100% !important;
+  transform: scale(1.5);
+}
 .content-wrapper {
   width: 100%;
   height: 100%;
@@ -21,7 +68,6 @@ header {
   height: 3vh;
   min-height: fit-content;
   padding: 1%;
-  color: var(--color-text);
   background-color: var(--color-bg-accented);
   border-radius: 10px;
   margin-bottom: 1%;
@@ -74,4 +120,122 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+/* Make paginator stick to the bottom of the main container */
+.mat-mdc-paginator {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-light);
+  z-index: 2;
+  border-radius: 0 0 10px 10px;
+}
+
+main .loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
+}
+
+.mat-mdc-table {
+  width: 100%;
+  min-width: fit-content;
+  margin-top: 1%;
+  background: var(--color-bg-light); 
+}
+
+.mat-mdc-header-row {
+  background-color: var(--color-bg-accented);
+}
+
+.mat-mdc-header-cell, .mat-mdc-cell {
+  vertical-align: middle !important;
+}
+
+.table-header {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--color-text);
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  background: var(--color-bg-accented);
+  color: var(--color-text-dark);
+}
+
+.table-cell, .table-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%; 
+}
+
+.mat-mdc-row:nth-child(even) .mat-mdc-cell {
+  background: var(--color-bg-accented);
+}
+
+.table-cell {
+  display: flex;
+  gap: 2%;
+  font-size: 1rem;
+}
+
+.svg-link-btn {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+}
+
+.svg-link-btn svg path {
+  stroke: #5E503F !important;
+}
+
+.svg-link-btn {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+}
+
+.svg-link-btn svg path {
+  stroke: #5E503F !important;
+}
+
+.post-action-button {
+  background-color: var(--color-bg-darker);
+  transition: all 0.3s ease;
+  border-radius: 25px;
+}
+
+.post-action-button:hover {
+  background-color: var(--color-bg-dark);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+span .mat-mdc-button-touch-target {
+  margin: 10% 0 !important;
+}
+
+.mat-mdc-button:not(:disabled) {
+  font-weight: bold;
+  color: var(--color-text-light);
+  letter-spacing: 1px;
+}
+
+.no-posts {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-text);
+  font-weight: bold;
+  margin-top: 2%;
 }

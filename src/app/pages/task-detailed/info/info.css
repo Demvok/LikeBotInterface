@@ -305,13 +305,12 @@ footer {
 }
 
 /* Task ID Card Styles */
-.task-id {
+.task-id-header {
   text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--color-bg-darker);
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.1rem;
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  color: var(--color-bg-dark) !important;
+  letter-spacing: 0.1rem !important;
 }
 
 /* Responsive Design */
