@@ -11,11 +11,46 @@
             </label>
             <button type="submit">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
+
+            <!-- Bulk Actions Section -->
+            <div class="bulk-actions" *ngIf="hasSelection()">
+                <div class="selection-info">
+                    <span>{{ getSelectedCount() }} post(s) selected</span>
+                    <button type="button" class="btn-clear-selection" (click)="clearSelection()">Clear Selection</button>
+                </div>
+                <div class="bulk-action-buttons">
+                    <button type="button" class="btn-bulk-delete" (click)="bulkDeletePosts()">
+                        Delete Selected ({{ getSelectedCount() }})
+                    </button>
+                </div>
+            </div>
         </form>
     </header>
     <main>
         <div *ngIf="loading" class="loading">Loading posts...</div>
     <table mat-table [dataSource]="posts" matSort *ngIf="!loading && posts.data.length > 0">
+
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef>
+                    <div class="table-header">
+                        <mat-checkbox (change)="$event ? masterToggle() : null"
+                                    [checked]="selection.hasValue() && isAllSelected()"
+                                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                    [aria-label]="checkboxLabel()">
+                        </mat-checkbox>
+                    </div>
+                </th>
+                <td mat-cell *matCellDef="let post">
+                    <div class="table-cell">
+                        <mat-checkbox (click)="$event.stopPropagation()"
+                                    (change)="$event ? selection.toggle(post) : null"
+                                    [checked]="selection.isSelected(post)"
+                                    [aria-label]="checkboxLabel(post)">
+                        </mat-checkbox>
+                    </div>
+                </td>
+            </ng-container>
 
             <!-- ID Column -->
             <ng-container matColumnDef="post_id">

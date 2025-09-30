@@ -5,18 +5,20 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { SelectionModel } from '@angular/cdk/collections';
 import { EditPostModalComponent, EditPostDialogResult } from './edit-post-modal/edit-post-modal.component';
 
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule, MatCheckboxModule],
   templateUrl: './posts.html',
   styleUrls: ['./posts.css']
 })
@@ -25,8 +27,10 @@ import { EditPostModalComponent, EditPostDialogResult } from './edit-post-modal/
 
 export class Posts {
   posts = new MatTableDataSource<Post>([]);
+  selection = new SelectionModel<Post>(true, []);
 
   displayedColumns: string[] = [
+    'select',
     'post_id',
     'is_validated',
     'message_link',
@@ -78,6 +82,7 @@ export class Posts {
 
   getPosts() {
     this.loading = true;
+    this.selection.clear(); // Clear selection when refreshing posts
     this.postsService.getPosts(this.filter).subscribe(
       (data: Post[]) => {
         this.posts.data = data;
@@ -158,6 +163,75 @@ export class Posts {
       },
       (err) => {
         alert('Failed to delete post.');
+      }
+    );
+  }
+
+  // Selection management methods
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.posts.data.length;
+    return numSelected === numRows;
+  }
+
+  masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.posts.data.forEach(row => this.selection.select(row));
+    }
+  }
+
+  getSelectedCount(): number {
+    return this.selection.selected.length;
+  }
+
+  hasSelection(): boolean {
+    return this.selection.selected.length > 0;
+  }
+
+  clearSelection() {
+    this.selection.clear();
+  }
+
+  checkboxLabel(row?: Post): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.post_id}`;
+  }
+
+  // Bulk operations
+  bulkDeletePosts() {
+    const selectedPosts = this.selection.selected;
+    if (selectedPosts.length === 0) {
+      alert('No posts selected for deletion.');
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to delete ${selectedPosts.length} selected post(s)? This action cannot be undone.`;
+    if (!confirm(confirmMessage)) return;
+
+    const postIds = selectedPosts
+      .map(post => post.post_id)
+      .filter(id => id !== undefined) as number[];
+
+    if (postIds.length === 0) {
+      alert('No valid post IDs found for deletion.');
+      return;
+    }
+
+    this.loading = true;
+    this.postsService.bulkDeletePosts(postIds).subscribe(
+      (response) => {
+        console.log('Bulk delete successful:', response);
+        this.selection.clear();
+        this.getPosts();
+      },
+      (error) => {
+        console.error('Error during bulk delete:', error);
+        alert('Failed to delete some or all selected posts. Please try again.');
+        this.loading = false;
       }
     );
   }

@@ -27,7 +27,7 @@
                         type="button" 
                         class="btn btn-primary btn-sm"
                         (click)="addSinglePost()"
-                        [disabled]="!singlePostUrl?.trim() || isProcessing"
+                        [disabled]="!singlePostUrl.trim() || isProcessing"
                     >
                         Add Post
                     </button>
@@ -57,7 +57,7 @@
                         type="button" 
                         class="btn btn-primary btn-sm"
                         (click)="addBulkPosts()"
-                        [disabled]="!bulkPostUrls?.trim() || isProcessing"
+                        [disabled]="!bulkPostUrls.trim() || isProcessing"
                     >
                         Add Posts
                     </button>

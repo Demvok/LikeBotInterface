@@ -105,6 +105,62 @@ header form button {
   transition: background-color 0.3s ease;
 }
 
+/* Bulk Actions Styling */
+.bulk-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-dark);
+  padding: 0.5rem;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--color-text-light);
+  font-weight: bold;
+}
+
+.btn-clear-selection {
+  padding: 0.4rem 0.8rem;
+  background-color: var(--color-bg-accented);
+  color: var(--color-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-clear-selection:hover {
+  background-color: var(--color-bg-light);
+}
+
+.bulk-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-bulk-delete {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--color-text-error) !important;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-bulk-delete:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 
 footer {
   height: fit-content;
@@ -232,4 +288,26 @@ span .mat-mdc-button-touch-target {
   font-weight: bold;
   color: var(--color-text-light);
   letter-spacing: 1px;
+}
+
+/* Checkbox Column Styling */
+.mat-mdc-table .mat-column-select {
+  width: 60px;
+  text-align: center;
+}
+
+.mat-mdc-checkbox {
+  margin: 0 !important;
+}
+
+.mat-mdc-checkbox .mat-mdc-checkbox-frame {
+  border-color: var(--color-text) !important;
+}
+
+.mat-mdc-checkbox-checked .mat-mdc-checkbox-background {
+  background-color: var(--color-bg-darker) !important;
+}
+
+.mat-mdc-checkbox-checked .mat-mdc-checkbox-checkmark {
+  color: var(--color-text-light) !important;
 }
