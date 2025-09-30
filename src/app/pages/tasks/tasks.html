@@ -1,46 +1,224 @@
 <div class="content-wrapper">
-    <!-- <header>
-        Header
-    </header> -->
-    <main>
-        <div class="main-content-wrapper">
-            <ng-container *ngIf="loading">Loading tasks...</ng-container>
-            <ng-container *ngIf="error">{{ error }}</ng-container>
-            <ng-container *ngIf="!loading && !error">
-                <mat-card *ngFor="let task of tasks; let i = index" class="task-card expandable-task-card" (click)="toggleExpand(i)" [class.expanded]="expandedTaskIndex === i">
-                    <mat-card-header>
-                        <mat-card-title>{{ task.name }}</mat-card-title>
-                        <mat-card-subtitle [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <div class="text-block">
-                            <div class="text-block-head">
-                                <div class="action-type" *ngIf="task.action.type"><b>Action type:</b> {{ task.action.type }}</div>
-                                <div class="action-type" *ngIf="!task.action.type"><b>NO ACTION PROVIDED</b></div>
-                                <div class="action-info"><ng-container *ngIf="task.action.type === 'react'"><b>Palette:</b> {{ task.action.palette }}</ng-container></div>
-                                <div class="action-info"><ng-container *ngIf="task.action.type === 'comment'"><b>Content:</b> {{ task.action.content }}</ng-container></div>
-                            </div>
-                            <div *ngIf="task.description">
-                                <span [ngClass]="{'truncated': expandedTaskIndex !== i}">{{ task.description }}</span>
-                            </div>
-                            <div *ngIf="!task.description">No description available</div>
-                        </div>
-                        <div class="buttons-block" *ngIf="expandedTaskIndex === i">
-                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id]">View in details</button>
-                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'posts']">View posts</button>
-                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'accounts']">View accounts</button>
-                            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/task', task.task_id, 'report']">View report</button>
-                        </div>
-                    </mat-card-content>
-                    <mat-card-footer *ngIf="expandedTaskIndex === i">
-                        <div><b>Created:</b> {{ task.created_at | date:'dd.MM.yyyy HH:mm' }}</div>
-                        <div><b>Updated:</b> {{ task.updated_at | date:'dd.MM.yyyy HH:mm' }}</div>
-                    </mat-card-footer>
-                </mat-card>
-                <div *ngIf="tasks.length === 0">No tasks found.</div>
-            </ng-container>
+    <header class="page-header">
+        <div class="header-left">
+            <div class="header-title">
+                <mat-icon class="title-icon">assignment</mat-icon>
+                <h1>Task Management</h1>
+                <div class="task-count-badge" *ngIf="!loading">{{ totalItems }} tasks</div>
+            </div>
         </div>
         
+        <div class="header-center">
+            <div class="search-container">
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search tasks...</mat-label>
+                    <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by name, description, or ID">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="filter-controls">
+                <mat-form-field appearance="outline" class="filter-field">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusChange()">
+                        <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                            {{ status.label }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="filter-field">
+                    <mat-label>Action Type</mat-label>
+                    <mat-select [(value)]="selectedActionType" (selectionChange)="onActionTypeChange()">
+                        <mat-option *ngFor="let action of actionTypeOptions" [value]="action.value">
+                            {{ action.label }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                
+                <button mat-icon-button (click)="clearFilters()" class="clear-filters-btn" title="Clear all filters">
+                    <mat-icon>clear_all</mat-icon>
+                </button>
+                
+                <button mat-icon-button (click)="refreshTasks()" class="refresh-btn" title="Refresh tasks">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Loading State -->
+        <div class="loading-container" *ngIf="loading">
+            <mat-spinner diameter="60"></mat-spinner>
+            <p class="loading-text">Loading tasks...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-container" *ngIf="error && !loading">
+            <mat-icon class="error-icon">error_outline</mat-icon>
+            <h2>Oops! Something went wrong</h2>
+            <p>{{ error }}</p>
+            <button mat-raised-button (click)="refreshTasks()" color="primary">
+                <mat-icon>refresh</mat-icon>
+                Try Again
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-container" *ngIf="!loading && !error && paginatedTasks.length === 0 && totalItems === 0">
+            <mat-icon class="empty-icon">inbox</mat-icon>
+            <h2>No tasks found</h2>
+            <p>There are no tasks to display at the moment.</p>
+        </div>
+
+        <!-- No Results State -->
+        <div class="empty-container" *ngIf="!loading && !error && paginatedTasks.length === 0 && totalItems > 0">
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h2>No matching tasks</h2>
+            <p>Try adjusting your search or filter criteria.</p>
+            <button mat-stroked-button (click)="clearFilters()">
+                <mat-icon>clear</mat-icon>
+                Clear Filters
+            </button>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div class="tasks-grid" *ngIf="!loading && !error && paginatedTasks.length > 0">
+            <mat-card *ngFor="let task of paginatedTasks; let i = index" 
+                     class="task-card" 
+                     (click)="toggleExpand(i)" 
+                     [class.expanded]="expandedTaskIndex === i">
+                
+                <mat-card-header>
+                    <div mat-card-avatar class="task-avatar">
+                        <mat-icon [ngClass]="'status-icon status-' + task.status.toLowerCase()">
+                            {{ getStatusIcon(task.status) }}
+                        </mat-icon>
+                    </div>
+                    <mat-card-title>
+                        <span class="task-name">{{ task.name }}</span>
+                        <mat-chip class="task-id-chip">#{{ task.task_id }}</mat-chip>
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        <div class="status-container">
+                            <mat-chip [ngClass]="'status-chip status-' + task.status.toLowerCase()">
+                                {{ task.status }}
+                            </mat-chip>
+                        </div>
+                    </mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content>
+                    <div class="task-info">
+                        <div class="action-info-section">
+                            <div class="action-badge" *ngIf="task.action.type">
+                                <mat-icon class="action-icon">{{ getActionIcon(task.action.type) }}</mat-icon>
+                                <span class="action-text">{{ task.action.type | titlecase }}</span>
+                                <span class="action-detail" *ngIf="task.action.type === 'react' && task.action.palette">
+                                    - {{ task.action.palette | titlecase }}
+                                </span>
+                            </div>
+                            <div class="no-action-badge" *ngIf="!task.action.type">
+                                <mat-icon class="action-icon warning">warning</mat-icon>
+                                <span>No Action Provided</span>
+                            </div>
+                        </div>
+
+                        <div class="task-description">
+                            <p [ngClass]="{'truncated': expandedTaskIndex !== i}" 
+                               *ngIf="task.description; else noDescription">
+                                {{ task.description }}
+                            </p>
+                            <ng-template #noDescription>
+                                <p class="no-description">No description available</p>
+                            </ng-template>
+                        </div>
+
+                        <div class="task-meta" *ngIf="expandedTaskIndex === i">
+                            <div class="meta-item">
+                                <mat-icon>people</mat-icon>
+                                <span>{{ task.accounts.length }} accounts</span>
+                            </div>
+                            <div class="meta-item">
+                                <mat-icon>post_add</mat-icon>
+                                <span>{{ task.post_ids.length }} posts</span>
+                            </div>
+                        </div>
+
+                        <div class="action-content" *ngIf="expandedTaskIndex === i && task.action.type === 'comment' && task.action.content">
+                            <div class="content-preview">
+                                <mat-icon>format_quote</mat-icon>
+                                <span>{{ task.action.content }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task-actions" *ngIf="expandedTaskIndex === i">
+                        <button mat-button class="action-btn primary" 
+                                (click)="$event.stopPropagation()" 
+                                [routerLink]="['/task', task.task_id]">
+                            <mat-icon>visibility</mat-icon>
+                            Details
+                        </button>
+                        <button mat-button class="action-btn" 
+                                (click)="$event.stopPropagation()" 
+                                [routerLink]="['/task', task.task_id, 'posts']">
+                            <mat-icon>post_add</mat-icon>
+                            Posts
+                        </button>
+                        <button mat-button class="action-btn" 
+                                (click)="$event.stopPropagation()" 
+                                [routerLink]="['/task', task.task_id, 'accounts']">
+                            <mat-icon>people</mat-icon>
+                            Accounts
+                        </button>
+                        <button mat-button class="action-btn" 
+                                (click)="$event.stopPropagation()" 
+                                [routerLink]="['/task', task.task_id, 'report']">
+                            <mat-icon>assessment</mat-icon>
+                            Report
+                        </button>
+                    </div>
+                </mat-card-content>
+
+                <mat-card-footer *ngIf="expandedTaskIndex === i" class="task-footer">
+                    <div class="footer-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span><strong>Created:</strong> {{ task.created_at | date:'dd.MM.yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="footer-item">
+                        <mat-icon>update</mat-icon>
+                        <span><strong>Updated:</strong> {{ task.updated_at | date:'dd.MM.yyyy HH:mm' }}</span>
+                    </div>
+                </mat-card-footer>
+            </mat-card>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" *ngIf="!loading && !error && totalItems > 0">
+            <mat-paginator 
+                [length]="totalItems"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions"
+                [pageIndex]="pageIndex"
+                (page)="onPageChange($event)"
+                showFirstLastButtons>
+            </mat-paginator>
+        </div>
     </main>
-    <footer>Дані оновлено о: {{ lastUpdate }}</footer>  
+
+    <footer class="page-footer">
+        <div class="footer-content">
+            <div class="update-info">
+                <mat-icon>update</mat-icon>
+                <span>Last updated: {{ lastUpdate }}</span>
+            </div>
+            <div class="results-info" *ngIf="!loading && totalItems > 0">
+                Showing {{ (pageIndex * pageSize) + 1 }} - {{ Math.min((pageIndex + 1) * pageSize, totalItems) }} of {{ totalItems }} tasks
+            </div>
+        </div>
+    </footer>
 </div>

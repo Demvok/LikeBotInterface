@@ -71,3 +71,39 @@ button, input, select, textarea {
     --color-text-error: #ef476f;
     --color-text-warning: #b0841e;    
 }
+
+/* Global Material Form Field Fixes */
+.mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+}
+
+.mat-mdc-form-field-bottom-align {
+    min-height: 0 !important;
+    height: 0 !important;
+}
+
+/* Compact form fields in header specifically */
+.page-header .mat-mdc-form-field {
+    margin-bottom: 0 !important;
+}
+
+.page-header .mat-mdc-form-field-wrapper {
+    padding-bottom: 0 !important;
+}
+
+/* Additional Material customizations */
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+    background-color: var(--color-bg-light);
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-label {
+    color: var(--color-text) !important;
+}
+
+.mat-mdc-form-field .mat-mdc-input-element {
+    color: var(--color-text) !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+    color: var(--color-text) !important;
+}
