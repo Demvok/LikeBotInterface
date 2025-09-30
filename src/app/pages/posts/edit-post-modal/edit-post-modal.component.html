@@ -1,0 +1,54 @@
+<div class="edit-post-dialog">
+  <h2 mat-dialog-title>Edit Post</h2>
+  
+  <div mat-dialog-content class="dialog-content">
+    <mat-form-field class="full-width">
+      <mat-label>Message Link</mat-label>
+      <input 
+        matInput 
+        [(ngModel)]="editedPost.message_link" 
+        placeholder="Enter message link"
+        required>
+    </mat-form-field>
+
+    <div class="info-section">
+      <h3>Post Information</h3>
+      <div class="info-row">
+        <label>Post ID:</label>
+        <span>{{ editedPost.post_id || 'Auto-generated' }}</span>
+      </div>
+      <div class="info-row">
+        <label>Chat ID:</label>
+        <span>{{ editedPost.chat_id || 'Auto-filled after validation' }}</span>
+      </div>
+      <div class="info-row">
+        <label>Message ID:</label>
+        <span>{{ editedPost.message_id || 'Auto-filled after validation' }}</span>
+      </div>
+      <div class="info-row">
+        <label>Created:</label>
+        <span>{{ editedPost.created_at | date:'HH:mm dd.MM.yyyy' }}</span>
+      </div>
+      <div class="info-row">
+        <label>Updated:</label>
+        <span>{{ editedPost.updated_at | date:'HH:mm dd.MM.yyyy' }}</span>
+      </div>
+    </div>
+
+    <div class="warning-note" *ngIf="editedPost.message_link !== originalMessageLink">
+      <span class="warning-icon">⚠️</span>
+      <span>Changing the message link will clear Chat ID and Message ID. They will be regenerated after validation.</span>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSave()" 
+      [disabled]="!isFormValid()">
+      Save Changes
+    </button>
+  </div>
+</div>

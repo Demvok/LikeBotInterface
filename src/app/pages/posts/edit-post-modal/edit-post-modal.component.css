@@ -1,0 +1,288 @@
+.edit-post-dialog {
+  min-width: 500px;
+  max-width: 600px;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dialog-content {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.info-section {
+  background-color: var(--color-bg-accented);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(34, 51, 59, 0.1);
+  transition: all 0.3s ease;
+}
+
+.info-section:hover {
+  box-shadow: 0 4px 16px rgba(34, 51, 59, 0.15);
+  transform: translateY(-1px);
+}
+
+.info-section h3 {
+  margin: 0 0 14px 0;
+  color: var(--color-text-dark);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 6px;
+}
+
+.info-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background-color: var(--color-bg-dark);
+  border-radius: 1px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+}
+
+.info-row:hover {
+  background-color: rgba(234, 224, 213, 0.3);
+  margin: 0 -6px;
+  padding: 8px 6px;
+  border-radius: 8px;
+}
+
+
+
+.info-row label {
+  font-weight: 600;
+  color: var(--color-text-dark);
+  min-width: 120px;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.info-row span {
+  color: var(--color-text);
+  font-family: 'Courier New', monospace;
+  background-color: var(--color-bg-light);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 3px rgba(34, 51, 59, 0.1);
+  max-width: 60%;
+  word-break: break-all;
+  text-align: right;
+}
+
+.warning-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background-color: var(--color-bg-accented-lighter);
+  border-radius: 10px;
+  color: var(--color-text-warning);
+  box-shadow: 0 2px 8px rgba(176, 132, 30, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.warning-note .warning-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-note span:not(.warning-icon) {
+  font-weight: 600;
+  line-height: 1.4;
+  font-size: 0.95rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 0 0 0;
+  margin-top: 20px;
+}
+
+.dialog-actions button {
+  min-width: 120px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 25px;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+}
+
+/* Override Angular Material styles to match app theme */
+::ng-deep .mat-mdc-dialog-container {
+  background-color: var(--color-bg-light) !important;
+  color: var(--color-text) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 40px rgba(34, 51, 59, 0.3) !important;
+}
+
+::ng-deep .mat-mdc-dialog-title {
+  color: var(--color-text-dark) !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  margin-bottom: 0 !important;
+  text-align: center !important;
+  padding: 20px 24px 16px 24px !important;
+  letter-spacing: 0.3px !important;
+  text-transform: uppercase !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  padding: 0 24px !important;
+  margin: 0 !important;
+}
+
+::ng-deep .mat-mdc-dialog-actions {
+  padding: 0 24px 20px 24px !important;
+  margin: 0 !important;
+  padding-top: 16px !important;
+}
+
+::ng-deep .mat-mdc-dialog-actions.mdc-dialog__actions.dialog-actions {
+  padding-top: 16px !important;
+}
+
+::ng-deep .mat-mdc-form-field {
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  background-color: var(--color-bg-accented) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field.mdc-text-field--outlined {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper:hover {
+  box-shadow: 0 2px 8px rgba(34, 51, 59, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-label {
+  color: var(--color-text-dark) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
+  color: var(--color-text-dark) !important;
+  font-weight: 700 !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
+  color: var(--color-text-dark) !important;
+  font-weight: 500 !important;
+  padding: 16px 16px !important;
+  font-size: 1rem !important;
+}
+
+::ng-deep .mat-mdc-form-field-infix {
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: auto !important;
+}
+
+::ng-deep .mat-mdc-outlined .mat-mdc-notch-piece {
+  border-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-outlined .mat-mdc-notch-piece {
+  border-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  box-shadow: 0 0 0 2px rgba(94, 80, 63, 0.3), 0 4px 12px rgba(34, 51, 59, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Custom button styling */
+::ng-deep .mat-mdc-button {
+  background-color: var(--color-bg-darker) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: 0 2px 8px rgba(94, 80, 63, 0.2) !important;
+}
+
+::ng-deep .mat-mdc-button:hover {
+  background-color: var(--color-bg-dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(94, 80, 63, 0.3) !important;
+}
+
+::ng-deep .mat-mdc-raised-button {
+  background-color: var(--color-text-success) !important;
+  color: var(--color-text-dark) !important;
+  box-shadow: 0 2px 8px rgba(6, 214, 160, 0.2) !important;
+}
+
+::ng-deep .mat-mdc-raised-button:hover {
+  background-color: var(--color-text-success) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(6, 214, 160, 0.3) !important;
+  filter: brightness(1.1) !important;
+}
+
+::ng-deep .mat-mdc-raised-button:disabled {
+  background-color: var(--color-bg-darker-disabled) !important;
+  color: var(--color-text-light) !important;
+  opacity: 0.6 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Animation for the entire dialog */
+::ng-deep .mat-mdc-dialog-container {
+  animation: modalFadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

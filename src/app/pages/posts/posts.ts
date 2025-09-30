@@ -5,10 +5,12 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { EditPostModalComponent, EditPostDialogResult } from './edit-post-modal/edit-post-modal.component';
 
 
 @Component({
@@ -40,7 +42,7 @@ export class Posts {
 
   lastUpdate: string = '';
 
-  constructor(private postsService: PostsService) {}
+  constructor(private postsService: PostsService, private dialog: MatDialog) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -120,8 +122,31 @@ export class Posts {
   }
 
   editPost(post: Post) {
-    // Placeholder for edit logic (e.g., open modal)
-    alert('Edit not implemented.');
+    const dialogRef = this.dialog.open(EditPostModalComponent, {
+      width: '600px',
+      data: { post: post }
+    });
+
+    dialogRef.afterClosed().subscribe((result: EditPostDialogResult) => {
+      if (result && result.post) {
+        this.updatePost(result.post);
+      }
+    });
+  }
+
+  private updatePost(post: Post) {
+    if (!post.post_id) return;
+    
+    this.postsService.updatePost(post.post_id, post).subscribe(
+      (response) => {
+        console.log('Post updated successfully:', response);
+        this.getPosts(); // Refresh the posts list
+      },
+      (error) => {
+        console.error('Error updating post:', error);
+        alert('Failed to update post. Please try again.');
+      }
+    );
   }
 
   deletePost(post: Post) {
