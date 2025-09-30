@@ -1,0 +1,22 @@
+<div class="content-wrapper">
+    <div class="task-creation-container">
+        <div [ngSwitch]="currentStage">
+            <app-create-task-stage-1 
+                *ngSwitchCase="1" 
+                (stageChange)="onStageChange($event)">
+            </app-create-task-stage-1>
+
+            <app-create-task-stage-2 
+                *ngSwitchCase="2" 
+                (stageChange)="onStageChange($event)">
+            </app-create-task-stage-2>
+
+            <app-create-task-stage-3 
+                *ngSwitchCase="3" 
+                (stageChange)="onStageChange($event)">
+            </app-create-task-stage-3>
+        </div>
+    </div>
+</div>
+
+

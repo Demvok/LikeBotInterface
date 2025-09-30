@@ -196,6 +196,6 @@ export class Tasks implements OnInit {
   }
   
   navigateToCreateTask() {
-    this.router.navigate(['/tasks/create/1']);
+    this.router.navigate(['/tasks/create']);
   }
 }

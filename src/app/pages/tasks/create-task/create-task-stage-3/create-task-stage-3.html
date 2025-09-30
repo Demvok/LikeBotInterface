@@ -1,9 +1,31 @@
-<div class="content-wrapper">
-    <header>
-        Header
-    </header>
-    <main>
-        Main
-    </main>
-    <footer>Footer</footer>  
-</div>
+<header>
+    <h2>Create New Task - Stage 3</h2>
+    <app-task-stepper (stageChange)="onStageChange($event)"></app-task-stepper>
+</header>
+<main>
+    <div class="stage-content">
+        <h3>Select Accounts</h3>
+        <p>This is where you will select the accounts for your task.</p>
+        <div class="placeholder-content">
+        <p>Account selection functionality will be implemented here.</p>
+        <p>Current task data:</p>
+        <div class="task-data-preview" *ngIf="taskData">
+            <p><strong>Name:</strong> {{ taskData.name }}</p>
+            <p *ngIf="taskData.description"><strong>Description:</strong> {{ taskData.description }}</p>
+            <p><strong>Action Type:</strong> {{ taskData.action?.type }}</p>
+            <p *ngIf="taskData.action?.palette"><strong>Palette:</strong> {{ taskData.action?.palette }}</p>
+            <p *ngIf="taskData.action?.content"><strong>Content:</strong> {{ taskData.action?.content }}</p>
+        </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <div class="button-group">
+        <button type="button" class="btn btn-secondary" (click)="goToPrevious()">
+        Previous
+        </button>
+        <button type="button" class="btn btn-success" (click)="createTask()">
+        Create Task
+        </button>
+    </div>
+</footer>

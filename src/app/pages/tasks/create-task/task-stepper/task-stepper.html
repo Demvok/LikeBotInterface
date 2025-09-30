@@ -1,0 +1,36 @@
+<div class="stepper-container">
+  <div class="stepper">
+    <div 
+      class="step" 
+      [class.active]="currentStage === 1" 
+      [class.completed]="currentStage > 1"
+      (click)="goToStage(1)">
+      <div class="step-number">1</div>
+      <div class="step-label">Task Details</div>
+    </div>
+    
+    <div class="step-connector" [class.completed]="currentStage > 1"></div>
+    
+    <div 
+      class="step" 
+      [class.active]="currentStage === 2" 
+      [class.completed]="currentStage > 2"
+      [class.disabled]="currentStage < 2"
+      (click)="goToStage(2)">
+      <div class="step-number">2</div>
+      <div class="step-label">Select Posts</div>
+    </div>
+    
+    <div class="step-connector" [class.completed]="currentStage > 2"></div>
+    
+    <div 
+      class="step" 
+      [class.active]="currentStage === 3" 
+      [class.completed]="currentStage > 3"
+      [class.disabled]="currentStage < 3"
+      (click)="goToStage(3)">
+      <div class="step-number">3</div>
+      <div class="step-label">Select Accounts</div>
+    </div>
+  </div>
+</div>
