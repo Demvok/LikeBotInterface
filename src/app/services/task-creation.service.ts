@@ -1,12 +1,22 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { TaskAction } from './api.models';
+import { TaskAction, Post } from './api.models';
+
+// Interface for locally stored posts before submission
+export interface LocalPost {
+  message_link: string;
+  isExisting?: boolean;
+  existingData?: Post;
+  tempId: string; // Temporary ID for local tracking
+}
 
 export interface TaskCreationData {
   name: string;
   description?: string;
   action: TaskAction;
   post_ids: number[];
+  post_links?: string[]; // Temporary storage for post links before creation
+  local_posts?: LocalPost[]; // Store local posts data
   accounts: string[];
 }
 
@@ -45,5 +55,21 @@ export class TaskCreationService {
       action: { type: 'react', palette: 'positive' }
     });
     this.currentStageSubject.next(1);
+  }
+
+  // Store local posts data
+  updateLocalPosts(localPosts: LocalPost[]) {
+    const currentData = this.taskDataSubject.value;
+    const postLinks = localPosts.map(post => post.message_link);
+    this.taskDataSubject.next({ 
+      ...currentData, 
+      local_posts: localPosts,
+      post_links: postLinks
+    });
+  }
+
+  // Get stored local posts
+  getLocalPosts(): LocalPost[] {
+    return this.taskDataSubject.value.local_posts || [];
   }
 }

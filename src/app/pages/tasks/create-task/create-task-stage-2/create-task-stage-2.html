@@ -1,22 +1,133 @@
 <header>
-    <h2>Create New Task - Stage 2</h2>
+    <h2>Створення нового завдання - Пости</h2>
     <app-task-stepper (stageChange)="onStageChange($event)"></app-task-stepper>
 </header>
 <main>
     <div class="stage-content">
-        <h3>Select Posts</h3>
-        <p>This is where you will select the posts for your task.</p>
-        <div class="placeholder-content">
-        <p>Posts selection functionality will be implemented here.</p>
-        <p>Current task data:</p>
-        <div class="task-data-preview" *ngIf="taskData">
+        <div class="header-section">
+            <h3>Select Posts</h3>
+            <p>Add posts to your task by providing Telegram message links.</p>
+        </div>
+        
+        <!-- Add Post Section -->
+        <div class="add-post-section">
+            <!-- Single Post Import -->
+            <div class="input-group" *ngIf="!isBulkMode">
+                <label for="singlePostUrl">Add Single Post:</label>
+                <div class="input-row">
+                    <input 
+                        type="text" 
+                        id="singlePostUrl"
+                        [(ngModel)]="singlePostUrl" 
+                        placeholder="https://t.me/c/123"
+                        class="post-input"
+                        (keyup.enter)="addSinglePost()"
+                    >
+                    <button 
+                        type="button" 
+                        class="btn btn-primary btn-sm"
+                        (click)="addSinglePost()"
+                        [disabled]="!singlePostUrl?.trim() || isProcessing"
+                    >
+                        Add Post
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn btn-icon"
+                        (click)="toggleMode()"
+                        title="Switch to bulk import"
+                    >
+                        📄
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bulk Post Import -->
+            <div class="input-group" *ngIf="isBulkMode">
+                <label for="bulkPostUrls">Add Multiple Posts (one per line):</label>
+                <textarea 
+                    id="bulkPostUrls"
+                    [(ngModel)]="bulkPostUrls" 
+                    placeholder="https://t.me/c/123&#10;https://t.me/c/456&#10;https://t.me/c/789"
+                    class="post-textarea"
+                    rows="4"
+                ></textarea>
+                <div class="textarea-buttons">
+                    <button 
+                        type="button" 
+                        class="btn btn-primary btn-sm"
+                        (click)="addBulkPosts()"
+                        [disabled]="!bulkPostUrls?.trim() || isProcessing"
+                    >
+                        Add Posts
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn btn-icon"
+                        (click)="toggleMode()"
+                        title="Switch to single import"
+                    >
+                        📝
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading/Processing State -->
+        <div class="processing-state" *ngIf="isProcessing">
+            <div class="spinner"></div>
+            <p>Processing posts...</p>
+        </div>
+
+        <!-- Error Messages -->
+        <div class="error-messages" *ngIf="errorMessages.length > 0">
+            <h4>Errors:</h4>
+            <ul>
+                <li *ngFor="let error of errorMessages" class="error-item">{{ error }}</li>
+            </ul>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="clearErrors()">Clear Errors</button>
+        </div>
+
+        <!-- Selected Posts List -->
+        <div class="selected-posts" *ngIf="selectedPosts.length > 0">
+            <h4>Selected Posts ({{ selectedPosts.length }}):</h4>
+            <div class="posts-list">
+                <div class="post-item" *ngFor="let post of selectedPosts; let i = index">
+                    <div class="post-info">
+                        <div class="post-id">ID: {{ getPostDisplayData(post).id }}</div>
+                        <div class="post-link">{{ getPostDisplayData(post).link }}</div>
+                        <div class="post-status" [class]="getPostStatusClass(post)">
+                            {{ getPostStatusText(post) }}
+                        </div>
+                    </div>
+                    <button 
+                        type="button" 
+                        class="btn btn-danger btn-sm"
+                        (click)="removePost(i)"
+                        title="Remove post"
+                    >
+                        ×
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" (click)="clearAllPosts()">Clear All Posts</button>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="selectedPosts.length === 0 && !isProcessing">
+            <p>No posts selected yet. Add some posts using the forms above.</p>
+        </div>
+
+        <!-- Task Data Preview -->
+        <!-- <div class="task-data-preview" *ngIf="taskData">
+            <h4>Task Summary:</h4>
             <p><strong>Name:</strong> {{ taskData.name }}</p>
             <p *ngIf="taskData.description"><strong>Description:</strong> {{ taskData.description }}</p>
             <p><strong>Action Type:</strong> {{ taskData.action?.type }}</p>
             <p *ngIf="taskData.action?.palette"><strong>Palette:</strong> {{ taskData.action?.palette }}</p>
             <p *ngIf="taskData.action?.content"><strong>Content:</strong> {{ taskData.action?.content }}</p>
-        </div>
-        </div>
+            <p><strong>Posts Selected:</strong> {{ selectedPosts.length }}</p>
+        </div> -->
     </div>
 </main>
 <footer>
