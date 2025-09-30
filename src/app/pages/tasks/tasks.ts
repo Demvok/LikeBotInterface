@@ -8,11 +8,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFabButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { TasksService, Task } from '../../services/tasks.service';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-tasks',
@@ -26,6 +27,7 @@ import { RouterModule } from '@angular/router';
     MatPaginatorModule,
     MatIconModule,
     MatButtonModule,
+    MatFabButton,
     MatChipsModule,
     MatProgressSpinnerModule,
     FormsModule,
@@ -73,7 +75,7 @@ export class Tasks implements OnInit {
     { value: 'comment', label: 'Comment' }
   ];
 
-  constructor(private tasksService: TasksService) {}
+  constructor(private tasksService: TasksService, private router: Router) {}
 
   ngOnInit() {
     this.loadTasks();
@@ -191,5 +193,9 @@ export class Tasks implements OnInit {
     // Format as 'HH:mm:ss dd.MM.yyyy'
     const pad = (n: number) => n < 10 ? '0' + n : n;
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
+  }
+  
+  navigateToCreateTask() {
+    this.router.navigate(['/tasks/create/1']);
   }
 }

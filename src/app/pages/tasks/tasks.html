@@ -208,6 +208,14 @@
                 showFirstLastButtons>
             </mat-paginator>
         </div>
+        
+        <!-- Floating Action Button for Create Task -->
+        <button mat-fab class="create-task-fab" 
+                (click)="navigateToCreateTask()" 
+                title="Create New Task"
+                aria-label="Create New Task">
+            <mat-icon>add</mat-icon>
+        </button>
     </main>
 
     <footer class="page-footer">
