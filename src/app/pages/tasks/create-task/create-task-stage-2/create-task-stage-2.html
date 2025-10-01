@@ -117,20 +117,8 @@
         <div class="empty-state" *ngIf="selectedPosts.length === 0 && !isProcessing">
             <p>No posts selected yet. Add some posts using the forms above.</p>
         </div>
-
-        <!-- Task Data Preview -->
-        <!-- <div class="task-data-preview" *ngIf="taskData">
-            <h4>Task Summary:</h4>
-            <p><strong>Name:</strong> {{ taskData.name }}</p>
-            <p *ngIf="taskData.description"><strong>Description:</strong> {{ taskData.description }}</p>
-            <p><strong>Action Type:</strong> {{ taskData.action?.type }}</p>
-            <p *ngIf="taskData.action?.palette"><strong>Palette:</strong> {{ taskData.action?.palette }}</p>
-            <p *ngIf="taskData.action?.content"><strong>Content:</strong> {{ taskData.action?.content }}</p>
-            <p><strong>Posts Selected:</strong> {{ selectedPosts.length }}</p>
-        </div> -->
     </div>
-</main>
-<footer>
+
     <div class="button-group">
         <button type="button" class="btn btn-secondary" (click)="goToPrevious()">
         Previous
@@ -139,4 +127,4 @@
         Next Step
         </button>
     </div>
-</footer>
+</main>

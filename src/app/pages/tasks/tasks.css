@@ -258,7 +258,7 @@ main {
   font-weight: 600;
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
-  border-radius: 16px;
+  border-radius: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -717,4 +717,12 @@ main {
   .create-task-fab mat-icon {
     font-size: 1.2rem;
   }
+}
+
+.mat-mdc-option.mdc-list-item {
+  background-color: white;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-multiple) {
+  background-color: var(--color-text-light);
 }

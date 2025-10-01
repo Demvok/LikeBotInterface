@@ -4,28 +4,144 @@
 </header>
 <main>
     <div class="stage-content">
-        <h3>Select Accounts</h3>
-        <p>This is where you will select the accounts for your task.</p>
-        <div class="placeholder-content">
-        <p>Account selection functionality will be implemented here.</p>
-        <p>Current task data:</p>
-        <div class="task-data-preview" *ngIf="taskData">
-            <p><strong>Name:</strong> {{ taskData.name }}</p>
-            <p *ngIf="taskData.description"><strong>Description:</strong> {{ taskData.description }}</p>
-            <p><strong>Action Type:</strong> {{ taskData.action?.type }}</p>
-            <p *ngIf="taskData.action?.palette"><strong>Palette:</strong> {{ taskData.action?.palette }}</p>
-            <p *ngIf="taskData.action?.content"><strong>Content:</strong> {{ taskData.action?.content }}</p>
+        <div class="header-content">
+            <h3>Select Accounts</h3>
+            <p>Choose which accounts will be used for this task.</p>
+        </div>        
+        
+        <!-- Selection Mode Toggle -->
+        <div class="selection-mode">
+            <h4>Selection Mode</h4>
+            <div class="mode-toggle">
+                <label class="mode-option">
+                    <input type="radio" 
+                           [(ngModel)]="selectionMode" 
+                           value="count" 
+                           (change)="onSelectionModeChange()">
+                    Select by Count
+                </label>
+                <label class="mode-option">
+                    <input type="radio" 
+                           [(ngModel)]="selectionMode" 
+                           value="manual" 
+                           (change)="onSelectionModeChange()">
+                    Manual Selection
+                </label>                
+            </div>
         </div>
+
+        <!-- Manual Selection Mode -->
+        <div class="selection-content" *ngIf="selectionMode === 'manual'">
+            <h4>Available Accounts ({{ availableAccounts.length }})</h4>
+            <div class="accounts-loading" *ngIf="isLoadingAccounts">
+                <p>Loading accounts...</p>
+            </div>
+            <div class="accounts-list" *ngIf="!isLoadingAccounts && availableAccounts.length > 0">
+                <div class="account-item" 
+                     *ngFor="let account of availableAccounts" 
+                     [class.selected]="isAccountSelected(account.phone_number)">
+                    <label class="account-checkbox">
+                        <input type="checkbox" 
+                               [checked]="isAccountSelected(account.phone_number)"
+                               (change)="onAccountToggle(account.phone_number)">
+                        <div class="account-info">
+                            <span class="phone-number">{{ account.phone_number }}</span>
+                            <span class="account-id" *ngIf="account.account_id">{{ account.account_id }}</span>
+                            <span class="session-name" *ngIf="account.session_name">{{ account.session_name }}</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="no-accounts" *ngIf="!isLoadingAccounts && availableAccounts.length === 0">
+                <p>No accounts available. Please add accounts first.</p>
+            </div>
+        </div>
+
+        <!-- Count Selection Mode -->
+        <div class="selection-content" *ngIf="selectionMode === 'count'">
+            <h4>Random Account Selection</h4>
+            <div class="count-selection">
+                <label for="accountCount">Number of accounts to select:</label>
+                <input type="number" 
+                       id="accountCount"
+                       [(ngModel)]="accountCount" 
+                       (ngModelChange)="onAccountCountChange()"
+                       [min]="1" 
+                       [max]="availableAccounts.length"
+                       class="count-input">
+                <span class="count-info">/ {{ availableAccounts.length }} available</span>
+            </div>
+            <div class="selected-random-accounts" *ngIf="selectedAccounts.length > 0">
+                <h5>Randomly Selected Accounts:</h5>
+                <div class="random-accounts-list">
+                    <div class="random-account-item" *ngFor="let phoneNumber of selectedAccounts">
+                        <span>{{ phoneNumber }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selection Summary -->
+        <div class="selection-summary" *ngIf="selectedAccounts.length > 0">
+            <h4>Selection Summary</h4>
+            <p><strong>{{ selectedAccounts.length }}</strong> account(s) selected</p>
+        </div>
+
+        <!-- Task Data Preview Toggle -->
+        <div class="task-preview-section">
+            <button type="button" 
+                    class="btn btn-info"
+                    (click)="toggleTaskPreview()">
+                {{ showTaskPreview ? 'Hide' : 'Show' }} Task Preview
+            </button>
+            
+            <div class="task-data-preview" *ngIf="showTaskPreview && taskData">
+                <h4>Current Task Data</h4>
+                <div class="preview-item">
+                    <strong>Name:</strong> {{ taskData.name }}
+                </div>
+                <div class="preview-item" *ngIf="taskData.description">
+                    <strong>Description:</strong> {{ taskData.description }}
+                </div>
+                <div class="preview-item">
+                    <strong>Action Type:</strong> {{ taskData.action?.type }}
+                </div>
+                <div class="preview-item" *ngIf="taskData.action?.palette">
+                    <strong>Palette:</strong> {{ taskData.action?.palette }}
+                </div>
+                <div class="preview-item" *ngIf="taskData.action?.content">
+                    <strong>Content:</strong> {{ taskData.action?.content }}
+                </div>
+                <div class="preview-item">
+                    <strong>Post Links:</strong> {{ taskData.post_links?.length || 0 }}
+                </div>
+                <div class="preview-item">
+                    <strong>Selected Accounts:</strong> {{ selectedAccounts.length }}
+                </div>
+                <div class="preview-item" *ngIf="selectedAccounts.length > 0">
+                    <strong>Account Phone Numbers:</strong> 
+                    <div class="account-ids">
+                        <span *ngFor="let phoneNumber of selectedAccounts; let last = last">
+                            {{ phoneNumber }}<span *ngIf="!last">, </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Button Group moved inside stage-content -->
+        <div class="button-group">
+            <button type="button" class="btn btn-secondary" (click)="goToPrevious()">
+                Previous
+            </button>
+            <button type="button" 
+                    class="btn btn-success" 
+                    (click)="createTask()"
+                    [disabled]="!canCreateTask">
+                {{ isCreatingTask ? 'Creating Task...' : 'Create Task' }}
+            </button>
         </div>
     </div>
 </main>
 <footer>
-    <div class="button-group">
-        <button type="button" class="btn btn-secondary" (click)="goToPrevious()">
-        Previous
-        </button>
-        <button type="button" class="btn btn-success" (click)="createTask()">
-        Create Task
-        </button>
-    </div>
 </footer>
