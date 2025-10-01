@@ -4,76 +4,82 @@
 </header>
 <main>
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
-        <div class="form-group">
-        <label for="taskName">Task Name *</label>
-        <input 
-            id="taskName"
-            type="text" 
-            formControlName="name" 
-            placeholder="Enter task name"
-            [class.error]="taskForm.get('name')?.invalid && taskForm.get('name')?.touched">
-        <div class="error-message" *ngIf="taskForm.get('name')?.invalid && taskForm.get('name')?.touched">
-            Task name is required
-        </div>
+        <!-- First Column: Task Name, Action Type, and Action Details -->
+        <div class="first-column">
+            <div class="form-group">
+                <label for="taskName">Task Name *</label>
+                <input 
+                    id="taskName"
+                    type="text" 
+                    formControlName="name" 
+                    placeholder="Enter task name"
+                    [class.error]="taskForm.get('name')?.invalid && taskForm.get('name')?.touched">
+                <div class="error-message" *ngIf="taskForm.get('name')?.invalid && taskForm.get('name')?.touched">
+                    Task name is required
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Action Type *</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input 
+                            type="radio" 
+                            formControlName="actionType" 
+                            value="react">
+                        <span class="radio-custom"></span>
+                        React
+                    </label>
+                    <label class="radio-option">
+                        <input 
+                            type="radio" 
+                            formControlName="actionType" 
+                            value="comment">
+                        <span class="radio-custom"></span>
+                        Comment
+                    </label>
+                </div>
+                <div class="error-message" *ngIf="taskForm.get('actionType')?.invalid && taskForm.get('actionType')?.touched">
+                    Please select an action type
+                </div>
+            </div>
+
+            <div class="form-group" *ngIf="actionType === 'react'">
+                <label for="palette">Reaction Palette *</label>
+                <select id="palette" formControlName="palette" class="select-field">
+                    <option value="">Select palette</option>
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                </select>
+                <div class="error-message" *ngIf="actionType === 'react' && taskForm.get('palette')?.invalid && taskForm.get('palette')?.touched">
+                    Please select a reaction palette
+                </div>
+            </div>
+
+            <div class="form-group" *ngIf="actionType === 'comment'">
+                <label for="commentContent">Comment Content *</label>
+                <textarea 
+                    id="commentContent"
+                    formControlName="commentContent" 
+                    placeholder="Enter comment content"
+                    rows="4"
+                    [class.error]="actionType === 'comment' && taskForm.get('commentContent')?.invalid && taskForm.get('commentContent')?.touched"></textarea>
+                <div class="error-message" *ngIf="actionType === 'comment' && taskForm.get('commentContent')?.invalid && taskForm.get('commentContent')?.touched">
+                    Comment content is required
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-        <label for="taskDescription">Description</label>
-        <textarea 
-            id="taskDescription"
-            formControlName="description" 
-            placeholder="Enter task description (optional)"
-            rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-        <label>Action Type *</label>
-        <div class="radio-group">
-            <label class="radio-option">
-            <input 
-                type="radio" 
-                formControlName="actionType" 
-                value="react">
-            <span class="radio-custom"></span>
-            React
-            </label>
-            <label class="radio-option">
-            <input 
-                type="radio" 
-                formControlName="actionType" 
-                value="comment">
-            <span class="radio-custom"></span>
-            Comment
-            </label>
-        </div>
-        <div class="error-message" *ngIf="taskForm.get('actionType')?.invalid && taskForm.get('actionType')?.touched">
-            Please select an action type
-        </div>
-        </div>
-
-        <div class="form-group" *ngIf="actionType === 'react'">
-        <label for="palette">Reaction Palette *</label>
-        <select id="palette" formControlName="palette" class="select-field">
-            <option value="">Select palette</option>
-            <option value="positive">Positive</option>
-            <option value="negative">Negative</option>
-        </select>
-        <div class="error-message" *ngIf="actionType === 'react' && taskForm.get('palette')?.invalid && taskForm.get('palette')?.touched">
-            Please select a reaction palette
-        </div>
-        </div>
-
-        <div class="form-group" *ngIf="actionType === 'comment'">
-        <label for="commentContent">Comment Content *</label>
-        <textarea 
-            id="commentContent"
-            formControlName="commentContent" 
-            placeholder="Enter comment content"
-            rows="4"
-            [class.error]="actionType === 'comment' && taskForm.get('commentContent')?.invalid && taskForm.get('commentContent')?.touched"></textarea>
-        <div class="error-message" *ngIf="actionType === 'comment' && taskForm.get('commentContent')?.invalid && taskForm.get('commentContent')?.touched">
-            Comment content is required
-        </div>
+        <!-- Second Column: Description -->
+        <div class="second-column">
+            <div class="form-group">
+                <label for="taskDescription">Description</label>
+                <textarea 
+                    id="taskDescription"
+                    formControlName="description" 
+                    placeholder="Enter task description (optional)"
+                    rows="3"></textarea>
+            </div>
         </div>
         
         <!-- Button moved inside form -->

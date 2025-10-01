@@ -111,6 +111,12 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
     this.updateTaskAccounts();
   }
 
+  refreshRandomSelection() {
+    if (this.selectionMode === 'count' && this.availableAccounts.length > 0) {
+      this.selectRandomAccounts();
+    }
+  }
+
   updateTaskAccounts() {
     this.taskCreationService.updateTaskData({
       accounts: this.selectedAccounts
@@ -239,6 +245,8 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
     return !this.isCreatingTask &&
            this.selectedAccounts.length > 0 && 
            !!this.taskData?.name && 
-           !!this.taskData?.action;
+           !!this.taskData?.action &&
+           !!this.taskData?.local_posts && 
+           this.taskData.local_posts.length > 0;
   }
 }

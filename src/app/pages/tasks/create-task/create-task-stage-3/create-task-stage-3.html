@@ -70,6 +70,12 @@
                        [max]="availableAccounts.length"
                        class="count-input">
                 <span class="count-info">/ {{ availableAccounts.length }} available</span>
+                <button type="button" 
+                        class="btn-refresh" 
+                        (click)="refreshRandomSelection()"
+                        title="Refresh random selection">
+                    ↻
+                </button>
             </div>
             <div class="selected-random-accounts" *ngIf="selectedAccounts.length > 0">
                 <h5>Randomly Selected Accounts:</h5>

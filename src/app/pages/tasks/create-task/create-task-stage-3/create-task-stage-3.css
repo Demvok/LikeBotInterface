@@ -252,6 +252,33 @@ footer {
   font-size: 0.9rem;
 }
 
+.btn-refresh {
+  background-color: var(--color-bg-accented);
+  border: 2px solid var(--color-bg-darker);
+  border-radius: 4px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  height: 38px;
+  width: 38px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
+.btn-refresh:hover {
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
+  /* transform: rotate(180deg); */
+}
+
+/* .btn-refresh:active {
+  transform: rotate(180deg) scale(0.95);
+} */
+
 .random-accounts-list {
   display: flex;
   flex-wrap: wrap;
