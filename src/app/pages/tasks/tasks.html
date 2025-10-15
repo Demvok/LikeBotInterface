@@ -182,6 +182,43 @@
                             Report
                         </button>
                     </div>
+
+                    <!-- Task Management Actions -->
+                    <div class="task-management-actions" *ngIf="expandedTaskIndex === i">
+                        <h4 class="management-title">
+                            <mat-icon>settings</mat-icon>
+                            Task Management
+                        </h4>
+                        <div class="management-buttons">
+                            <button mat-button class="management-btn start" 
+                                    (click)="$event.stopPropagation(); startTask(task.task_id)"
+                                    [disabled]="task.status === 'RUNNING'"
+                                    title="Start task execution">
+                                <mat-icon>play_arrow</mat-icon>
+                                Start
+                            </button>
+                            <button mat-button class="management-btn pause" 
+                                    (click)="$event.stopPropagation(); pauseTask(task.task_id)"
+                                    [disabled]="task.status !== 'RUNNING'"
+                                    title="Pause task execution">
+                                <mat-icon>pause</mat-icon>
+                                Pause
+                            </button>
+                            <button mat-button class="management-btn resume" 
+                                    (click)="$event.stopPropagation(); resumeTask(task.task_id)"
+                                    [disabled]="task.status !== 'PAUSED'"
+                                    title="Resume task execution">
+                                <mat-icon>play_arrow</mat-icon>
+                                Resume
+                            </button>
+                            <button mat-button class="management-btn delete" 
+                                    (click)="$event.stopPropagation(); deleteTask(task.task_id, task.name)"
+                                    title="Delete task permanently">
+                                <mat-icon>delete</mat-icon>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </mat-card-content>
 
                 <mat-card-footer *ngIf="expandedTaskIndex === i" class="task-footer">

@@ -215,11 +215,21 @@ export class Report implements OnInit {
       return '';
     }
     
-    if (phoneNumber.length === 10) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
-    } else if (phoneNumber.length === 12 && phoneNumber.startsWith('+1')) {
-      return `${phoneNumber.slice(0, 2)} (${phoneNumber.slice(2, 5)}) ${phoneNumber.slice(5, 8)}-${phoneNumber.slice(8)}`;
+    // Remove any non-digit characters for processing
+    const digits = phoneNumber.replace(/\D/g, '');
+    
+    if (digits.length === 10) {
+      // Format: (123) 456-7890
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length === 11 && digits.startsWith('1')) {
+      // Format: +1 (123) 456-7890
+      return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    } else if (phoneNumber.startsWith('+')) {
+      // Keep original format if it starts with + and doesn't match above patterns
+      return phoneNumber;
     }
+    
+    // Return original if format doesn't match expected patterns
     return phoneNumber;
   }
 

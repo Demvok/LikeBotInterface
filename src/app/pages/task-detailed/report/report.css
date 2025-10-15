@@ -298,17 +298,21 @@ main {
   font-weight: 600;
   color: var(--color-text-dark);
   border-bottom: 2px solid var(--color-bg-darker);
+  transition: background-color 0.2s ease;
+}
+
+.events-table th:hover {
+  background-color: var(--color-bg-accented-lighter) !important;
 }
 
 .events-table th.sortable {
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s ease;
   position: relative;
 }
 
 .events-table th.sortable:hover {
-  background-color: var(--color-bg-accented-lighter);
+  background-color: var(--color-bg-accented-lighter) !important;
 }
 
 .sort-indicator {

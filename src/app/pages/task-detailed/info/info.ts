@@ -94,4 +94,70 @@ export class Info implements OnInit {
     const pad = (n: number) => n < 10 ? '0' + n : n;
     return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
   }
+
+  // Task Management Actions
+  startTask() {
+    if (!this.task) return;
+    
+    this.tasksService.startTask(this.task.task_id).subscribe({
+      next: (response: any) => {
+        console.log('Task started:', response);
+        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+      },
+      error: (error: any) => {
+        console.error('Error starting task:', error);
+        alert(`Failed to start task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  pauseTask() {
+    if (!this.task) return;
+    
+    this.tasksService.pauseTask(this.task.task_id).subscribe({
+      next: (response: any) => {
+        console.log('Task paused:', response);
+        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+      },
+      error: (error: any) => {
+        console.error('Error pausing task:', error);
+        alert(`Failed to pause task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  resumeTask() {
+    if (!this.task) return;
+    
+    this.tasksService.resumeTask(this.task.task_id).subscribe({
+      next: (response: any) => {
+        console.log('Task resumed:', response);
+        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+      },
+      error: (error: any) => {
+        console.error('Error resuming task:', error);
+        alert(`Failed to resume task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  deleteTask() {
+    if (!this.task) return;
+    
+    const confirmed = confirm(`Are you sure you want to delete task "${this.task.name}"? This action cannot be undone.`);
+    if (confirmed) {
+      this.tasksService.deleteTask(this.task.task_id).subscribe({
+        next: (response: any) => {
+          console.log('Task deleted:', response);
+          alert(`Task "${this.task!.name}" has been deleted successfully.`);
+          // Navigate back to tasks list or show success message
+          window.history.back();
+        },
+        error: (error: any) => {
+          console.error('Error deleting task:', error);
+          alert(`Failed to delete task: ${error.error?.detail || error.message}`);
+        }
+      });
+    }
+  }
 }

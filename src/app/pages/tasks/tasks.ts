@@ -198,4 +198,60 @@ export class Tasks implements OnInit {
   navigateToCreateTask() {
     this.router.navigate(['/tasks/create']);
   }
+
+  // Task Management Actions
+  startTask(taskId: number) {
+    this.tasksService.startTask(taskId).subscribe({
+      next: (response: any) => {
+        console.log('Task started:', response);
+        this.refreshTasks(); // Refresh to update status
+      },
+      error: (error: any) => {
+        console.error('Error starting task:', error);
+        alert(`Failed to start task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  pauseTask(taskId: number) {
+    this.tasksService.pauseTask(taskId).subscribe({
+      next: (response: any) => {
+        console.log('Task paused:', response);
+        this.refreshTasks(); // Refresh to update status
+      },
+      error: (error: any) => {
+        console.error('Error pausing task:', error);
+        alert(`Failed to pause task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  resumeTask(taskId: number) {
+    this.tasksService.resumeTask(taskId).subscribe({
+      next: (response: any) => {
+        console.log('Task resumed:', response);
+        this.refreshTasks(); // Refresh to update status
+      },
+      error: (error: any) => {
+        console.error('Error resuming task:', error);
+        alert(`Failed to resume task: ${error.error?.detail || error.message}`);
+      }
+    });
+  }
+
+  deleteTask(taskId: number, taskName: string) {
+    const confirmed = confirm(`Are you sure you want to delete task "${taskName}"? This action cannot be undone.`);
+    if (confirmed) {
+      this.tasksService.deleteTask(taskId).subscribe({
+        next: (response: any) => {
+          console.log('Task deleted:', response);
+          this.refreshTasks(); // Refresh to update list
+        },
+        error: (error: any) => {
+          console.error('Error deleting task:', error);
+          alert(`Failed to delete task: ${error.error?.detail || error.message}`);
+        }
+      });
+    }
+  }
 }

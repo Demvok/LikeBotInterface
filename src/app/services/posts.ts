@@ -27,7 +27,13 @@ export class PostsService {
       if (params.chat_id !== undefined) httpParams = httpParams.set('chat_id', params.chat_id);
       if (params.validated_only !== undefined) httpParams = httpParams.set('validated_only', String(params.validated_only));
     }
-    return this.http.get<Post[]>(this.apiUrl, { params: httpParams });
+    return this.http.get<Post[]>(this.apiUrl, { params: httpParams }).pipe(
+      catchError((error) => {
+        console.error('Error fetching posts:', error);
+        // Return empty array on error instead of throwing
+        return of([]);
+      })
+    );
   }
 
   /**
@@ -57,7 +63,15 @@ export class PostsService {
     );
     
     return forkJoin(requests).pipe(
-      map(posts => posts.filter(post => post !== null) as Post[])
+      map(posts => {
+        const filteredPosts = posts.filter(post => post !== null) as Post[];
+        // Sort posts by updated_at descending (most recent first)
+        return filteredPosts.sort((a, b) => {
+          const dateA = a.updated_at ? new Date(a.updated_at) : new Date(0);
+          const dateB = b.updated_at ? new Date(b.updated_at) : new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        });
+      })
     );
   }
 

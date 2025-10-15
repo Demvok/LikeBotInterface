@@ -11,7 +11,7 @@ export interface Post {
   message_link: string;
   chat_id?: number;
   message_id?: number;
-  is_validated?: boolean;
+  validated?: boolean;
   created_at?: string;
   updated_at?: string;
 }

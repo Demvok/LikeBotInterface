@@ -98,7 +98,13 @@ export class Posts implements OnInit, OnDestroy {
       // If no task ID, get all posts with current filters
       const postsSub = this.postsService.getPosts(this.filter).subscribe(
         (data: Post[]) => {
-          this.posts.data = data;
+          // Sort posts by updated_at descending (most recent first)
+          const sortedData = data.sort((a, b) => {
+            const dateA = a.updated_at ? new Date(a.updated_at) : new Date(0);
+            const dateB = b.updated_at ? new Date(b.updated_at) : new Date(0);
+            return dateB.getTime() - dateA.getTime();
+          });
+          this.posts.data = sortedData;
           this.assignTableFeatures();
           if (this._paginator) {
             this._paginator.firstPage();
@@ -147,11 +153,18 @@ export class Posts implements OnInit, OnDestroy {
         
         if (this.filter.validated_only !== undefined) {
           filteredData = filteredData.filter(post => {
-            return this.filter.validated_only ? post.is_validated : !post.is_validated;
+            return this.filter.validated_only ? post.validated : !post.validated;
           });
         }
         
-        this.posts.data = filteredData;
+        // Sort posts by updated_at descending (most recent first)
+        const sortedData = filteredData.sort((a, b) => {
+          const dateA = a.updated_at ? new Date(a.updated_at) : new Date(0);
+          const dateB = b.updated_at ? new Date(b.updated_at) : new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        });
+        
+        this.posts.data = sortedData;
         this.assignTableFeatures();
         if (this._paginator) {
           this._paginator.firstPage();
@@ -186,10 +199,12 @@ export class Posts implements OnInit, OnDestroy {
     if (!post.post_id) return;
     const validateSub = this.postsService.validatePost(post.post_id).subscribe(
       (res) => {
+        console.log('Post validated successfully:', res);
         this.getPosts();
       },
       (err) => {
-        alert('Failed to validate post.');
+        console.error('Failed to validate post:', err);
+        alert('Failed to validate post: ' + (err.error?.detail || err.message || 'Unknown error'));
       }
     );
     
@@ -206,10 +221,12 @@ export class Posts implements OnInit, OnDestroy {
     if (!confirm('Delete this post?')) return;
     const deleteSub = this.postsService.deletePost(post.post_id).subscribe(
       (res) => {
+        console.log('Post deleted successfully:', res);
         this.getPosts();
       },
       (err) => {
-        alert('Failed to delete post.');
+        console.error('Failed to delete post:', err);
+        alert('Failed to delete post: ' + (err.error?.detail || err.message || 'Unknown error'));
       }
     );
     

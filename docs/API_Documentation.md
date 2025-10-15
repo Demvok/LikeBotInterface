@@ -4,7 +4,7 @@ This document describes the full CRUD API for the LikeBot automation system.
 
 ## Base URL
 ```
-http://localhost:8080
+http://localhost:8000
 ```
 
 ## Authentication
@@ -15,9 +15,16 @@ Currently, no authentication is required for API endpoints.
 ### Account
 ```json
 {
-  "phone_number": "string",
-  "account_id": "string (optional)",
-  "session_name": "string (optional)"
+  "phone_number": "+1234567890",
+  "account_id": 123456789,
+  "session_name": "string (optional)",
+  "session_encrypted": "string (optional)",
+  "twofa": false,
+  "password_encrypted": "string (optional)",
+  "notes": "string (optional)",
+  "status": "NEW|ACTIVE|LOGGED_IN|BANNED|ERROR (optional)",
+  "created_at": "string (ISO timestamp, optional)",
+  "updated_at": "string (ISO timestamp, optional)"
 }
 ```
 
@@ -125,8 +132,13 @@ Update an existing account.
 **Request Body:**
 ```json
 {
-  "account_id": "123456789",
-  "session_name": "new_session_name"
+  "account_id": 123456789,
+  "session_name": "new_session_name",
+  "session_encrypted": "encrypted_session_string",
+  "twofa": true,
+  "password_encrypted": "encrypted_password",
+  "notes": "Updated notes",
+  "status": "ACTIVE"
 }
 ```
 
@@ -146,6 +158,124 @@ Delete an account.
   "message": "Account +1234567890 deleted successfully"
 }
 ```
+
+### PUT /accounts/{phone_number}/validate
+Validate an account by testing its connection to Telegram.
+
+**Response:**
+```json
+{
+  "message": "Account +1234567890 validated successfully",
+  "account_id": 123456789,
+  "connection_status": "success"
+}
+```
+
+**Error Responses:**
+- `404`: Account not found
+- `500`: Connection failed or other validation errors
+
+---
+
+## Login Process
+
+### POST /accounts/create/start
+Start the login process for a Telegram account. Sends verification code to the phone number.
+
+**Query Parameters:**
+- `phone_number` (required): Phone number with country code (e.g., +1234567890)
+- `password_encrypted` (optional): Encrypted password for 2FA
+- `session_name` (optional): Custom session name
+- `notes` (optional): Account notes
+
+**Response:**
+```json
+{
+  "status": "wait_code",
+  "login_session_id": "uuid-string",
+  "message": "Verification code sent to +1234567890"
+}
+```
+
+**Status Values:**
+- `wait_code`: Waiting for verification code from user
+- `wait_2fa`: Waiting for 2FA password from user
+- `processing`: Processing authentication
+- `done`: Login completed successfully
+- `failed`: Login failed with error
+
+### POST /accounts/create/verify
+Submit verification code or 2FA password to continue the login process.
+
+**Query Parameters:**
+- `login_session_id` (required): Login session ID from /accounts/create/start
+- `code` (optional): Verification code from Telegram
+- `password_2fa` (optional): 2FA password if required (will be encrypted)
+
+**Note**: It's recommended to provide encrypted password at `/accounts/create/start` for better security.
+
+**Response:**
+```json
+{
+  "status": "processing",
+  "message": "Verification code submitted, processing login..."
+}
+```
+
+**Error Responses:**
+- `404`: Login session not found or expired
+- `400`: Missing required parameter (code or password)
+
+### GET /accounts/create/status
+Check the status of an ongoing login process. Used for polling by the frontend.
+
+**Query Parameters:**
+- `login_session_id` (required): Login session ID from /accounts/create/start
+
+**Response (Success):**
+```json
+{
+  "status": "done",
+  "phone_number": "+1234567890",
+  "created_at": "2025-01-01T00:00:00Z",
+  "message": "Login completed successfully",
+  "account_created": true
+}
+```
+
+**Response (Waiting for Code):**
+```json
+{
+  "status": "wait_code",
+  "phone_number": "+1234567890",
+  "created_at": "2025-01-01T00:00:00Z",
+  "message": "Waiting for verification code"
+}
+```
+
+**Response (Waiting for 2FA):**
+```json
+{
+  "status": "wait_2fa",
+  "phone_number": "+1234567890",
+  "created_at": "2025-01-01T00:00:00Z",
+  "message": "Waiting for 2FA password"
+}
+```
+
+**Response (Failed):**
+```json
+{
+  "status": "failed",
+  "phone_number": "+1234567890",
+  "created_at": "2025-01-01T00:00:00Z",
+  "message": "Login failed",
+  "error": "Invalid verification code"
+}
+```
+
+**Error Responses:**
+- `404`: Login session not found or expired
 
 ---
 
