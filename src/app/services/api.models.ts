@@ -1,9 +1,18 @@
 // API models for LikeBot
 
+export type AccountStatus = 'NEW' | 'ACTIVE' | 'LOGGED_IN' | 'BANNED' | 'ERROR';
+
 export interface Account {
   phone_number: string;
-  account_id?: string;
+  account_id?: number;
   session_name?: string;
+  session_encrypted?: string;
+  twofa?: boolean;
+  password_encrypted?: string;
+  notes?: string;
+  status?: AccountStatus;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Post {
@@ -64,8 +73,11 @@ export interface ReportEvent {
 
 export interface TaskReport {
   task_id: number;
-  report: ReportEvent[];
   run_id: string | null;
+  report: {
+    events: ReportEvent[];
+    summary?: any;
+  };
 }
 
 export interface ApiError {

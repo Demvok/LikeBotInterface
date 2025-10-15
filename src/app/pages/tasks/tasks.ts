@@ -12,7 +12,7 @@ import { MatFabButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
-import { TasksService, Task } from '../../services/tasks.service';
+import { TasksService, Task } from '../../services/tasks';
 import { RouterModule, Router } from '@angular/router';
 
 @Component({
@@ -107,14 +107,14 @@ export class Tasks implements OnInit {
       filtered = filtered.filter(task => 
         task.name.toLowerCase().includes(term) ||
         (task.description && task.description.toLowerCase().includes(term)) ||
-        task.task_id.toString().includes(term)
+        (task.task_id && task.task_id.toString().includes(term))
       );
     }
     
     // Apply status filter
     if (this.selectedStatus !== 'all') {
       filtered = filtered.filter(task => 
-        task.status.toLowerCase() === this.selectedStatus
+        task.status && task.status.toLowerCase() === this.selectedStatus
       );
     }
     

@@ -23,14 +23,13 @@ export class PostsService {
   getPosts(params?: { post_id?: number; chat_id?: number; validated_only?: boolean }): Observable<Post[]> {
     let httpParams = new HttpParams();
     if (params) {
-      if (params.post_id !== undefined) httpParams = httpParams.set('post_id', params.post_id);
-      if (params.chat_id !== undefined) httpParams = httpParams.set('chat_id', params.chat_id);
+      if (params.post_id !== undefined) httpParams = httpParams.set('post_id', params.post_id.toString());
+      if (params.chat_id !== undefined) httpParams = httpParams.set('chat_id', params.chat_id.toString());
       if (params.validated_only !== undefined) httpParams = httpParams.set('validated_only', String(params.validated_only));
     }
     return this.http.get<Post[]>(this.apiUrl, { params: httpParams }).pipe(
       catchError((error) => {
         console.error('Error fetching posts:', error);
-        // Return empty array on error instead of throwing
         return of([]);
       })
     );
@@ -99,22 +98,22 @@ export class PostsService {
   /**
    * Bulk create posts
    */
-  bulkCreatePosts(posts: Partial<Post>[]): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/bulk`, posts);
+  bulkCreatePosts(posts: Partial<Post>[]): Observable<{ results: any[] }> {
+    return this.http.post<{ results: any[] }>(`${this.apiUrl}/bulk`, posts);
   }
 
   /**
    * Bulk delete posts
    */
-  bulkDeletePosts(post_ids: number[]): Observable<any> {
-    return this.http.request<any>('delete', `${this.apiUrl}/bulk`, { body: post_ids });
+  bulkDeletePosts(post_ids: number[]): Observable<{ message: string; deleted_count: number }> {
+    return this.http.request<{ message: string; deleted_count: number }>('delete', `${this.apiUrl}/bulk`, { body: post_ids });
   }
 
   /**
    * Validate a post by ID
    */
-  validatePost(post_id: number): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${post_id}/validate`, {});
+  validatePost(post_id: number): Observable<{ message: string; chat_id: number; message_id: number }> {
+    return this.http.post<{ message: string; chat_id: number; message_id: number }>(`${this.apiUrl}/${post_id}/validate`, {});
   }
 
 }

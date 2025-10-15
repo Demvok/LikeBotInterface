@@ -172,10 +172,10 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
           
           // Extract new post IDs from response
           let newPostIds: number[] = [];
-          if (response && Array.isArray(response)) {
-            newPostIds = response.map((r: any) => r.post_id).filter(id => id !== undefined);
-          } else if (response?.post_ids) {
-            newPostIds = response.post_ids;
+          if (response && response.results && Array.isArray(response.results)) {
+            newPostIds = response.results
+              .filter((r: any) => r.status === 'success' && r.post_id)
+              .map((r: any) => r.post_id);
           }
           
           // Combine existing and new post IDs

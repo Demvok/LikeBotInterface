@@ -94,8 +94,8 @@
                 
                 <mat-card-header>
                     <div mat-card-avatar class="task-avatar">
-                        <mat-icon [ngClass]="'status-icon status-' + task.status.toLowerCase()">
-                            {{ getStatusIcon(task.status) }}
+                        <mat-icon [ngClass]="'status-icon status-' + (task.status || 'unknown').toLowerCase()">
+                            {{ getStatusIcon(task.status || 'UNKNOWN') }}
                         </mat-icon>
                     </div>
                     <mat-card-title>
@@ -104,7 +104,7 @@
                     </mat-card-title>
                     <mat-card-subtitle>
                         <div class="status-container">
-                            <mat-chip [ngClass]="'status-chip status-' + task.status.toLowerCase()">
+                            <mat-chip [ngClass]="'status-chip status-' + (task.status || 'unknown').toLowerCase()">
                                 {{ task.status }}
                             </mat-chip>
                         </div>
@@ -191,28 +191,28 @@
                         </h4>
                         <div class="management-buttons">
                             <button mat-button class="management-btn start" 
-                                    (click)="$event.stopPropagation(); startTask(task.task_id)"
+                                    (click)="$event.stopPropagation(); task.task_id && startTask(task.task_id)"
                                     [disabled]="task.status === 'RUNNING'"
                                     title="Start task execution">
                                 <mat-icon>play_arrow</mat-icon>
                                 Start
                             </button>
                             <button mat-button class="management-btn pause" 
-                                    (click)="$event.stopPropagation(); pauseTask(task.task_id)"
+                                    (click)="$event.stopPropagation(); task.task_id && pauseTask(task.task_id)"
                                     [disabled]="task.status !== 'RUNNING'"
                                     title="Pause task execution">
                                 <mat-icon>pause</mat-icon>
                                 Pause
                             </button>
                             <button mat-button class="management-btn resume" 
-                                    (click)="$event.stopPropagation(); resumeTask(task.task_id)"
+                                    (click)="$event.stopPropagation(); task.task_id && resumeTask(task.task_id)"
                                     [disabled]="task.status !== 'PAUSED'"
                                     title="Resume task execution">
                                 <mat-icon>play_arrow</mat-icon>
                                 Resume
                             </button>
                             <button mat-button class="management-btn delete" 
-                                    (click)="$event.stopPropagation(); deleteTask(task.task_id, task.name)"
+                                    (click)="$event.stopPropagation(); task.task_id && deleteTask(task.task_id, task.name)"
                                     title="Delete task permanently">
                                 <mat-icon>delete</mat-icon>
                                 Delete

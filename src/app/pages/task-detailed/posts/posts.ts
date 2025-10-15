@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { PostsService } from '../../../services/posts';
-import { TasksService } from '../../../services/tasks.service';
+import { TasksService } from '../../../services/tasks';
 import { Post, Task } from '../../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -125,7 +125,7 @@ export class Posts implements OnInit, OnDestroy {
     }
 
     // Get task first, then fetch only the posts for that task
-    const taskSub = this.tasksService.getTask(this.taskId).pipe(
+    const taskSub = this.tasksService.getTask(Number(this.taskId)).pipe(
       switchMap((task: Task) => {
         this.task = task;
         if (!task.post_ids || task.post_ids.length === 0) {

@@ -89,7 +89,7 @@ export class Report implements OnInit {
   processReportData() {
     if (!this.reportData) return;
 
-    this.filteredEvents = [...this.reportData.report];
+    this.filteredEvents = [...this.reportData.report.events];
     this.calculateStats();
     this.extractUniqueClients();
     this.applyFilters();
@@ -99,12 +99,12 @@ export class Report implements OnInit {
   calculateStats() {
     if (!this.reportData) return;
 
-    const events = this.reportData.report;
+    const events = this.reportData.report.events;
     this.stats.totalEvents = events.length;
-    this.stats.uniqueClients = new Set(events.map(e => e.client)).size;
-    this.stats.positiveReactions = events.filter(e => e.palette === 'positive').length;
-    this.stats.negativeReactions = events.filter(e => e.palette === 'negative').length;
-    this.stats.errorCount = events.filter(e => e.error !== null).length;
+    this.stats.uniqueClients = new Set(events.map((e: any) => e.client)).size;
+    this.stats.positiveReactions = events.filter((e: any) => e.palette === 'positive').length;
+    this.stats.negativeReactions = events.filter((e: any) => e.palette === 'negative').length;
+    this.stats.errorCount = events.filter((e: any) => e.error !== null).length;
     this.stats.successRate = this.stats.totalEvents > 0 
       ? ((this.stats.totalEvents - this.stats.errorCount) / this.stats.totalEvents) * 100 
       : 0;
@@ -112,13 +112,13 @@ export class Report implements OnInit {
 
   extractUniqueClients() {
     if (!this.reportData) return;
-    this.uniqueClients = [...new Set(this.reportData.report.map(e => e.client))].sort();
+    this.uniqueClients = [...new Set(this.reportData.report.events.map((e: any) => e.client))].sort();
   }
 
   applyFilters() {
     if (!this.reportData) return;
 
-    this.filteredEvents = this.reportData.report.filter(event => {
+    this.filteredEvents = this.reportData.report.events.filter((event: any) => {
       if (this.filters.client && !event.client.includes(this.filters.client)) return false;
       if (this.filters.palette && event.palette !== this.filters.palette) return false;
       if (this.filters.hasError !== null) {

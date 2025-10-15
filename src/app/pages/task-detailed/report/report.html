@@ -101,7 +101,7 @@
         <p>{{error}}</p>
         <button (click)="loadReportData()" class="retry-btn">Try Again</button>
       </div>
-    } @else if (!reportData || reportData.report.length === 0) {
+    } @else if (!reportData || reportData.report.events.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">📊</div>
         <h3>No report data available</h3>

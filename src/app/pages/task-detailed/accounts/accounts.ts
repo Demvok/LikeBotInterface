@@ -10,9 +10,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Subscription } from 'rxjs';
 import { AccountsService } from '../../../services/accounts';
-import { TasksService } from '../../../services/tasks.service';
+import { TasksService, Task } from '../../../services/tasks';
 import { Account } from '../../../services/api.models';
-import { Task } from '../../../services/tasks.service';
 
 // Extended account interface for task-specific view
 interface AccountWithTaskInfo extends Account {
@@ -103,12 +102,12 @@ export class Accounts implements OnInit, OnDestroy {
     this.loading = true;
     
     // Load task details and accounts in parallel
-    const taskSub = this.tasksService.getTask(this.taskId).subscribe(
+    const taskSub = this.tasksService.getTask(Number(this.taskId)).subscribe(
       (task: Task) => {
         this.task = task;
         this.loadAccounts();
       },
-      (error) => {
+      (error: any) => {
         console.error('Error fetching task:', error);
         this.loadAccounts(); // Load accounts anyway
       }
@@ -224,7 +223,7 @@ export class Accounts implements OnInit, OnDestroy {
     if (!confirm('Remove this account from the task?')) return;
     
     // Remove account from task (this would need a proper API endpoint)
-    const updatedAccounts = this.task.accounts.filter(phone => phone !== account.phone_number);
+    const updatedAccounts = this.task.accounts.filter((phone: string) => phone !== account.phone_number);
     // Here you would call an API to update the task
     alert('Remove from task functionality needs API implementation.');
   }

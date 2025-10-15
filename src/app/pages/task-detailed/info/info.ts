@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TasksService, Task } from '../../../services/tasks.service';
+import { TasksService, Task } from '../../../services/tasks';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -33,7 +33,7 @@ export class Info implements OnInit {
   private loadTask(id: string) {
     this.loading = true;
     this.error = null;
-    this.tasksService.getTask(id).subscribe({
+    this.tasksService.getTask(Number(id)).subscribe({
       next: (task: Task) => {
         this.task = task;
         this.loading = false;
@@ -65,7 +65,7 @@ export class Info implements OnInit {
   }
 
   getTaskDuration(): string {
-    if (!this.task) return 'N/A';
+    if (!this.task || !this.task.created_at || !this.task.updated_at) return 'N/A';
     
     const createdDate = new Date(this.task.created_at);
     const updatedDate = new Date(this.task.updated_at);
@@ -97,12 +97,12 @@ export class Info implements OnInit {
 
   // Task Management Actions
   startTask() {
-    if (!this.task) return;
+    if (!this.task || !this.task.task_id) return;
     
     this.tasksService.startTask(this.task.task_id).subscribe({
       next: (response: any) => {
         console.log('Task started:', response);
-        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+        this.loadTask(this.task!.task_id!.toString()); // Refresh task data
       },
       error: (error: any) => {
         console.error('Error starting task:', error);
@@ -112,12 +112,12 @@ export class Info implements OnInit {
   }
 
   pauseTask() {
-    if (!this.task) return;
+    if (!this.task || !this.task.task_id) return;
     
     this.tasksService.pauseTask(this.task.task_id).subscribe({
       next: (response: any) => {
         console.log('Task paused:', response);
-        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+        this.loadTask(this.task!.task_id!.toString()); // Refresh task data
       },
       error: (error: any) => {
         console.error('Error pausing task:', error);
@@ -127,12 +127,12 @@ export class Info implements OnInit {
   }
 
   resumeTask() {
-    if (!this.task) return;
+    if (!this.task || !this.task.task_id) return;
     
     this.tasksService.resumeTask(this.task.task_id).subscribe({
       next: (response: any) => {
         console.log('Task resumed:', response);
-        this.loadTask(this.task!.task_id.toString()); // Refresh task data
+        this.loadTask(this.task!.task_id!.toString()); // Refresh task data
       },
       error: (error: any) => {
         console.error('Error resuming task:', error);
@@ -142,7 +142,7 @@ export class Info implements OnInit {
   }
 
   deleteTask() {
-    if (!this.task) return;
+    if (!this.task || !this.task.task_id) return;
     
     const confirmed = confirm(`Are you sure you want to delete task "${this.task.name}"? This action cannot be undone.`);
     if (confirmed) {
