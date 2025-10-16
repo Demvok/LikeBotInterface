@@ -213,6 +213,7 @@ span .mat-mdc-button-touch-target {
   bottom: 3vh;
   width: 60px;
   height: 60px;
+  margin-top: 20px;
   border-radius: 50%;
   background: var(--color-bg-darker);
   color: #fff;
@@ -293,6 +294,104 @@ span .star {
   margin-top: 0.2rem;
   font-size: 1rem;
   background: var(--color-bg-light, #fff);
+}
+
+.modal-window input[type="password"],
+.modal-window textarea,
+.modal-window select {
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  background: var(--color-bg-light, #fff);
+}
+
+.modal-window textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modal-window select {
+  cursor: pointer;
+}
+
+.modal-description {
+  font-size: 0.9rem;
+  color: var(--color-text-alt, #666);
+  margin: -0.5rem 0 0.5rem 0;
+  text-align: center;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: var(--color-text-alt, #777);
+  margin: 0.5rem 0 0 0;
+  font-style: italic;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 0.75rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+  font-size: 0.9rem;
+}
+
+.info-message {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 0.75rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #1565c0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-message mat-spinner {
+  display: inline-block;
+}
+
+.status-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: var(--color-text-success);
+  color: white;
+}
+
+.status-error {
+  background-color: var(--color-text-error);
+  color: white;
+}
+
+.status-new {
+  background-color: var(--color-text-info);
+  color: white;
+}
+
+.status-unknown {
+  background-color: var(--color-text-waiting);
+  color: white;
+}
+
+.btn-validate {
+  background-color: var(--color-bg-darker) !important;
+}
+
+.btn-validate:hover {
+  background-color: var(--color-bg-accented-darker) !important;
 }
 .modal-actions {
   display: flex;

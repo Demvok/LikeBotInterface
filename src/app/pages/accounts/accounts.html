@@ -25,15 +25,33 @@
             <!-- Session Name Column -->
             <ng-container matColumnDef="session_name">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Session Name</div></th>
-                <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.session_name }}</div></td>
+                <td mat-cell *matCellDef="let account"><div class="table-cell">{{ account.session_name || '-' }}</div></td>
+            </ng-container>
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Status</div></th>
+                <td mat-cell *matCellDef="let account">
+                    <div class="table-cell">
+                        <span [class]="'status-badge ' + getAccountStatusClass(account.status)">
+                            {{ account.status || 'UNKNOWN' }}
+                        </span>
+                    </div>
+                </td>
             </ng-container>
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
                 <td mat-cell *matCellDef="let account">
                     <div class="table-cell">
-                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)">Edit</button>
-                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)">Delete</button>
+                        <button mat-button class="account-action-button btn-validate" (click)="validateAccount(account)" title="Validate Account">
+                            Validate
+                        </button>
+                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)" title="Edit Account">
+                            Edit
+                        </button>
+                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)" title="Delete Account">
+                            Delete
+                        </button>
                     </div>
                 </td>
             </ng-container>
@@ -54,23 +72,159 @@
         <!-- Modal for Account Creation -->
         <div class="modal-backdrop" *ngIf="showAddModal">
             <div class="modal-window">
-                <h2>Add Account</h2>
+                <h2>Add New Account</h2>
+                <p class="modal-description">Enter phone number to start the Telegram login process</p>
+                
+                <div *ngIf="loginError" class="error-message">
+                    {{ loginError }}
+                    <div *ngIf="loginError.includes('Backend') || loginError.includes('Server error') || loginError.includes('Too many errors')" style="margin-top: 0.5rem;">
+                        <button type="button" (click)="resetAndRestart()" style="padding: 0.3rem 0.8rem; font-size: 0.9rem; background: #1565c0; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            Start Fresh
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="loginMessage && loginInProgress" class="info-message">
+                    <mat-spinner diameter="20" *ngIf="loginInProgress"></mat-spinner>
+                    {{ loginMessage }}
+                </div>
+
                 <form (ngSubmit)="submitAddAccount()" #addAccountForm="ngForm" autocomplete="off">
                     <label>
                         <span class="label-text">Phone Number: <span class="star">*</span></span>
-                        <input type="text" name="phone_number" [(ngModel)]="newAccount.phone_number" required />
-                    </label>
-                    <label>
-                        <span class="label-text">Account ID:</span>
-                        <input type="text" name="account_id" [(ngModel)]="newAccount.account_id" />
+                        <input 
+                            type="text" 
+                            name="phone_number" 
+                            [(ngModel)]="newAccount.phone_number" 
+                            placeholder="+1234567890"
+                            required 
+                            [disabled]="loginInProgress" />
                     </label>
                     <label>
                         <span class="label-text">Session Name:</span>
-                        <input type="text" name="session_name" [(ngModel)]="newAccount.session_name" />
+                        <input 
+                            type="text" 
+                            name="session_name" 
+                            [(ngModel)]="newAccount.session_name" 
+                            placeholder="Optional custom name"
+                            [disabled]="loginInProgress" />
+                    </label>
+                    <label>
+                        <span class="label-text">2FA Password (if enabled):</span>
+                        <input 
+                            type="password" 
+                            name="password_encrypted" 
+                            [(ngModel)]="newAccount.password_encrypted" 
+                            placeholder="Optional - provide if account has 2FA enabled"
+                            [disabled]="loginInProgress" />
+                    </label>
+                    <p class="help-text" style="margin-top: -0.5rem; font-size: 0.8rem;">
+                        If your account has Two-Step Verification enabled, provide the password here. 
+                        If you don't provide it now, you'll be prompted later during the login process.
+                    </p>
+                    <label>
+                        <span class="label-text">Notes:</span>
+                        <textarea 
+                            name="notes" 
+                            [(ngModel)]="newAccount.notes" 
+                            rows="3"
+                            placeholder="Optional notes about this account"
+                            [disabled]="loginInProgress"></textarea>
                     </label>
                     <div class="modal-actions">
-                        <button type="submit" [disabled]="addAccountForm.invalid">Create</button>
-                        <button type="button" (click)="closeAddAccountModal()">Cancel</button>
+                        <button type="submit" [disabled]="addAccountForm.invalid || loginInProgress">
+                            {{ loginInProgress ? 'Processing...' : 'Start Login' }}
+                        </button>
+                        <button type="button" (click)="closeAddAccountModal()" [disabled]="loginInProgress">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal for Verification Code -->
+        <div class="modal-backdrop" *ngIf="showVerifyModal">
+            <div class="modal-window">
+                <h2>Enter Verification Code</h2>
+                <p class="modal-description">
+                    A verification code has been sent to your Telegram app. Please check your phone and enter the code below.
+                </p>
+                
+                <div *ngIf="loginError" class="error-message">
+                    {{ loginError }}
+                    <div *ngIf="loginError.includes('Backend') || loginError.includes('Server error') || loginError.includes('Too many errors')" style="margin-top: 0.5rem;">
+                        <button type="button" (click)="resetAndRestart()" style="padding: 0.3rem 0.8rem; font-size: 0.9rem; background: #1565c0; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            Start Fresh
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="loginMessage && loginInProgress" class="info-message">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    {{ loginMessage }}
+                </div>
+
+                <form (ngSubmit)="submitVerificationCode()" #verifyForm="ngForm" autocomplete="off">
+                    <label>
+                        <span class="label-text">Verification Code: <span class="star">*</span></span>
+                        <input 
+                            type="text" 
+                            name="verification_code" 
+                            [(ngModel)]="verificationCode" 
+                            placeholder="Enter code from Telegram (e.g., 12345)"
+                            required 
+                            autofocus
+                            maxlength="10"
+                            [disabled]="loginInProgress"
+                            #codeInput />
+                    </label>
+                    <p class="help-text">Check your Telegram app for the verification code. It should arrive within a few seconds.</p>
+                    <div class="modal-actions">
+                        <button type="submit" [disabled]="verifyForm.invalid || loginInProgress">
+                            {{ loginInProgress ? 'Verifying...' : 'Verify Code' }}
+                        </button>
+                        <button type="button" (click)="closeVerifyModal()" [disabled]="loginInProgress">
+                            Cancel
+                        </button>
+                    </div>
+                    <div *ngIf="loginError" class="help-text" style="color: #c62828; margin-top: 0.5rem;">
+                        If you're having trouble, make sure the code is correct or wait for a new code.
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal for Account Editing -->
+        <div class="modal-backdrop" *ngIf="showEditModal && editingAccount">
+            <div class="modal-window">
+                <h2>Edit Account</h2>
+                <p class="modal-description">Update account information</p>
+
+                <form (ngSubmit)="submitEditAccount()" #editAccountForm="ngForm" autocomplete="off">
+                    <label>
+                        <span class="label-text">Phone Number:</span>
+                        <input 
+                            type="text" 
+                            name="phone_number" 
+                            [(ngModel)]="editingAccount.phone_number" 
+                            disabled />
+                    </label>
+                    <label>
+                        <span class="label-text">Session Name:</span>
+                        <input 
+                            type="text" 
+                            name="session_name" 
+                            [(ngModel)]="editingAccount.session_name" />
+                    </label>
+                    <label>
+                        <span class="label-text">Notes:</span>
+                        <textarea 
+                            name="notes" 
+                            [(ngModel)]="editingAccount.notes" 
+                            rows="3"></textarea>
+                    </label>
+                    <div class="modal-actions">
+                        <button type="submit">Update</button>
+                        <button type="button" (click)="closeEditModal()">Cancel</button>
                     </div>
                 </form>
             </div>
