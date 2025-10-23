@@ -129,6 +129,43 @@ header form {
   color: var(--color-text-warning);
 }
 
+.level-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.filters-label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-dark);
+}
+
+.level-filters button {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+  padding: 0.25rem 0.9rem;
+  background-color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-dark);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.level-filters button:hover {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.level-filters button.active {
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
+  border-color: var(--color-bg-darker);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 .status-message {
   font-size: 0.9rem;
 }
@@ -168,12 +205,48 @@ main {
 .log-line {
   white-space: pre-wrap;
   word-break: break-word;
-  padding: 0.1rem 0;
+  padding: 0.2rem 0.6rem 0.2rem 0.75rem;
+  margin: 0.1rem 0;
+  border-left: 4px solid transparent;
+  background: transparent;
+  transition: background-color 0.2s ease;
 }
 
-.log-line.error {
-  color: var(--color-text-error);
+.log-line.level-debug {
+  border-color: #6b7280;
+  color: #94a3b8;
+}
+
+.log-line.level-info {
+  border-color: var(--color-text);
+  color: #d9e0e8;
+}
+
+.log-line.level-warning {
+  border-color: var(--color-text-warning);
+  color: #ffd166;
+}
+
+.log-line.level-error {
+  border-color: var(--color-text-error);
+  color: #f78da7;
   font-weight: 600;
+}
+
+.log-line.level-critical {
+  border-color: #ff006e;
+  color: #ff528b;
+  font-weight: 700;
+  background: rgba(255, 0, 110, 0.08);
+}
+
+.log-line.level-other {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.log-line.undetected {
+  opacity: 0.85;
 }
 
 .placeholder {

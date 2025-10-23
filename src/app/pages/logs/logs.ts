@@ -1,21 +1,24 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { LogsService, LogsStreamEvent } from '../../services/logs.service';
 
 type ConnectionState = 'disconnected' | 'connecting' | 'connected';
 
+type LogLevel = 'CRITICAL' | 'ERROR' | 'WARNING' | 'INFO' | 'DEBUG' | 'OTHER';
+
 interface LogEntry {
   kind: 'line' | 'error';
   text: string;
+  level: LogLevel;
+  detected: boolean;
 }
 
 @Component({
   selector: 'app-logs',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './logs.html',
   styleUrls: ['./logs.css']
 })
@@ -33,6 +36,15 @@ export class Logs implements OnDestroy {
   infoMessage: string | null = null;
   autoScroll = true;
   readonly logEntries: LogEntry[] = [];
+  readonly levels: LogLevel[] = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'OTHER'];
+  levelFilters: Record<LogLevel, boolean> = {
+    CRITICAL: true,
+    ERROR: true,
+    WARNING: true,
+    INFO: true,
+    DEBUG: true,
+    OTHER: true
+  };
   private readonly maxEntries = 2000;
   private streamSub?: Subscription;
 
@@ -44,6 +56,10 @@ export class Logs implements OnDestroy {
 
   get isConnecting(): boolean {
     return this.connectionState === 'connecting';
+  }
+
+  get visibleEntries(): LogEntry[] {
+    return this.logEntries.filter((entry) => this.levelFilters[entry.level]);
   }
 
   connect(): void {
@@ -59,6 +75,7 @@ export class Logs implements OnDestroy {
     this.errorMessage = null;
     this.infoMessage = null;
     this.connectionState = 'connecting';
+    this.autoScroll = true;
 
     this.streamSub = this.logsService
       .streamLogs({
@@ -98,6 +115,51 @@ export class Logs implements OnDestroy {
     this.stopStream(false);
   }
 
+  toggleAutoScroll(force?: boolean): void {
+    const next = typeof force === 'boolean' ? force : !this.autoScroll;
+    this.autoScroll = next;
+    this.infoMessage = next ? 'Auto-scroll enabled.' : 'Auto-scroll paused.';
+    if (next) {
+      this.scrollToBottom();
+    }
+  }
+
+  handleScroll(event: Event): void {
+    if (!this.logContainer) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    const atBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 8;
+
+    if (!atBottom && this.autoScroll) {
+      this.autoScroll = false;
+      this.infoMessage = 'Auto-scroll paused.';
+    } else if (atBottom && !this.autoScroll) {
+      // Do not force-enable; wait for explicit toggle.
+      return;
+    }
+  }
+
+  toggleLevel(level: LogLevel): void {
+    this.levelFilters = {
+      ...this.levelFilters,
+      [level]: !this.levelFilters[level]
+    };
+  }
+
+  isLevelActive(level: LogLevel): boolean {
+    return this.levelFilters[level];
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  levelLabel(level: LogLevel): string {
+    return level === 'OTHER' ? 'Other' : level;
+  }
+
   private handleStreamEvent(event: LogsStreamEvent): void {
     switch (event.kind) {
       case 'open':
@@ -122,7 +184,9 @@ export class Logs implements OnDestroy {
   }
 
   private pushLine(text: string, kind: LogEntry['kind']): void {
-    this.logEntries.push({ kind, text });
+    const detectedLevel = kind === 'error' ? 'ERROR' : this.detectLogLevel(text);
+    const level: LogLevel = detectedLevel ?? 'OTHER';
+    this.logEntries.push({ kind, text, level, detected: detectedLevel !== null });
     if (this.logEntries.length > this.maxEntries) {
       this.logEntries.splice(0, this.logEntries.length - this.maxEntries);
     }
@@ -158,5 +222,13 @@ export class Logs implements OnDestroy {
     const source = logFile && logFile.length > 0 ? logFile : 'main.log';
     const tail = typeof tailValue === 'number' ? `tail ${tailValue}` : 'default tail';
     return `Streaming ${source} (${tail})`;
+  }
+
+  private detectLogLevel(text: string): LogLevel | null {
+    const match = /\b(DEBUG|INFO|WARNING|ERROR|CRITICAL)\b/i.exec(text);
+    if (!match) {
+      return null;
+    }
+    return match[1].toUpperCase() as LogLevel;
   }
 }

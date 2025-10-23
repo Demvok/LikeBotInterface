@@ -9,28 +9,50 @@
                 <label for="tail">Tail</label>
                 <input id="tail" type="number" formControlName="tail" min="0" max="1000" />
             </div>
-            <div class="control checkbox">
+                    <div class="control checkbox">
                         <label>
-                            <input type="checkbox" [(ngModel)]="autoScroll" [ngModelOptions]="{ standalone: true }" />
-                    Auto-scroll
-                </label>
-            </div>
+                            <input type="checkbox" [checked]="autoScroll" (change)="toggleAutoScroll($event.target.checked)" />
+                            Auto-scroll
+                        </label>
+                    </div>
             <div class="form-actions">
                 <button type="submit" [disabled]="isConnecting">Connect</button>
                 <button type="button" (click)="stopStream()" [disabled]="!isConnected && !isConnecting">Disconnect</button>
                 <button type="button" (click)="clearLogs()" [disabled]="logEntries.length === 0">Clear</button>
             </div>
         </form>
-        <div class="status-line">
+            <div class="status-line">
             <span class="status" [class.connected]="isConnected" [class.connecting]="isConnecting">{{ connectionState | titlecase }}</span>
             <span *ngIf="errorMessage" class="status-message error">{{ errorMessage }}</span>
             <span *ngIf="!errorMessage && infoMessage" class="status-message info">{{ infoMessage }}</span>
         </div>
+            <div class="level-filters">
+                <span class="filters-label">Levels:</span>
+                <button
+                    type="button"
+                    *ngFor="let level of levels"
+                    (click)="toggleLevel(level)"
+                    [class.active]="isLevelActive(level)"
+                >
+                    {{ levelLabel(level) }}
+                </button>
+            </div>
     </header>
     <main>
-        <div #logContainer class="log-output">
-            <ng-container *ngIf="logEntries.length; else emptyState">
-                <div *ngFor="let entry of logEntries" class="log-line" [class.error]="entry.kind === 'error'">
+            <div #logContainer class="log-output" (scroll)="handleScroll($event)">
+                <ng-container *ngIf="visibleEntries.length; else emptyState">
+                    <div
+                        *ngFor="let entry of visibleEntries; trackBy: trackByIndex"
+                        class="log-line"
+                        [class.error]="entry.kind === 'error'"
+                        [class.level-debug]="entry.level === 'DEBUG'"
+                        [class.level-info]="entry.level === 'INFO'"
+                        [class.level-warning]="entry.level === 'WARNING'"
+                        [class.level-error]="entry.level === 'ERROR'"
+                        [class.level-critical]="entry.level === 'CRITICAL'"
+                        [class.level-other]="entry.level === 'OTHER'"
+                        [class.undetected]="!entry.detected"
+                    >
                     {{ entry.text }}
                 </div>
             </ng-container>
@@ -41,7 +63,7 @@
     </main>
     <footer>
         <div class="footer-meta">
-            <span>Lines: {{ logEntries.length }}</span>
+                <span>Lines: {{ visibleEntries.length }} / {{ logEntries.length }}</span>
             <span>Tail: {{ logForm.value.tail ?? 'default' }}</span>
         </div>
     </footer>
