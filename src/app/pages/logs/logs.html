@@ -1,9 +1,48 @@
 <div class="content-wrapper">
     <header>
-        Header
+        <form [formGroup]="logForm" (ngSubmit)="connect()">
+            <div class="control">
+                <label for="logFile">Log file</label>
+                <input id="logFile" type="text" formControlName="log_file" placeholder="main.log" />
+            </div>
+            <div class="control">
+                <label for="tail">Tail</label>
+                <input id="tail" type="number" formControlName="tail" min="0" max="1000" />
+            </div>
+            <div class="control checkbox">
+                        <label>
+                            <input type="checkbox" [(ngModel)]="autoScroll" [ngModelOptions]="{ standalone: true }" />
+                    Auto-scroll
+                </label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" [disabled]="isConnecting">Connect</button>
+                <button type="button" (click)="stopStream()" [disabled]="!isConnected && !isConnecting">Disconnect</button>
+                <button type="button" (click)="clearLogs()" [disabled]="logEntries.length === 0">Clear</button>
+            </div>
+        </form>
+        <div class="status-line">
+            <span class="status" [class.connected]="isConnected" [class.connecting]="isConnecting">{{ connectionState | titlecase }}</span>
+            <span *ngIf="errorMessage" class="status-message error">{{ errorMessage }}</span>
+            <span *ngIf="!errorMessage && infoMessage" class="status-message info">{{ infoMessage }}</span>
+        </div>
     </header>
     <main>
-        Main
+        <div #logContainer class="log-output">
+            <ng-container *ngIf="logEntries.length; else emptyState">
+                <div *ngFor="let entry of logEntries" class="log-line" [class.error]="entry.kind === 'error'">
+                    {{ entry.text }}
+                </div>
+            </ng-container>
+            <ng-template #emptyState>
+                <div class="placeholder">Connect to the log stream to see output.</div>
+            </ng-template>
+        </div>
     </main>
-    <footer>Footer</footer>  
+    <footer>
+        <div class="footer-meta">
+            <span>Lines: {{ logEntries.length }}</span>
+            <span>Tail: {{ logForm.value.tail ?? 'default' }}</span>
+        </div>
+    </footer>
 </div>

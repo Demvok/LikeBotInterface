@@ -160,6 +160,8 @@ main {
 
 .empty-icon {
   color: var(--color-text-waiting);
+  width: 100%;
+  height: 100%;
 }
 
 .error-container h2, .empty-container h2 {
