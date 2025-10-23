@@ -25,10 +25,12 @@ jobs:
           npm run build -- --configuration production
 
       - name: Deploy via SSH
-        uses: appleboy/scp-action@v0.1.7
+        uses: burnett01/rsync-deployments@7.0.1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "dist/LikeBot/*"
-          target: "/var/www/angular-app"
+          switches: -avz --delete
+          path: dist/LikeBot/
+          remote_path: /var/www/angular-app/
+          remote_host: ${{ secrets.SERVER_HOST }}
+          remote_user: ${{ secrets.SERVER_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
