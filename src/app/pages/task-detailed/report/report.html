@@ -2,94 +2,63 @@
   <header>
     <div class="header-title">
       <h2>Task Report #{{taskId}}</h2>
-      <span class="run-id" *ngIf="reportData">Run ID: {{reportData.run_id}}</span>
-      <button (click)="loadReportData()" [disabled]="isLoading" class="refresh-btn">
+      
+      <div class="control-group">
+        <label>Select Run:</label>
+        <select [(ngModel)]="selectedRunId" (change)="onRunChange()" [disabled]="isLoadingRuns || availableRuns.length === 0">
+          @if (availableRuns.length === 0) {
+            <option value="">No runs available</option>
+          } @else {
+            @for (run of availableRuns; track run.run_id) {
+              <option [value]="run.run_id">
+                {{run.started_at | date:'MMM dd, yyyy HH:mm'}} - {{run.event_count}} events ({{run.status}})
+              </option>
+            }
+          }
+        </select>
+      </div>
+      
+      <button (click)="loadReportData()" [disabled]="isLoading || !selectedRunId" class="refresh-btn">
         <span [class.spinning]="isLoading">↻</span> Refresh
       </button>
     </div>
 
-    <!-- Stats Overview -->
-    @if (reportData && !isLoading) {
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number">{{stats.totalEvents}}</div>
-          <div class="stat-label">Total Events</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{stats.uniqueClients}}</div>
-          <div class="stat-label">Unique Clients</div>
-        </div>
-        <div class="stat-card positive">
-          <div class="stat-number">{{stats.positiveReactions}}</div>
-          <div class="stat-label">Positive</div>
-        </div>
-        <div class="stat-card negative">
-          <div class="stat-number">{{stats.negativeReactions}}</div>
-          <div class="stat-label">Negative</div>
-        </div>
-        <div class="stat-card error">
-          <div class="stat-number">{{stats.errorCount}}</div>
-          <div class="stat-label">Errors</div>
-        </div>
-        <div class="stat-card success">
-          <div class="stat-number">{{stats.successRate | number:'1.1-1'}}%</div>
-          <div class="stat-label">Success Rate</div>
-        </div>
+    <!-- Report Type and Client Filter -->
+    <div class="controls-section">
+      <div class="control-group">
+        <label>Report Type:</label>
+        <select [(ngModel)]="reportType" (change)="onReportTypeChange()" [disabled]="isLoading || !selectedRunId">
+          <option value="success">Success Only</option>
+          <option value="errors">Errors Only</option>
+          <option value="all">All Events</option>
+        </select>
       </div>
-    }
 
-    <!-- Filters -->
-    @if (reportData && !isLoading) {
-      <div class="filters-section">
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label>Client:</label>
-            <select [(ngModel)]="filters.client" (change)="onFilterChange()">
-              <option value="">All Clients</option>
-              @for (client of uniqueClients; track client) {
-                <option [value]="client">{{formatPhoneNumber(client)}}</option>
-              }
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <label>Reaction:</label>
-            <select [(ngModel)]="filters.palette" (change)="onFilterChange()">
-              <option value="">All Reactions</option>
-              <option value="positive">Positive</option>
-              <option value="negative">Negative</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <label>From Date:</label>
-            <input type="date" [(ngModel)]="filters.startDate" (change)="onFilterChange()">
-          </div>
-          
-          <div class="filter-group">
-            <label>To Date:</label>
-            <input type="date" [(ngModel)]="filters.endDate" (change)="onFilterChange()">
-          </div>
-          
-          <div class="filter-group">
-            <label>Status:</label>
-            <select [(ngModel)]="filters.hasError" (change)="onFilterChange()">
-              <option [ngValue]="null">All Events</option>
-              <option [ngValue]="false">Success Only</option>
-              <option [ngValue]="true">Errors Only</option>
-            </select>
-          </div>
-          
-          <button (click)="clearFilters()" class="clear-filters-btn">
-            Clear Filters
-          </button>
-        </div>
+      <div class="control-group">
+        <label>Client:</label>
+        <select [(ngModel)]="filters.client" (change)="onFilterChange()">
+          <option value="">All Clients</option>
+          @for (client of uniqueClients; track client) {
+            <option [value]="client">{{formatPhoneNumber(client)}}</option>
+          }
+        </select>
       </div>
-    }
+    </div>
   </header>
 
   <main>
-    @if (isLoading) {
+    @if (isLoadingRuns) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading available runs...</p>
+      </div>
+    } @else if (availableRuns.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No runs available</h3>
+        <p>This task hasn't been executed yet.</p>
+      </div>
+    } @else if (isLoading) {
       <div class="loading-state">
         <div class="loading-spinner"></div>
         <p>Loading report data...</p>
@@ -101,11 +70,11 @@
         <p>{{error}}</p>
         <button (click)="loadReportData()" class="retry-btn">Try Again</button>
       </div>
-    } @else if (!reportData || reportData.report.events.length === 0) {
+    } @else if (!reportData || reportData.report.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">📊</div>
         <h3>No report data available</h3>
-        <p>This task hasn't generated any report data yet.</p>
+        <p>No events found for the selected report type.</p>
       </div>
     } @else {
       <!-- Events Table -->
@@ -150,18 +119,23 @@
                 }
               </th>
               <th>Message</th>
-              <th>Status</th>
+              @if (reportType === 'all' || reportType === 'success') {
+                <th>Status</th>
+              }
+              @if (reportType === 'errors') {
+                <th>Error Details</th>
+              }
             </tr>
           </thead>
           <tbody>
             @for (event of getPaginatedEvents(); track trackByEvent($index, event)) {
               <tr [class]="event.error ? 'error-row' : ''">
                 <td class="timestamp-cell">
-                  {{formatDate(event.datetime)}}
+                  {{formatDate(event.datetime || event.ts)}}
                 </td>
                 <td class="client-cell">
                   <div class="client-info">
-                    <span class="phone-number">{{formatPhoneNumber(event.client)}}</span>
+                    <span class="phone-number">{{formatPhoneNumber(event.client || '')}}</span>
                   </div>
                 </td>
                 <td class="post-cell">
@@ -174,35 +148,45 @@
                   }
                 </td>
                 <td class="reaction-cell">
-                  <span [class]="'reaction-badge ' + event.palette">
-                    @if (event.palette === 'positive') {
-                      <span class="reaction-emoji">👍</span> Positive
-                    } @else if (event.palette === 'negative') {
-                      <span class="reaction-emoji">👎</span> Negative
-                    } @else {
-                      {{event.palette}}
-                    }
-                  </span>
+                  @if (event.palette) {
+                    <span [class]="'reaction-badge ' + event.palette">
+                      @if (event.palette === 'positive') {
+                        <span class="reaction-emoji">👍</span> Positive
+                      } @else if (event.palette === 'negative') {
+                        <span class="reaction-emoji">👎</span> Negative
+                      } @else {
+                        {{event.palette}}
+                      }
+                    </span>
+                  } @else {
+                    <span class="no-link">N/A</span>
+                  }
                 </td>
                 <td class="message-cell">
                   <div class="message-content">
                     {{event.message}}
                   </div>
                 </td>
-                <td class="status-cell">
-                  @if (event.error) {
-                    <span class="status-badge error">
-                      ❌ Error
-                    </span>
-                    <div class="error-tooltip">
+                @if (reportType === 'all' || reportType === 'success') {
+                  <td class="status-cell">
+                    @if (event.error) {
+                      <span class="status-badge error">
+                        ❌ Error
+                      </span>
+                    } @else {
+                      <span class="status-badge success">
+                        ✅ Success
+                      </span>
+                    }
+                  </td>
+                }
+                @if (reportType === 'errors') {
+                  <td class="error-details-cell">
+                    <div class="error-content">
                       {{event.error}}
                     </div>
-                  } @else {
-                    <span class="status-badge success">
-                      ✅ Success
-                    </span>
-                  }
-                </td>
+                  </td>
+                }
               </tr>
             }
           </tbody>
@@ -247,12 +231,11 @@
   </main>
 
   <footer>
-    @if (reportData && !isLoading) {
+    @if (reportData && !isLoading && selectedRunId) {
       <div class="footer-stats">
-        Report generated with {{stats.totalEvents}} total events across {{stats.uniqueClients}} clients
-        @if (reportData.run_id) {
-          | Run: {{reportData.run_id}}
-        }
+        Report Type: <strong>{{reportType}}</strong> | 
+        {{filteredEvents.length}} events | 
+        Run: <span class="run-id-footer">{{selectedRunId}}</span>
       </div>
     }
   </footer>

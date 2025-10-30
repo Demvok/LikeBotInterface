@@ -13,6 +13,7 @@ import { CreateTaskMain } from './pages/tasks/create-task/create-task-main/creat
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { authGuard } from './guards/auth.guard';
+import { redirectGuard } from './guards/redirect.guard';
 
 export const routes: Routes = [
   // Public routes
@@ -32,8 +33,8 @@ export const routes: Routes = [
   { path: 'task/:id/report', component: Report, canActivate: [authGuard] },
   { path: 'tasks/create', component: CreateTaskMain, canActivate: [authGuard] },
   
-  // Default redirect to login
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  // Root route - redirect based on auth status
+  { path: '', pathMatch: 'full', canActivate: [redirectGuard], children: [] }
 ];
 
 export default provideRouter(routes);

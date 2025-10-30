@@ -159,4 +159,13 @@ export class AccountsService {
     const params = new HttpParams().set('login_session_id', login_session_id);
     return this.http.get<LoginStatusResponse>(`${this.apiUrl}/create/status`, { params });
   }
+
+  /** Get account password (admin only) */
+  getAccountPassword(phone_number: string): Observable<{ phone_number: string; has_password: boolean; password: string | null }> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.get<{ phone_number: string; has_password: boolean; password: string | null }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/password`
+      )
+    );
+  }
 }

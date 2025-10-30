@@ -1,25 +1,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { TaskReport, ReportEvent } from '../../../services/api.models';
+import { TaskReport, ReportEvent, Run } from '../../../services/api.models';
 import { ReportService } from '../../../services/report.service';
+import { TasksService } from '../../../services/tasks';
 import { FormsModule } from '@angular/forms';
 
 interface FilterOptions {
   client: string;
-  palette: string;
-  startDate: string;
-  endDate: string;
-  hasError: boolean | null;
 }
 
+type ReportType = 'success' | 'errors' | 'all';
+
 interface ReportStats {
-  totalEvents: number;
-  uniqueClients: number;
-  positiveReactions: number;
-  negativeReactions: number;
   errorCount: number;
-  successRate: number;
 }
 
 @Component({
@@ -32,6 +26,7 @@ interface ReportStats {
 export class Report implements OnInit {
   private route = inject(ActivatedRoute);
   private reportService = inject(ReportService);
+  private tasksService = inject(TasksService);
   private datePipe = inject(DatePipe);
 
   taskId: number = 0;
@@ -40,21 +35,20 @@ export class Report implements OnInit {
   isLoading = false;
   error: string | null = null;
   
+  // Runs management
+  availableRuns: Run[] = [];
+  selectedRunId: string | null = null;
+  isLoadingRuns = false;
+  
+  // Report type (default to success)
+  reportType: ReportType = 'success';
+  
   filters: FilterOptions = {
-    client: '',
-    palette: '',
-    startDate: '',
-    endDate: '',
-    hasError: null
+    client: ''
   };
 
   stats: ReportStats = {
-    totalEvents: 0,
-    uniqueClients: 0,
-    positiveReactions: 0,
-    negativeReactions: 0,
-    errorCount: 0,
-    successRate: 0
+    errorCount: 0
   };
 
   uniqueClients: string[] = [];
@@ -67,16 +61,47 @@ export class Report implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.taskId = +params['id'];
-      this.loadReportData();
+      this.loadAvailableRuns();
     });
   }
 
+  async loadAvailableRuns() {
+    this.isLoadingRuns = true;
+    try {
+      const response = await this.tasksService.getTaskRuns(this.taskId).toPromise();
+      if (response && response.runs) {
+        this.availableRuns = response.runs.sort((a, b) => 
+          new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
+        );
+        
+        // Select the latest run by default
+        if (this.availableRuns.length > 0) {
+          this.selectedRunId = this.availableRuns[0].run_id;
+          await this.loadReportData();
+        }
+      }
+    } catch (err: any) {
+      this.error = err.error?.detail || 'Failed to load available runs';
+    } finally {
+      this.isLoadingRuns = false;
+    }
+  }
+
   async loadReportData() {
+    if (!this.selectedRunId) {
+      this.error = 'No run selected';
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
     
     try {
-      const response = await this.reportService.getTaskReport(this.taskId).toPromise();
+      const response = await this.reportService.getTaskReport(
+        this.taskId, 
+        this.reportType, 
+        this.selectedRunId
+      ).toPromise();
       this.reportData = response || null;
       this.processReportData();
     } catch (err: any) {
@@ -86,10 +111,22 @@ export class Report implements OnInit {
     }
   }
 
+  onRunChange() {
+    if (this.selectedRunId) {
+      this.loadReportData();
+    }
+  }
+
+  onReportTypeChange() {
+    if (this.selectedRunId) {
+      this.loadReportData();
+    }
+  }
+
   processReportData() {
     if (!this.reportData) return;
 
-    this.filteredEvents = [...this.reportData.report.events];
+    this.filteredEvents = [...this.reportData.report];
     this.calculateStats();
     this.extractUniqueClients();
     this.applyFilters();
@@ -99,44 +136,24 @@ export class Report implements OnInit {
   calculateStats() {
     if (!this.reportData) return;
 
-    const events = this.reportData.report.events;
-    this.stats.totalEvents = events.length;
-    this.stats.uniqueClients = new Set(events.map((e: any) => e.client)).size;
-    this.stats.positiveReactions = events.filter((e: any) => e.palette === 'positive').length;
-    this.stats.negativeReactions = events.filter((e: any) => e.palette === 'negative').length;
-    this.stats.errorCount = events.filter((e: any) => e.error !== null).length;
-    this.stats.successRate = this.stats.totalEvents > 0 
-      ? ((this.stats.totalEvents - this.stats.errorCount) / this.stats.totalEvents) * 100 
-      : 0;
+    const events = this.reportData.report;
+    
+    // Filter only events that have client info (success/error reports, not all logs)
+    const clientEvents = events.filter((e: any) => e.client);
+    this.stats.errorCount = clientEvents.filter((e: any) => e.error !== null && e.error !== undefined).length;
   }
 
   extractUniqueClients() {
     if (!this.reportData) return;
-    this.uniqueClients = [...new Set(this.reportData.report.events.map((e: any) => e.client))].sort();
+    const clientEvents = this.reportData.report.filter((e: any) => e.client);
+    this.uniqueClients = [...new Set(clientEvents.map((e: any) => e.client))].sort();
   }
 
   applyFilters() {
     if (!this.reportData) return;
 
-    this.filteredEvents = this.reportData.report.events.filter((event: any) => {
-      if (this.filters.client && !event.client.includes(this.filters.client)) return false;
-      if (this.filters.palette && event.palette !== this.filters.palette) return false;
-      if (this.filters.hasError !== null) {
-        if (this.filters.hasError && event.error === null) return false;
-        if (!this.filters.hasError && event.error !== null) return false;
-      }
-      
-      const eventDate = new Date(event.datetime);
-      if (this.filters.startDate) {
-        const startDate = new Date(this.filters.startDate);
-        if (eventDate < startDate) return false;
-      }
-      if (this.filters.endDate) {
-        const endDate = new Date(this.filters.endDate);
-        endDate.setHours(23, 59, 59, 999);
-        if (eventDate > endDate) return false;
-      }
-
+    this.filteredEvents = this.reportData.report.filter((event: any) => {
+      if (this.filters.client && event.client && !event.client.includes(this.filters.client)) return false;
       return true;
     });
 
@@ -149,16 +166,20 @@ export class Report implements OnInit {
       
       switch (this.sortBy) {
         case 'datetime':
-          aValue = a.datetime;
-          bValue = b.datetime;
+          // Handle both datetime and ts fields
+          aValue = a.datetime || a.ts;
+          bValue = b.datetime || b.ts;
+          // Convert to timestamps for comparison
+          if (aValue) aValue = new Date(aValue).getTime();
+          if (bValue) bValue = new Date(bValue).getTime();
           break;
         case 'client':
-          aValue = a.client;
-          bValue = b.client;
+          aValue = a.client || '';
+          bValue = b.client || '';
           break;
         case 'palette':
-          aValue = a.palette;
-          bValue = b.palette;
+          aValue = a.palette || '';
+          bValue = b.palette || '';
           break;
         default:
           return 0;
@@ -187,21 +208,28 @@ export class Report implements OnInit {
 
   clearFilters() {
     this.filters = {
-      client: '',
-      palette: '',
-      startDate: '',
-      endDate: '',
-      hasError: null
+      client: ''
     };
     this.onFilterChange();
   }
 
-  formatDate(timestamp: number): string {
-    if (!timestamp || typeof timestamp !== 'number') {
+  formatDate(timestamp: number | string | undefined): string {
+    if (!timestamp) {
       return '';
     }
     
-    const date = new Date(timestamp);
+    let date: Date;
+    
+    if (typeof timestamp === 'string') {
+      // Handle ISO string format from "all" report type
+      date = new Date(timestamp);
+    } else if (typeof timestamp === 'number') {
+      // Handle Unix timestamp from success/error reports
+      date = new Date(timestamp);
+    } else {
+      return '';
+    }
+    
     if (isNaN(date.getTime())) {
       return '';
     }
@@ -282,10 +310,14 @@ export class Report implements OnInit {
 
   // Update the trackBy function to use existing properties
   trackByEvent(index: number, event: ReportEvent): any {
-    // Use a combination of datetime and client to create a unique key
-    if (event && event.datetime && event.client && 
-        typeof event.datetime === 'number' && !isNaN(event.datetime)) {
-      return `${event.datetime}-${event.client}`;
+    // Use a combination of timestamp and client to create a unique key
+    const timestamp = event.datetime || event.ts;
+    if (event && timestamp && event.client) {
+      return `${timestamp}-${event.client}`;
+    }
+    // For "all" report logs without client, use timestamp and message
+    if (timestamp && event.message) {
+      return `${timestamp}-${event.message.substring(0, 20)}`;
     }
     // Fall back to index if we can't create a unique identifier
     return index;

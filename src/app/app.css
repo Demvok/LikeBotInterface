@@ -31,7 +31,7 @@
   border-top: 3px solid var(--color-bg-accented-darker);
   border-radius: 5px;
   width: 80%;
-  margin: 0 10%;
+  margin: 0 10% 10% 10%;
 }
 
 .sidebar-content .sidebar-title hr {

@@ -393,6 +393,30 @@ span .star {
 .btn-validate:hover {
   background-color: var(--color-bg-accented-darker) !important;
 }
+
+.btn-password {
+  background-color: #1565c0 !important;
+}
+
+.btn-password:hover {
+  background-color: #0d47a1 !important;
+}
+
+.password-content {
+  margin-top: 1rem;
+}
+
+.password-display {
+  margin-top: 0.5rem;
+}
+
+.password-display input {
+  background-color: #f5f5f5 !important;
+  border: 2px solid #1565c0 !important;
+  font-weight: 500;
+  color: #000 !important;
+}
+
 .modal-actions {
   display: flex;
   justify-content: center;

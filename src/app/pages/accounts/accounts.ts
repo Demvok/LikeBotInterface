@@ -10,6 +10,7 @@ import { AccountsService, LoginStatusResponse } from '../../services/accounts';
 import { Account, AccountStatus } from '../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-accounts',
@@ -55,7 +56,12 @@ export class Accounts {
   readonly POLLING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
   readonly MAX_POLLING_ERRORS = 5; // Stop polling after 5 consecutive errors
 
-  constructor(private accountsService: AccountsService) {}
+  // Password view
+  showPasswordModal: boolean = false;
+  passwordData: { phone_number: string; has_password: boolean; password: string | null } | null = null;
+  passwordLoading: boolean = false;
+
+  constructor(private accountsService: AccountsService, private authService: AuthService) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -542,5 +548,39 @@ export class Accounts {
       default:
         return 'status-unknown';
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // View account password (admin only)
+  viewPassword(account: Account) {
+    const phone = this.sanitizePhoneNumber(account.phone_number);
+    if (!phone) return;
+    
+    this.passwordLoading = true;
+    this.showPasswordModal = true;
+    this.passwordData = null;
+    
+    this.accountsService.getAccountPassword(phone).subscribe(
+      (res) => {
+        this.passwordData = res;
+        this.passwordLoading = false;
+      },
+      (err) => {
+        this.showErrorMessage('Failed to retrieve password: ' + (err.error?.detail || err.message));
+        this.passwordLoading = false;
+        this.closePasswordModal();
+      }
+    );
+  }
+
+  closePasswordModal() {
+    this.showPasswordModal = false;
+    this.passwordData = null;
+    this.passwordLoading = false;
   }
 }

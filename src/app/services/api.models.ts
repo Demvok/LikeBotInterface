@@ -62,22 +62,31 @@ export interface Stats {
 }
 
 export interface ReportEvent {
-  datetime: number;
+  // Success/Error report format
+  datetime?: string;  // ISO date string
   message: string;
   details: string;
-  client: string;
-  message_link: string;
-  palette: 'positive' | 'negative';
-  error: string | null;
+  client?: string;
+  message_link?: string;
+  palette?: 'positive' | 'negative';
+  error?: string | null;
+  attempt?: number | null;
+  retries?: number | null;
+  
+  // "All" report format (detailed logs)
+  run_id?: string;
+  task_id?: number;
+  ts?: string;  // ISO date string
+  level?: string;
+  payload?: any;
+  event_type?: string;
+  action_type?: string;
 }
 
 export interface TaskReport {
   task_id: number;
   run_id: string | null;
-  report: {
-    events: ReportEvent[];
-    summary?: any;
-  };
+  report: ReportEvent[];  // Direct array, not nested in events
 }
 
 export interface ApiError {

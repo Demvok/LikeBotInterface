@@ -28,13 +28,13 @@
 
       <!-- User info and logout -->
       <div class="sidebar-footer">
-        <hr>
         <div class="user-info" *ngIf="currentUser">
           <div class="user-details">
             <div class="username">{{ currentUser.username }}</div>
             <div class="user-role">{{ currentUser.role }}</div>
           </div>
         </div>
+        <hr>
         <button class="logout-button" (click)="logout()">Вийти</button>
       </div>
 

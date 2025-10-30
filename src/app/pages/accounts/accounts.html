@@ -49,6 +49,9 @@
                         <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)" title="Edit Account">
                             Edit
                         </button>
+                        <button mat-button class="account-action-button btn-password" *ngIf="isAdmin()" (click)="viewPassword(account)" title="View Password (Admin Only)">
+                            View Password
+                        </button>
                         <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)" title="Delete Account">
                             Delete
                         </button>
@@ -227,6 +230,46 @@
                         <button type="button" (click)="closeEditModal()">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal for Password View (Admin Only) -->
+        <div class="modal-backdrop" *ngIf="showPasswordModal">
+            <div class="modal-window">
+                <h2>Account Password</h2>
+                <p class="modal-description">View account 2FA password (Admin only)</p>
+
+                <div *ngIf="passwordLoading" class="info-message">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    Loading password...
+                </div>
+
+                <div *ngIf="!passwordLoading && passwordData" class="password-content">
+                    <label>
+                        <span class="label-text">Phone Number:</span>
+                        <input 
+                            type="text" 
+                            [value]="passwordData.phone_number" 
+                            disabled />
+                    </label>
+                    <label *ngIf="passwordData.has_password">
+                        <span class="label-text">Password:</span>
+                        <div class="password-display">
+                            <input 
+                                type="text" 
+                                [value]="passwordData.password" 
+                                readonly 
+                                style="font-family: monospace; font-size: 1.1rem;" />
+                        </div>
+                    </label>
+                    <p *ngIf="!passwordData.has_password" class="help-text" style="color: #666; margin-top: 1rem;">
+                        This account does not have a 2FA password set.
+                    </p>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" (click)="closePasswordModal()">Close</button>
+                </div>
             </div>
         </div>
 </div>
