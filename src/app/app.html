@@ -1,6 +1,6 @@
 <div class="app-layout">
-  <!-- Sidebar -->
-   <aside class="sidebar">
+  <!-- Sidebar (hidden on login/register pages) -->
+   <aside class="sidebar" *ngIf="showSidebar">
     <div class="sidebar-content">
       <div class="sidebar-title">
         <a routerLink="/home" routerLinkActive="active"><h2>Menu</h2></a>
@@ -24,15 +24,26 @@
           <a [routerLink]="'/task/' + task_id + '/posts'" routerLinkActive="active"><div class="sidebar-nav-item">Пости<hr></div></a>
           <a [routerLink]="'/task/' + task_id + '/report'" routerLinkActive="active"><div class="sidebar-nav-item">Звіт<hr></div></a>
         </nav>
+      </ng-container>
 
-      </ng-container>      
+      <!-- User info and logout -->
+      <div class="sidebar-footer">
+        <hr>
+        <div class="user-info" *ngIf="currentUser">
+          <div class="user-details">
+            <div class="username">{{ currentUser.username }}</div>
+            <div class="user-role">{{ currentUser.role }}</div>
+          </div>
+        </div>
+        <button class="logout-button" (click)="logout()">Вийти</button>
+      </div>
 
     </div>
     
    </aside>
 
    <!-- Content -->
-    <main class="content">
+    <main class="content" [class.full-width]="!showSidebar">
       <router-outlet></router-outlet>     
     </main>
 

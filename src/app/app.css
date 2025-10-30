@@ -128,7 +128,66 @@
   transition: width 0.3s ease;
 }
 
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.user-info {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: var(--color-bg-accented);
+  border-radius: 5px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.user-role {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  text-transform: capitalize;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logout-button:active {
+  transform: translateY(0);
+}
+
 .content {
   flex: 1;
   padding: 20px;
+}
+
+.content.full-width {
+  width: 100%;
+  padding: 0;
 }

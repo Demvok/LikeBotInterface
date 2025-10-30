@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 export interface LogsStreamOptions {
   logFile?: string;
@@ -18,6 +19,7 @@ export type LogsStreamEvent =
 })
 export class LogsService {
   private readonly baseUrl = this.resolveBaseUrl();
+  private authService = inject(AuthService);
 
   streamLogs(options: LogsStreamOptions = {}): Observable<LogsStreamEvent> {
     if (typeof window === 'undefined') {
@@ -78,6 +80,12 @@ export class LogsService {
 
   private buildUrl(options: LogsStreamOptions): string {
     const params = new URLSearchParams();
+
+    // Add auth token to WebSocket connection
+    const token = this.authService.getToken();
+    if (token) {
+      params.set('token', token);
+    }
 
     if (options.logFile) {
       params.set('log_file', options.logFile);

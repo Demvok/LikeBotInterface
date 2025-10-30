@@ -10,20 +10,30 @@ import { Posts as PostsDetailed} from './pages/task-detailed/posts/posts';
 import { Accounts as AccountsDetailed } from './pages/task-detailed/accounts/accounts';
 import { Report } from './pages/task-detailed/report/report';
 import { CreateTaskMain } from './pages/tasks/create-task/create-task-main/create-task-main';
+import { Login } from './pages/login/login';
+import { Register } from './pages/register/register';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'home', component: Home },
-  { path: 'posts', component: Posts },
-  { path: 'accounts', component: Accounts },
-  { path: 'tasks', component: Tasks },
-  { path: 'logs', component: Logs },
-  { path: 'settings', component: Settings },
-  { path: 'task/:id', component: Info },
-  { path: 'task/:id/posts', component: PostsDetailed },
-  { path: 'task/:id/accounts', component: AccountsDetailed },
-  { path: 'task/:id/report', component: Report },
-  { path: 'tasks/create', component: CreateTaskMain },
-  { path: '', redirectTo: 'home', pathMatch: 'full' }
+  // Public routes
+  { path: 'login', component: Login },
+  { path: 'register', component: Register },
+  
+  // Protected routes
+  { path: 'home', component: Home, canActivate: [authGuard] },
+  { path: 'posts', component: Posts, canActivate: [authGuard] },
+  { path: 'accounts', component: Accounts, canActivate: [authGuard] },
+  { path: 'tasks', component: Tasks, canActivate: [authGuard] },
+  { path: 'logs', component: Logs, canActivate: [authGuard] },
+  { path: 'settings', component: Settings, canActivate: [authGuard] },
+  { path: 'task/:id', component: Info, canActivate: [authGuard] },
+  { path: 'task/:id/posts', component: PostsDetailed, canActivate: [authGuard] },
+  { path: 'task/:id/accounts', component: AccountsDetailed, canActivate: [authGuard] },
+  { path: 'task/:id/report', component: Report, canActivate: [authGuard] },
+  { path: 'tasks/create', component: CreateTaskMain, canActivate: [authGuard] },
+  
+  // Default redirect to login
+  { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
 
 export default provideRouter(routes);
