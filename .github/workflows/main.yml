@@ -27,7 +27,7 @@ jobs:
       - name: Deploy via SSH
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avz --delete
+          switches: -avz --delete --no-group
           path: dist/LikeBot/
           remote_path: /var/www/angular-app/
           remote_host: ${{ secrets.SERVER_HOST }}
