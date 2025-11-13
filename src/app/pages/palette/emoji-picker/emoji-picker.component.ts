@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Output, CUSTOM_ELEMENTS_SCHEMA, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, EventEmitter, Output, Input, CUSTOM_ELEMENTS_SCHEMA, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-emoji-picker',
   standalone: true,
+  imports: [CommonModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="emoji-picker-wrapper">
@@ -12,7 +14,17 @@ import { isPlatformBrowser } from '@angular/common';
         <button type="button" class="close-btn" (click)="close()">✕</button>
       </div>
       <div class="emoji-picker-container" #pickerContainer>
-        <emoji-picker #emojiPicker></emoji-picker>
+        @if (allowedEmojis && allowedEmojis.length > 0) {
+          <div class="emoji-grid">
+            @for (emoji of allowedEmojis; track emoji) {
+              <button type="button" class="emoji-button" (click)="selectEmoji(emoji)">
+                {{ emoji }}
+              </button>
+            }
+          </div>
+        } @else {
+          <emoji-picker #emojiPicker></emoji-picker>
+        }
       </div>
     </div>
   `,
@@ -20,11 +32,11 @@ import { isPlatformBrowser } from '@angular/common';
     .emoji-picker-wrapper {
       display: flex;
       flex-direction: column;
-      background: var(--color-bg-alt, #fff);
+      background: var(--color-bg-light, #fff);
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      max-width: 350px;
+      max-width: 800px;
       z-index: 1001;
     }
 
@@ -33,8 +45,8 @@ import { isPlatformBrowser } from '@angular/common';
       justify-content: space-between;
       align-items: center;
       padding: 12px 16px;
-      border-bottom: 1px solid var(--color-border, #ddd);
-      background: var(--color-bg-accented, #f5f5f5);
+      border-bottom: 2px solid var(--color-bg-accented, #ddd);
+      background: var(--color-bg-accented-lighter, #f5f5f5);
     }
 
     .emoji-picker-header h3 {
@@ -49,7 +61,9 @@ import { isPlatformBrowser } from '@angular/common';
       border: none;
       font-size: 18px;
       cursor: pointer;
-      color: var(--color-text, #666);
+      color: var(--color-text-alt, #666);
+      background-color: var(--color-bg-light, #fff);
+      border-radius: 4px;
       padding: 0;
       width: 24px;
       height: 24px;
@@ -60,13 +74,44 @@ import { isPlatformBrowser } from '@angular/common';
     }
 
     .close-btn:hover {
-      color: var(--color-text, #333);
+      color: var(--color-text-dark, #333);
     }
 
     .emoji-picker-container {
-      padding: 8px;
+      padding: 12px;
       max-height: 400px;
       overflow-y: auto;
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 8px;
+      padding: 4px;
+    }
+
+    .emoji-button {
+      background: transparent;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+    }
+
+    .emoji-button:hover {
+      background: transparent;
+      border-color: var(--color-text-warning, #b0841e);
+      transform: scale(1.1);
+    }
+
+    .emoji-button:active {
+      transform: scale(0.95);
     }
 
     ::ng-deep emoji-picker {
@@ -78,6 +123,7 @@ import { isPlatformBrowser } from '@angular/common';
   `]
 })
 export class EmojiPickerComponent implements AfterViewInit {
+  @Input() allowedEmojis?: string[];
   @Output() emojiSelected = new EventEmitter<string>();
   @Output() pickerClosed = new EventEmitter<void>();
   @ViewChild('emojiPicker', { static: false }) emojiPickerRef?: ElementRef;
@@ -85,8 +131,8 @@ export class EmojiPickerComponent implements AfterViewInit {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngAfterViewInit() {
-    // Only load emoji picker in browser environment
-    if (!isPlatformBrowser(this.platformId)) {
+    // Only load emoji picker in browser environment if no custom allowed emojis
+    if (!isPlatformBrowser(this.platformId) || (this.allowedEmojis && this.allowedEmojis.length > 0)) {
       return;
     }
 
@@ -102,6 +148,10 @@ export class EmojiPickerComponent implements AfterViewInit {
         });
       }
     });
+  }
+
+  selectEmoji(emoji: string) {
+    this.emojiSelected.emit(emoji);
   }
 
   close() {

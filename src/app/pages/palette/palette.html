@@ -1,10 +1,10 @@
 <div class="content-wrapper">
   <header>
     <div class="header-title">
-      <h1>Набір емоцій</h1>
+      <h1>Набір емодзі</h1>
     </div>
     <div class="header-actions">
-      <button class="btn-primary" (click)="openCreateForm()">+ Створити палету</button>
+      <button class="btn-primary" (click)="openCreateForm()">+ Створити палітру</button>
     </div>
   </header>
 
@@ -112,7 +112,8 @@
                   [(ngModel)]="formName" 
                   name="formName"
                   placeholder="Введіть назву"
-                  [disabled]="formSubmitting"
+                  [disabled]="true"
+                  readonly
                 />
               </div>
               <div class="form-group">
@@ -171,6 +172,7 @@
       <div class="emoji-picker-overlay" (click)="closeEmojiPicker()">
         <div class="emoji-picker-container-modal" (click)="$event.stopPropagation()">
           <app-emoji-picker 
+            [allowedEmojis]="allowedEmojis"
             (emojiSelected)="onEmojiSelected($event)"
             (pickerClosed)="onEmojiPickerClosed()"
           ></app-emoji-picker>
@@ -180,7 +182,6 @@
 
   @if (!loading && palettes.length > 0) {
     <div class="palettes-container">
-      <h2>Доступні палети</h2>
       <div class="palettes-list">
       @for (p of palettes; track p.palette_name) {
         <div class="palette-item" [class.selected]="isSelected(p)">
@@ -215,29 +216,9 @@
     </div>
   }
 
-  @if (selected_palette) {
-    <div class="selected-panel">
-      <h2>Вибрана палета</h2>
-      <div class="selected-content">
-        <div class="selected-name">{{ selected_palette.palette_name }}</div>
-        @if (selected_palette.description) {
-          <div class="selected-description">{{ selected_palette.description }}</div>
-        }
-        @if (selected_palette.ordered) {
-          <div class="selected-order">Впорядкована</div>
-        }
-        <div class="selected-emojis">
-          @for (e of selected_palette.emojis; track $index) {
-            <span>{{ e }}&nbsp;</span>
-          }
-        </div>
-      </div>
-    </div>
-  }
-
   </main>
 
   <footer>
-    <p>© 2025 LikeBot - Управління наборами емоцій</p>
+    <p>© 2025 LikeBot - Управління наборами емодзі</p>
   </footer>
 </div>

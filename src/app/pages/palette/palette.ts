@@ -19,6 +19,9 @@ export class PalettePage implements OnInit {
   error = '';
   selected_palette?: PaletteModel | null = null;
 
+  // Allowed emojis for palette creation
+  allowedEmojis = ['❤','👍','👎','🔥','🥰','👏','😁','🤔','🤯','😱','🤬','😢','🎉','🤩','🤮','💩','🙏','👌','🕊','🤡','🥱','🥴','😍','🐳','❤‍🔥','🌚','🌭','💯','🤣','⚡','🍌','🏆','💔','🤨','😐','🍓','🍾','💋','🖕','😈','😴','😭','🤓','👻','👨‍💻','👀','🎃','🙈','😇','😨','🤝','✍','🤗','🫡','🎅','🎄','☃','💅','🤪','🗿','🆒','💘','🙉','🦄','😘','💊','🙊','😎','👾','🤷‍♂','🤷','🤷‍♀','😡'];
+
   // Create/Edit form state
   showCreateForm = false;
   showEditForm = false;
@@ -133,6 +136,13 @@ export class PalettePage implements OnInit {
       return;
     }
 
+    // Validate that all emojis are in the allowed list
+    const invalidEmojis = emojis.filter(e => !this.allowedEmojis.includes(e));
+    if (invalidEmojis.length > 0) {
+      this.formError = `Недопустимі емодзі: ${invalidEmojis.join(', ')}. Будь ласка, використовуйте тільки дозволені емодзі.`;
+      return;
+    }
+
     this.formSubmitting = true;
     this.formError = '';
 
@@ -217,6 +227,13 @@ export class PalettePage implements OnInit {
     const emojis = this.formEmojis.split(/[\s,]+/).filter(e => e.trim());
     if (emojis.length === 0) {
       this.formError = 'Будь ласка, введіть хоча б один емодзі.';
+      return;
+    }
+
+    // Validate that all emojis are in the allowed list
+    const invalidEmojis = emojis.filter(e => !this.allowedEmojis.includes(e));
+    if (invalidEmojis.length > 0) {
+      this.formError = `Недопустимі емодзі: ${invalidEmojis.join(', ')}. Будь ласка, використовуйте тільки дозволені емодзі.`;
       return;
     }
 
