@@ -1,0 +1,243 @@
+<div class="content-wrapper">
+  <header>
+    <div class="header-title">
+      <h1>Набір емоцій</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="openCreateForm()">+ Створити палету</button>
+    </div>
+  </header>
+
+  <main>
+    @if (loading) {
+      <div class="loading">Завантаження...</div>
+    }
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
+
+    <!-- Create Form Modal -->
+    @if (showCreateForm) {
+      <div class="modal-overlay" (click)="cancelCreateForm()">
+        <div class="modal-dialog" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Створити нову палету</h2>
+            <button class="modal-close" (click)="cancelCreateForm()">&times;</button>
+          </div>
+          <div class="modal-body">
+            @if (formError) {
+              <div class="form-error">{{ formError }}</div>
+            }
+            <form (ngSubmit)="submitCreateForm()">
+              <div class="form-group">
+                <label for="create-name">Назва палети:</label>
+                <input 
+                  id="create-name"
+                  type="text" 
+                  [(ngModel)]="formName" 
+                  name="formName"
+                  placeholder="Введіть назву"
+                  [disabled]="formSubmitting"
+                />
+              </div>
+              <div class="form-group">
+                <label for="create-description">Опис (необов'язково):</label>
+                <textarea 
+                  id="create-description"
+                  [(ngModel)]="formDescription" 
+                  name="formDescription"
+                  placeholder="Введіть опис палети..."
+                  [disabled]="formSubmitting"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label for="create-emojis">Емодзі (розділені пробілом або комою):</label>
+                <div class="emoji-input-group">
+                  <textarea 
+                    id="create-emojis"
+                    [(ngModel)]="formEmojis" 
+                    name="formEmojis"
+                    placeholder="😊 😢 😡 ❤️"
+                    [disabled]="formSubmitting"
+                  ></textarea>
+                  <button type="button" class="btn-emoji" (click)="openEmojiPicker()" [disabled]="formSubmitting" title="Виберіть емодзі">
+                    😊
+                  </button>
+                </div>
+              </div>
+              <div class="form-group checkbox">
+                <label for="create-order">
+                  <input 
+                    id="create-order"
+                    type="checkbox" 
+                    [(ngModel)]="formOrdered" 
+                    name="formOrdered"
+                    [disabled]="formSubmitting"
+                  />
+                  Впорядкована
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" (click)="cancelCreateForm()" [disabled]="formSubmitting" class="btn-secondary">
+              Скасувати
+            </button>
+            <button type="submit" [disabled]="formSubmitting" class="btn-success" (click)="submitCreateForm()">
+              {{ formSubmitting ? 'Створення...' : 'Створити' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Edit Form Modal -->
+    @if (showEditForm && editingPalette) {
+      <div class="modal-overlay" (click)="cancelEditForm()">
+        <div class="modal-dialog" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Редагувати палету</h2>
+            <button class="modal-close" (click)="cancelEditForm()">&times;</button>
+          </div>
+          <div class="modal-body">
+            @if (formError) {
+              <div class="form-error">{{ formError }}</div>
+            }
+            <form (ngSubmit)="submitEditForm()">
+              <div class="form-group">
+                <label for="edit-name">Назва палети:</label>
+                <input 
+                  id="edit-name"
+                  type="text" 
+                  [(ngModel)]="formName" 
+                  name="formName"
+                  placeholder="Введіть назву"
+                  [disabled]="formSubmitting"
+                />
+              </div>
+              <div class="form-group">
+                <label for="edit-description">Опис (необов'язково):</label>
+                <textarea 
+                  id="edit-description"
+                  [(ngModel)]="formDescription" 
+                  name="formDescription"
+                  placeholder="Введіть опис палети..."
+                  [disabled]="formSubmitting"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label for="edit-emojis">Емодзі (розділені пробілом або комою):</label>
+                <div class="emoji-input-group">
+                  <textarea 
+                    id="edit-emojis"
+                    [(ngModel)]="formEmojis" 
+                    name="formEmojis"
+                    placeholder="😊 😢 😡 ❤️"
+                    [disabled]="formSubmitting"
+                  ></textarea>
+                  <button type="button" class="btn-emoji" (click)="openEmojiPicker()" [disabled]="formSubmitting" title="Виберіть емодзі">
+                    😊
+                  </button>
+                </div>
+              </div>
+              <div class="form-group checkbox">
+                <label for="edit-order">
+                  <input 
+                    id="edit-order"
+                    type="checkbox" 
+                    [(ngModel)]="formOrdered" 
+                    name="formOrdered"
+                    [disabled]="formSubmitting"
+                  />
+                  Впорядкована
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" (click)="cancelEditForm()" [disabled]="formSubmitting" class="btn-secondary">
+              Скасувати
+            </button>
+            <button type="submit" [disabled]="formSubmitting" class="btn-success" (click)="submitEditForm()">
+              {{ formSubmitting ? 'Оновлення...' : 'Оновити' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Emoji Picker Modal -->
+    @if (showEmojiPicker) {
+      <div class="emoji-picker-overlay" (click)="closeEmojiPicker()">
+        <div class="emoji-picker-container-modal" (click)="$event.stopPropagation()">
+          <app-emoji-picker 
+            (emojiSelected)="onEmojiSelected($event)"
+            (pickerClosed)="onEmojiPickerClosed()"
+          ></app-emoji-picker>
+        </div>
+      </div>
+    }
+
+  @if (!loading && palettes.length > 0) {
+    <div class="palettes-container">
+      <h2>Доступні палети</h2>
+      <div class="palettes-list">
+      @for (p of palettes; track p.palette_name) {
+        <div class="palette-item" [class.selected]="isSelected(p)">
+          <div class="palette-content" (click)="selectPalette(p)">
+            <div class="palette-name">{{ p.palette_name }}</div>
+            @if (p.description) {
+              <div class="palette-description">{{ p.description }}</div>
+            }
+            @if (p.ordered) {
+              <div class="palette-order-badge">Впорядкована</div>
+            }
+            <div class="palette-emojis">
+              @for (e of p.emojis; track $index) {
+                <span>{{ e }}&nbsp;</span>
+              }
+            </div>
+          </div>
+          <div class="palette-actions">
+            <button class="btn-edit" (click)="openEditForm(p)" title="Редагувати">✎</button>
+            <button class="btn-delete" (click)="deletePalette(p)" title="Видалити">🗑</button>
+          </div>
+        </div>
+      }
+      </div>
+    </div>
+  }
+
+  @if (!loading && palettes.length === 0 && !error) {
+    <div class="empty-state">
+      <p>Немає доступних наборів емоцій.</p>
+      <button class="btn-link" (click)="openCreateForm()">Створити першу палету.</button>
+    </div>
+  }
+
+  @if (selected_palette) {
+    <div class="selected-panel">
+      <h2>Вибрана палета</h2>
+      <div class="selected-content">
+        <div class="selected-name">{{ selected_palette.palette_name }}</div>
+        @if (selected_palette.description) {
+          <div class="selected-description">{{ selected_palette.description }}</div>
+        }
+        @if (selected_palette.ordered) {
+          <div class="selected-order">Впорядкована</div>
+        }
+        <div class="selected-emojis">
+          @for (e of selected_palette.emojis; track $index) {
+            <span>{{ e }}&nbsp;</span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  </main>
+
+  <footer>
+    <p>© 2025 LikeBot - Управління наборами емоцій</p>
+  </footer>
+</div>

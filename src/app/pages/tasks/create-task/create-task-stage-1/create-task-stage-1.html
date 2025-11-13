@@ -46,10 +46,11 @@
 
             <div class="form-group" *ngIf="actionType === 'react'">
                 <label for="palette">Reaction Palette *</label>
-                <select id="palette" formControlName="palette" class="select-field">
-                    <option value="">Select palette</option>
-                    <option value="positive">Positive</option>
-                    <option value="negative">Negative</option>
+                <select id="palette" formControlName="palette" class="select-field" [disabled]="loadingPalettes">
+                    <option value="">{{ loadingPalettes ? 'Loading palettes...' : 'Select palette' }}</option>
+                    <option *ngFor="let palette of palettes" [value]="palette.palette_name">
+                        {{ palette.palette_name }}
+                    </option>
                 </select>
                 <div class="error-message" *ngIf="actionType === 'react' && taskForm.get('palette')?.invalid && taskForm.get('palette')?.touched">
                     Please select a reaction palette
