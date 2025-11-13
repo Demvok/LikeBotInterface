@@ -89,6 +89,17 @@ export interface TaskReport {
   report: ReportEvent[];  // Direct array, not nested in events
 }
 
+export interface Palette {
+  palette_id?: number;
+  palette_name: string;
+  // List of emoji strings or reaction identifiers
+  emojis: string[];
+  ordered?: boolean;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ApiError {
   detail: string;
 }
