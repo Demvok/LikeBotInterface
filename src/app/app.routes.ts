@@ -5,6 +5,7 @@ import { Accounts } from './pages/accounts/accounts';
 import { Tasks } from './pages/tasks/tasks';
 import { Logs } from './pages/logs/logs';
 import { Settings } from './pages/settings/settings';
+import { PalettePage } from './pages/palette/palette';
 import { Info } from './pages/task-detailed/info/info';
 import { Posts as PostsDetailed} from './pages/task-detailed/posts/posts';
 import { Accounts as AccountsDetailed } from './pages/task-detailed/accounts/accounts';
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'tasks', component: Tasks, canActivate: [authGuard] },
   { path: 'logs', component: Logs, canActivate: [authGuard] },
   { path: 'settings', component: Settings, canActivate: [authGuard] },
+  { path: 'palette', component: PalettePage, canActivate: [authGuard] },
   { path: 'task/:id', component: Info, canActivate: [authGuard] },
   { path: 'task/:id/posts', component: PostsDetailed, canActivate: [authGuard] },
   { path: 'task/:id/accounts', component: AccountsDetailed, canActivate: [authGuard] },

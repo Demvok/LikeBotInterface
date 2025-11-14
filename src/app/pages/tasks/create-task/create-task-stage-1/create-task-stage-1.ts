@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TaskStepper } from '../task-stepper/task-stepper';
 import { TaskCreationService } from '../../../../services/task-creation.service';
-import { TaskAction } from '../../../../services/api.models';
+import { PalettesService } from '../../../../services/palettes.service';
+import { TaskAction, Palette } from '../../../../services/api.models';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,11 +18,14 @@ export class CreateTaskStage1 implements OnInit, OnDestroy {
   
   taskForm: FormGroup;
   actionType: 'react' | 'comment' | '' = '';
+  palettes: Palette[] = [];
+  loadingPalettes = false;
   private subscription: Subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
-    private taskCreationService: TaskCreationService
+    private taskCreationService: TaskCreationService,
+    private palettesService: PalettesService
   ) {
     this.taskForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1)]],
@@ -33,6 +37,9 @@ export class CreateTaskStage1 implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Load palettes from API
+    this.loadPalettes();
+
     // Load existing data if any
     const existingData = this.taskCreationService.getCurrentTaskData();
     if (existingData) {
@@ -64,6 +71,21 @@ export class CreateTaskStage1 implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  private loadPalettes() {
+    this.loadingPalettes = true;
+    this.palettesService.getPalettes().subscribe(
+      (palettes) => {
+        this.palettes = palettes;
+        console.log('Loaded palettes:', this.palettes);
+        this.loadingPalettes = false;
+      },
+      (error) => {
+        console.error('Failed to load palettes:', error);
+        this.loadingPalettes = false;
+      }
+    );
   }
 
   private updateValidators() {

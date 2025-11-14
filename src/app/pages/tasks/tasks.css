@@ -156,6 +156,8 @@ main {
 
 .error-icon {
   color: var(--color-text-error);
+  width: 100%;
+  height: 100%;
 }
 
 .empty-icon {
