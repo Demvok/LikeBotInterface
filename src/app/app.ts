@@ -42,4 +42,9 @@ export class App {
   get currentUser() {
     return this.authService.getCurrentUser();
   }
+
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
 }

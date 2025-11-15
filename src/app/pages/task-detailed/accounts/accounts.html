@@ -9,12 +9,12 @@
             </div>
         </div>
         
-        <form class="filter-form" (ngSubmit)="getAccounts()" autocomplete="off">
+        <form class="filter-form" autocomplete="off">
             <label>
                 Phone Number:
-                <input type="text" [(ngModel)]="filter.phone_number" name="phone_number" />
+                <input type="text" [(ngModel)]="filter.phone_number" (change)="getAccounts()" name="phone_number" />
             </label>
-            <button type="submit">Search</button>
+            <button type="button" (click)="getAccounts()">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
             
             <div class="view-toggle">

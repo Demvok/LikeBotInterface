@@ -1,9 +1,98 @@
 <div class="content-wrapper">
     <header>
-        Header
+        <h2>Configuration Settings</h2>
     </header>
     <main>
-        Main
+        <!-- Admin Only Section -->
+        <div class="admin-section" *ngIf="isAdmin()">
+            <div class="admin-header">
+                <h3>🔐 Administrator Panel</h3>
+                <span class="admin-badge">Admin Only</span>
+            </div>
+            
+            <div class="admin-content">
+                <p>Welcome to the Administrator Panel. This section contains configuration options available only to administrators.</p>
+                
+                <div class="admin-settings">
+                    <div class="settings-category">
+                        <h4>System Configuration</h4>
+                        <div class="setting-item">
+                            <label>API Endpoint:</label>
+                            <input type="text" placeholder="Configure API endpoint" />
+                        </div>
+                        <div class="setting-item">
+                            <label>Database Connection:</label>
+                            <input type="text" placeholder="Configure database" />
+                        </div>
+                        <div class="setting-item">
+                            <label>Log Level:</label>
+                            <select>
+                                <option>Info</option>
+                                <option>Debug</option>
+                                <option>Error</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-category">
+                        <h4>User Management</h4>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked />
+                                Allow user registration
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked />
+                                Require email verification
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" />
+                                Require admin approval for new users
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-actions">
+                    <button type="button" class="btn-save">Save Configuration</button>
+                    <button type="button" class="btn-reset">Reset to Defaults</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Non-Admin Message -->
+        <div class="non-admin-message" *ngIf="!isAdmin()">
+            <div class="access-denied">
+                <span class="lock-icon">🔒</span>
+                <h3>Access Denied</h3>
+                <p>Configuration settings are available only for administrators.</p>
+                <p>If you believe you should have access, please contact your system administrator.</p>
+            </div>
+        </div>
+
+        <!-- General Settings (for all users) -->
+        <div class="general-section">
+            <h3>General Settings</h3>
+            <div class="settings-category">
+                <h4>User Preferences</h4>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" checked />
+                        Receive email notifications
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" checked />
+                        Dark mode
+                    </label>
+                </div>
+            </div>
+        </div>
     </main>
-    <footer>Footer</footer>  
+    <footer>Last updated: {{ 'now' | date:'medium' }}</footer>  
 </div>

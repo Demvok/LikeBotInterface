@@ -15,6 +15,7 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { authGuard } from './guards/auth.guard';
 import { redirectGuard } from './guards/redirect.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   // Public routes
@@ -27,7 +28,7 @@ export const routes: Routes = [
   { path: 'accounts', component: Accounts, canActivate: [authGuard] },
   { path: 'tasks', component: Tasks, canActivate: [authGuard] },
   { path: 'logs', component: Logs, canActivate: [authGuard] },
-  { path: 'settings', component: Settings, canActivate: [authGuard] },
+  { path: 'settings', component: Settings, canActivate: [adminGuard] },
   { path: 'palette', component: PalettePage, canActivate: [authGuard] },
   { path: 'task/:id', component: Info, canActivate: [authGuard] },
   { path: 'task/:id/posts', component: PostsDetailed, canActivate: [authGuard] },

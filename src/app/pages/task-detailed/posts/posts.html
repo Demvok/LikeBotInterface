@@ -1,19 +1,19 @@
 <div class="content-wrapper">
     <header>
-        <form class="filter-form" (ngSubmit)="getPosts()" autocomplete="off">
+        <form class="filter-form" autocomplete="off">
             <label>
                 Post ID:
-                <input type="number" [(ngModel)]="filter.post_id" name="post_id" />
+                <input type="number" [(ngModel)]="filter.post_id" (change)="getPosts()" name="post_id" />
             </label>
             <label>
                 Chat ID:
-                <input type="number" [(ngModel)]="filter.chat_id" name="chat_id" />
+                <input type="number" [(ngModel)]="filter.chat_id" (change)="getPosts()" name="chat_id" />
             </label>
             <label>
-                <input type="checkbox" [(ngModel)]="filter.validated_only" name="validated_only" />
+                <input type="checkbox" [(ngModel)]="filter.validated_only" (change)="getPosts()" name="validated_only" />
                 Validated only
             </label>
-            <button type="submit">Search</button>
+            <button type="button" (click)="getPosts()">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
         </form>
     </header>
