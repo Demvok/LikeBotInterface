@@ -2,23 +2,29 @@ header {
   display: flex;
   flex-direction: column;
   min-height: fit-content;
-  padding: 1%;
-  color: var(--color-text);
-  background-color: var(--color-bg-accented);
-  border-radius: 10px;
-  margin-bottom: 1%;
+  padding: 24px 28px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  margin-bottom: 2%;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 }
 
 header h2 {
   margin: 0 0 1rem 0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 800;
   text-align: center;
+  letter-spacing: -0.5px;
 }
 
 main {
-  padding: 2%;
+  padding: 28px;
   flex: 1;
-  border-radius: 10px;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
   background-color: var(--color-bg-light);
   display: flex;
   flex-direction: column;

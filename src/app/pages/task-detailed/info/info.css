@@ -1,10 +1,10 @@
 .content-wrapper {
   width: 100%;
   height: 100%;
-  background-color: var(--color-bg-alt);
-  padding: 1%;
-  border-radius: 10px;
-  color: var(--color-text-alt);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf1 100%);
+  padding: 2%;
+  border-radius: 16px;
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
 }
@@ -19,36 +19,40 @@ header {
   display: flex;
   flex-direction: column;
   min-height: fit-content;
-  padding: 1.5%;
-  color: var(--color-text);
-  background-color: var(--color-bg-accented);
-  border-radius: 10px;
-  margin-bottom: 1%;
+  padding: 28px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  margin-bottom: 2%;
   text-align: center;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 }
 
 header h1 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  color: #ffffff;
 }
 
 header .task-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text-dark);
-  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+  font-style: normal;
 }
 
 main {
-  padding: 1%;
+  padding: 28px;
   flex: 1;
-  border-radius: 10px;
-  background-color: var(--color-bg-light);
+  border-radius: 16px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
   overflow-y: auto;
 }
 
