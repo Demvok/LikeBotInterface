@@ -50,7 +50,7 @@
     </header>
 
     <!-- Auto-refresh progress line -->
-    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 30) * 100"></div>
+    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 10) * 100"></div>
 
     <main>
         <!-- Loading State -->
@@ -102,8 +102,10 @@
                         </mat-icon>
                     </div>
                     <mat-card-title>
-                        <span class="task-name">{{ task.name }}</span>
-                        <mat-chip class="task-id-chip">#{{ task.task_id }}</mat-chip>
+                        <div class="task_metadata">
+                            <span class="task-name">{{ task.name }}</span>
+                            <mat-chip class="task-id-chip">#{{ task.task_id }}</mat-chip>
+                        </div>
                     </mat-card-title>
                     <mat-card-subtitle>
                         <div class="status-container">

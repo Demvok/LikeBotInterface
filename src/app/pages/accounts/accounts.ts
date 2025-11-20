@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { AccountsService, LoginStatusResponse } from '../../services/accounts';
 import { Account, AccountStatus } from '../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
@@ -15,7 +16,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatIconModule],
   templateUrl: './accounts.html',
   styleUrls: ['./accounts.css']
 })

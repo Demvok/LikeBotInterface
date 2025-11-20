@@ -7,6 +7,10 @@
             </label>
             <button type="submit">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
+            <button type="button" class="add-account-btn" (click)="openAddAccountModal()" title="Add New Account">
+                <mat-icon>add_circle</mat-icon>
+                <span>Add Account</span>
+            </button>
         </form>
     </header>
     <main>
@@ -61,11 +65,6 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-
-        <!-- Floating Add Button -->
-        <button class="fab-add-account" title="Add Account" (click)="openAddAccountModal()">
-            <span class="fab-plus">+</span>
-        </button>
 
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
         <div *ngIf="!loading && accounts.data.length === 0" class="no-accounts">No accounts found.</div>

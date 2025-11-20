@@ -129,7 +129,7 @@ footer {
 /* Task Info Grid */
 .task-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
   gap: 1.5rem;
   padding: 1rem;
   height: fit-content;
@@ -323,6 +323,7 @@ footer {
   padding: 0.8rem;
   background-color: var(--color-bg-light);
   border-radius: 8px;
+  gap: 10px;
 }
 
 .timestamp-item:last-child {

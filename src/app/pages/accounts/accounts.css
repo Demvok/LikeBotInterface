@@ -116,6 +116,33 @@ header form button:hover {
   border-color: #ffffff;
 }
 
+.add-account-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(16, 185, 129, 0.5) !important;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.add-account-btn:hover {
+  background-color: rgba(16, 185, 129, 0.4) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.add-account-btn mat-icon {
+  font-size: 1.2rem;
+}
+
 footer {
   height: fit-content;
   text-align: center;
@@ -224,38 +251,6 @@ span .mat-mdc-button-touch-target {
   font-weight: bold;
   color: var(--color-text-light);
   letter-spacing: 1px;
-}
-
-/* Floating Add Button (FAB) */
-.fab-add-account {
-  position: sticky;
-  right: 2.5vw;
-  bottom: 3vh;
-  width: 60px;
-  height: 60px;
-  margin-top: 20px;
-  border-radius: 50%;
-  background: var(--color-bg-darker);
-  color: #fff;
-  font-size: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  border: none;
-  z-index: 1000;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.fab-add-account:hover {
-  background: var(--color-bg-accented);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-}
-.fab-plus {
-  font-weight: bold;
-  font-size: 2.2rem;
-  line-height: 1;
-  margin-top: -2px;
 }
 
 /* Modal Styles */

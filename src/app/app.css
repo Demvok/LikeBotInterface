@@ -195,7 +195,7 @@
 }
 
 .sidebar-nav-detailed {
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-light);
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -206,7 +206,7 @@
 }
 
 .sidebar-nav-detailed .sidebar-nav-item {
-  background-color: var(--color-bg) !important;
+  background-color: transparent !important;
   text-align: center;
   font-size: 13px;
   display: flex;
@@ -217,12 +217,25 @@
   margin: 0;
   padding: 10px;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid transparent;
 }
 
 .sidebar-nav-detailed .sidebar-nav-item:hover {
-  background-color: var(--color-bg-light) !important;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, transparent 100%);
   color: #667eea;
+  border-left-color: #667eea;
+}
+
+.sidebar-nav-detailed .sidebar-nav-item:active {
+  transform: scale(0.98);
+}
+
+.sidebar-nav-detailed .sidebar-nav-item a.active {
+  color: #667eea;
+  font-weight: 700;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, transparent 100%);
+  border-left-color: #667eea;
 }
 
 .sidebar-nav-detailed .sidebar-nav-item hr {
@@ -230,16 +243,8 @@
   margin-top: 6px;
   border-top: 2px solid var(--color-border);
   border-radius: 2px;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   width: 30%;
-}
-
-.sidebar-nav-detailed .sidebar-nav-item:hover hr {
-  width: 60%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
-  background-clip: border-box;
-  transition: width 0.3s ease;
 }
 
 .sidebar-footer {
@@ -282,9 +287,16 @@
 .user-info {
   padding: 16px;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: transparent;
+  border: 2px solid rgba(102, 126, 234, 0.4);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  transition: all 0.3s ease;
+}
+
+.user-info:hover {
+  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(102, 126, 234, 0.05);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 }
 
 .user-details {
@@ -296,12 +308,12 @@
 .username {
   font-weight: 700;
   font-size: 15px;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .user-role {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-light);
   text-transform: capitalize;
 }
 

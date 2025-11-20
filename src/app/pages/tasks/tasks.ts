@@ -63,8 +63,8 @@ export class Tasks implements OnInit, OnDestroy {
   // Auto-refresh properties
   private autoRefreshSubscription: Subscription | null = null;
   private countdownSubscription: Subscription | null = null;
-  private autoRefreshInterval = 30000; // 30 seconds in milliseconds
-  secondsUntilRefresh: number = 30; // Display countdown in seconds
+  private autoRefreshInterval = 10000; // 30 seconds in milliseconds
+  secondsUntilRefresh: number = 10; // Display countdown in seconds
   
   // Status options for filtering
   statusOptions = [
@@ -97,14 +97,14 @@ export class Tasks implements OnInit, OnDestroy {
     // Stop any existing auto-refresh
     this.stopAutoRefresh();
     
-    // Initialize countdown to 30 seconds
-    this.secondsUntilRefresh = 30;
+    // Initialize countdown to 10 seconds
+    this.secondsUntilRefresh = 10;
     
     // Start countdown timer that updates every second
     this.countdownSubscription = interval(1000).subscribe(() => {
       this.secondsUntilRefresh--;
       if (this.secondsUntilRefresh <= 0) {
-        this.secondsUntilRefresh = 30;
+        this.secondsUntilRefresh = 10;
       }
     });
     
