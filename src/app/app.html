@@ -7,28 +7,60 @@
         <hr>
       </div>
 
-      <nav class="sidebar-nav">
-        <a routerLink="/tasks" routerLinkActive="active"><div class="sidebar-nav-item">Завдання</div></a>
-        <a routerLink="/palette" routerLinkActive="active"><div class="sidebar-nav-item">Палітри реакцій</div></a>
-        <a routerLink="/accounts" routerLinkActive="active"><div class="sidebar-nav-item">Акаунти</div></a>
-        <a routerLink="/posts" routerLinkActive="active"><div class="sidebar-nav-item">Всі пости</div></a>
-        <a routerLink="/logs" routerLinkActive="active"><div class="sidebar-nav-item">Логи</div></a>
-        <a routerLink="/settings" routerLinkActive="active" *ngIf="isAdmin()"><div class="sidebar-nav-item">🔐 Конфігурація</div></a>
-      </nav>
+      <div class="sidebar-nav-container">
+        <!-- Main Navigation Category -->
+        <div class="category">
+          <button class="category-toggle" (click)="toggleCategory('main')">
+            <span>Основне</span>
+            <span class="toggle-icon" [class.expanded]="expandedCategories['main']">▼</span>
+          </button>
+          
+          <nav class="sidebar-nav" *ngIf="expandedCategories['main']">
+            <a routerLink="/tasks" routerLinkActive="active"><div class="sidebar-nav-item">Завдання</div></a>
+            <a routerLink="/palette" routerLinkActive="active"><div class="sidebar-nav-item">Палітри реакцій</div></a>
+            <a routerLink="/accounts" routerLinkActive="active"><div class="sidebar-nav-item">Акаунти</div></a>
+            <a routerLink="/posts" routerLinkActive="active"><div class="sidebar-nav-item">Всі пости</div></a>
+            <a routerLink="/channels" routerLinkActive="active"><div class="sidebar-nav-item">Канали</div></a>
+            <a routerLink="/logs" routerLinkActive="active"><div class="sidebar-nav-item">Логи</div></a>
+          </nav>
+        </div>
 
-      <ng-container *ngIf="is_task_detailed"><hr></ng-container>      
+        <!-- Admin Category -->
+        <div class="category" *ngIf="isAdmin()">
+          <button class="category-toggle" (click)="toggleCategory('admin')">
+            <span>Адміністрація</span>
+            <span class="toggle-icon" [class.expanded]="expandedCategories['admin']">▼</span>
+          </button>
+          
+          <nav class="sidebar-nav" *ngIf="expandedCategories['admin']">
+            <a routerLink="/users" routerLinkActive="active"><div class="sidebar-nav-item">👥 Користувачі</div></a>
+            <a routerLink="/settings" routerLinkActive="active"><div class="sidebar-nav-item">🔐 Конфігурація</div></a>
+          </nav>
+        </div>
 
-      <ng-container *ngIf="is_task_detailed">
-        <nav class="sidebar-nav-detailed">
-          <a [routerLink]="'/task/' + task_id" routerLinkActive="active"><div class="sidebar-nav-item">Огляд<hr></div></a>
-          <a [routerLink]="'/task/' + task_id + '/accounts'" routerLinkActive="active"><div class="sidebar-nav-item">Акаунти<hr></div></a>
-          <a [routerLink]="'/task/' + task_id + '/posts'" routerLinkActive="active"><div class="sidebar-nav-item">Пости<hr></div></a>
-          <a [routerLink]="'/task/' + task_id + '/report'" routerLinkActive="active"><div class="sidebar-nav-item">Звіт<hr></div></a>
-        </nav>
-      </ng-container>
+        <!-- Task Detailed Category -->
+        <div class="category" *ngIf="is_task_detailed">
+          <button class="category-toggle" (click)="toggleCategory('detailed')">
+            <span>Деталі завдання</span>
+            <span class="toggle-icon" [class.expanded]="expandedCategories['detailed']">▼</span>
+          </button>
+          
+          <nav class="sidebar-nav-detailed" *ngIf="expandedCategories['detailed']">
+            <a [routerLink]="'/task/' + task_id" routerLinkActive="active"><div class="sidebar-nav-item">Огляд<hr></div></a>
+            <a [routerLink]="'/task/' + task_id + '/accounts'" routerLinkActive="active"><div class="sidebar-nav-item">Акаунти<hr></div></a>
+            <a [routerLink]="'/task/' + task_id + '/posts'" routerLinkActive="active"><div class="sidebar-nav-item">Пости<hr></div></a>
+            <a [routerLink]="'/task/' + task_id + '/report'" routerLinkActive="active"><div class="sidebar-nav-item">Звіт<hr></div></a>
+          </nav>
+        </div>
+      </div>
 
       <!-- User info and logout -->
       <div class="sidebar-footer">
+        <div class="theme-toggle">
+          <button class="theme-btn" (click)="toggleTheme()" [title]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+            {{ isDarkTheme ? '☀️' : '🌙' }}
+          </button>
+        </div>
         <div class="user-info" *ngIf="currentUser">
           <div class="user-details">
             <div class="username">{{ currentUser.username }}</div>

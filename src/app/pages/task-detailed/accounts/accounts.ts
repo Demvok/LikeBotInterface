@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -42,7 +42,7 @@ export class Accounts implements OnInit, OnDestroy {
   filter: { phone_number?: string } = {};
   taskId: string = '';
   task: Task | null = null;
-  showTaskAccountsOnly: boolean = false;
+  showTaskAccountsOnly: boolean = true; // Default to showing only task accounts
 
   lastUpdate: string = '';
   showAddModal: boolean = false;
@@ -53,7 +53,8 @@ export class Accounts implements OnInit, OnDestroy {
   constructor(
     private accountsService: AccountsService,
     private tasksService: TasksService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cd: ChangeDetectorRef
   ) {}
 
   private _paginator!: MatPaginator;
@@ -92,8 +93,10 @@ export class Accounts implements OnInit, OnDestroy {
 
   private assignTableFeatures() {
     const dataSource = this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
-    if (this._paginator && this._sort && dataSource) {
+    if (this._paginator) {
       dataSource.paginator = this._paginator;
+    }
+    if (this._sort) {
       dataSource.sort = this._sort;
     }
   }
@@ -176,36 +179,24 @@ export class Accounts implements OnInit, OnDestroy {
     this.loadAccounts();
   }
 
-  toggleTaskFilter() {
-    this.showTaskAccountsOnly = !this.showTaskAccountsOnly;
-    this.assignTableFeatures();
+  onShowTaskAccountsOnlyChange(value: boolean) {
+    // value comes from the checkbox (ngModelChange) so just apply it
+    this.showTaskAccountsOnly = value;
+    const newDataSource = this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
+    // Reassign paginator and sort to the selected data source and force update
     if (this._paginator) {
+      newDataSource.paginator = this._paginator;
       this._paginator.firstPage();
     }
+    if (this._sort) {
+      newDataSource.sort = this._sort;
+    }
+    // Ensure Angular updates the view immediately
+    this.cd.detectChanges();
   }
 
   get currentDataSource() {
     return this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
-  }
-
-  editAccount(account: AccountWithTaskInfo) {
-    alert('Edit not implemented.');
-  }
-
-  deleteAccount(account: AccountWithTaskInfo) {
-    if (!account.phone_number) return;
-    if (!confirm('Delete this account?')) return;
-    
-    const deleteSub = this.accountsService.deleteAccount(account.phone_number).subscribe(
-      (res) => {
-        this.loadAccounts();
-      },
-      (err) => {
-        alert('Failed to delete account.');
-      }
-    );
-    
-    this.subscriptions.add(deleteSub);
   }
 
   addToTask(account: AccountWithTaskInfo) {

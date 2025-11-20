@@ -49,6 +49,9 @@
         </div>
     </header>
 
+    <!-- Auto-refresh progress line -->
+    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 30) * 100"></div>
+
     <main>
         <!-- Loading State -->
         <div class="loading-container" *ngIf="loading">

@@ -1,7 +1,7 @@
 .content-wrapper {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf1 100%);
+  background: var(--color-bg);
   padding: 2rem;
   border-radius: 16px;
   color: var(--color-text);
@@ -155,7 +155,7 @@
 main {
   flex: 1;
   border-radius: 16px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-alt);
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -164,6 +164,16 @@ main {
   overflow-y: auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   min-height: 0;
+  border: 1px solid var(--color-border);
+}
+
+/* Auto-refresh Progress Line */
+.auto-refresh-progress {
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 1s linear;
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.4);
 }
 
 /* Loading, Error, and Empty States */
@@ -201,7 +211,7 @@ main {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: #1f2937;
+  color: var(--color-text);
 }
 
 /* Tasks Grid */
@@ -229,14 +239,14 @@ main {
 
 /* Task Cards */
 .task-card {
-  background: #ffffff;
+  background: var(--color-bg-light);
   color: var(--color-text);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -279,13 +289,13 @@ main {
 .task-name {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
   margin-right: 0.5rem;
 }
 
 .task-id-chip {
-  background-color: #f3f4f6;
-  color: #6b7280;
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.4rem 0.8rem;
@@ -304,28 +314,28 @@ main {
 }
 
 .status-chip.status-pending {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
 }
 
 .status-chip.status-running {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
 }
 
 .status-chip.status-paused {
-  background-color: #fed7aa;
-  color: #7c2d12;
+  background-color: rgba(249, 115, 22, 0.2);
+  color: #f97316;
 }
 
 .status-chip.status-finished {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
 }
 
 .status-chip.status-crashed {
-  background-color: #fee2e2;
-  color: #7f1d1d;
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 /* Card Content */
@@ -423,7 +433,7 @@ main {
 .action-content {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border-left: 4px solid var(--color-bg-accented-darker);
 }
@@ -487,10 +497,9 @@ main {
 .task-management-actions {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  background-color: var(--color-bg-light);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
 }
 
 .management-title {
@@ -500,7 +509,7 @@ main {
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-dark);
+  color: var(--color-text);
 }
 
 .management-title mat-icon {
@@ -596,8 +605,8 @@ main {
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--color-bg-darker);
+  border-top: 1px solid var(--color-border);
   margin-top: 1rem;
 }
 
@@ -638,10 +647,10 @@ main {
 /* Page Footer */
 .page-footer {
   padding: 1.5rem;
-  background-color: #f0f4ff;
+  background-color: var(--color-bg-light);
   border-radius: 12px;
-  color: #1f2937;
-  border: 1px solid #e0e7ff;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .footer-content {

@@ -11,6 +11,10 @@
             <div style="min-width: 120px;"></div> <!-- Spacer for balance -->
         </div>
     </header>
+
+    <!-- Auto-refresh progress line -->
+    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 30) * 100"></div>
+
     <main>
         <ng-container *ngIf="loading">
             <div class="loading-state">
@@ -155,7 +159,7 @@
     </main>
     <footer>
         <div class="footer-actions" *ngIf="task && !loading && !error">
-            <span class="last-updated">Last updated: {{ getFormattedTime() }}</span>
+            <span class="last-updated">Last updated: {{ lastUpdate }}</span>
         </div>
     </footer>  
 </div>

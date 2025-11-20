@@ -1,10 +1,10 @@
 .content-wrapper {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf1 100%);
+  background: var(--color-bg);
   padding: 1%;
   border-radius: 16px;
-  color: var(--color-text-alt);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
 }
@@ -46,7 +46,7 @@ footer {
   height: fit-content;
   text-align: center;
   margin-top: 1%;
-  color: #666;
+  color: var(--color-text-alt);
   font-size: 0.9rem;
 }
 
@@ -54,13 +54,14 @@ main {
   padding: 24px;
   flex: 1;
   border-radius: 12px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-alt);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-y: auto;
   gap: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
 }
 
 /* Modal Styles */
@@ -89,7 +90,7 @@ main {
 }
 
 .modal-dialog {
-  background: #ffffff;
+  background: var(--color-bg-alt);
   border-radius: 16px !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 500px;
@@ -98,6 +99,7 @@ main {
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease-out;
+  border: 1px solid var(--color-border);
 }
 
 @keyframes slideUp {
@@ -156,54 +158,55 @@ main {
   padding: 28px;
   flex: 1;
   overflow-y: auto;
+  background-color: var(--color-bg-alt);
 }
 
 .modal-footer {
   display: flex;
   gap: 12px;
   padding: 20px 28px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-light);
   justify-content: flex-end;
   border-radius: 0 0 16px 16px;
 }
 
 .loading {
   padding: 20px 24px;
-  background: linear-gradient(135deg, #fef3c7 0%, #fee2e2 100%);
+  background: rgba(245, 158, 11, 0.1);
   border-radius: 8px;
   text-align: center;
-  color: #92400e;
+  color: #f59e0b;
   font-family: inherit;
   border-left: 4px solid #f59e0b;
 }
 
 .error {
   padding: 20px 24px;
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #7f1d1d;
+  background: rgba(220, 38, 38, 0.1);
+  color: #ef4444;
   border-radius: 8px;
   margin-bottom: 16px;
   font-family: inherit;
-  border-left: 4px solid #dc2626;
+  border-left: 4px solid #ef4444;
 }
 
 .empty-state {
   text-align: center;
   padding: 48px 20px;
-  color: #666;
+  color: var(--color-text-alt);
   font-family: inherit;
 }
 
 .form-error {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #7f1d1d;
+  background: rgba(220, 38, 38, 0.1);
+  color: #ef4444;
   padding: 16px 18px;
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 14px;
   font-family: inherit;
-  border-left: 4px solid #dc2626;
+  border-left: 4px solid #ef4444;
 }
 
 /* Form Styles */
@@ -228,7 +231,7 @@ main {
   margin: 0;
   font-weight: 500;
   cursor: pointer;
-  color: #333;
+  color: var(--color-text);
 }
 
 .form-group.checkbox input {
@@ -240,9 +243,9 @@ main {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--color-border);
   border-radius: 6px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-alt);
   transition: all 0.2s ease;
   flex-shrink: 0;
   display: flex;
@@ -273,17 +276,17 @@ main {
 .form-group.checkbox input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  border-color: #e5e7eb;
+  border-color: var(--color-border);
 }
 
 .form-group.checkbox input:disabled:checked {
-  background: #d1d5db;
+  background: var(--color-bg-light);
 }
 
 .form-group label {
   font-weight: 600;
   font-size: 14px;
-  color: #1f2937;
+  color: var(--color-text);
   font-family: inherit;
   letter-spacing: -0.3px;
 }
@@ -291,12 +294,12 @@ main {
 .form-group input,
 .form-group textarea {
   padding: 12px 14px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-family: inherit;
   font-size: 14px;
-  color: #1f2937;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-bg-alt);
   transition: all 0.2s;
 }
 
@@ -359,16 +362,16 @@ main {
 }
 
 .btn-success:disabled {
-  background: #d1d5db;
+  background: var(--color-bg-light);
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #1f2937;
+  background: var(--color-bg-light);
+  color: var(--color-text);
   padding: 10px 14px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -378,13 +381,13 @@ main {
 }
 
 .btn-secondary:hover { 
-  background: #e5e7eb;
-  border-color: #d1d5db;
+  background: var(--color-bg);
+  border-color: var(--color-text-alt);
 }
 
 .btn-secondary:disabled {
-  background: #f3f4f6;
-  border-color: #e5e7eb;
+  background: var(--color-bg-light);
+  border-color: var(--color-border);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -455,7 +458,7 @@ main {
 .palettes-container > h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
   margin: 0 0 20px 0;
   letter-spacing: -0.5px;
 }
@@ -471,7 +474,7 @@ main {
 .palette-item {
   border: none;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-bg-alt);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -486,13 +489,13 @@ main {
 
 .palette-item.selected {
   border: 2px solid #667eea;
-  background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+  background: var(--color-bg-light);
   box-shadow: 0 12px 32px rgba(102, 126, 234, 0.25);
 }
 
 .palette-content {
   padding: 20px 22px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-alt);
   flex: 1;
   cursor: pointer;
 }
@@ -501,13 +504,13 @@ main {
   font-weight: 700;
   font-size: 18px;
   margin-bottom: 10px;
-  color: #1f2937;
+  color: var(--color-text);
   font-family: inherit;
 }
 
 .palette-description {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-alt);
   opacity: 1;
   margin-bottom: 12px;
   line-height: 1.5;
@@ -538,8 +541,8 @@ main {
   display: flex;
   gap: 8px;
   padding: 14px 22px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-light);
 }
 
 /* Emoji picker styles */
@@ -555,7 +558,7 @@ main {
 }
 
 .btn-emoji {
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 11px 16px;
   cursor: pointer;
@@ -570,7 +573,7 @@ main {
   color: #667eea;
   font-weight: 700;
   margin-top: 8px;
-  background: #ffffff;
+  background: var(--color-bg-alt);
 }
 
 .btn-emoji:hover:not(:disabled) {
@@ -588,6 +591,7 @@ main {
 .btn-emoji:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: var(--color-bg-light);
 }
 
 .emoji-picker-overlay {
@@ -618,10 +622,10 @@ main {
 
 /* Selected Palette Panel */
 .selected-panel {
-  background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+  background: var(--color-bg-light);
   border-radius: 12px;
   padding: 24px;
-  border: 2px solid #e0e7ff;
+  border: 2px solid var(--color-border);
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
   transition: all 0.3s ease;
 }
@@ -634,7 +638,7 @@ main {
 }
 
 .selected-content {
-  background: #ffffff;
+  background: var(--color-bg-alt);
   padding: 16px 20px;
   border-radius: 8px;
 }
@@ -642,13 +646,13 @@ main {
 .selected-name {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
   margin-bottom: 8px;
 }
 
 .selected-description {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-alt);
   margin-bottom: 10px;
   line-height: 1.5;
 }

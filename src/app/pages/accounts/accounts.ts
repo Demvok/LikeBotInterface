@@ -187,10 +187,11 @@ export class Accounts {
     );
   }
 
-  deleteAccount(account: Account) {
+  deleteAccount(account: Account) {   
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
     if (!confirm(`Delete account ${phone}?`)) return;
+    console.log(1);
     
     this.accountsService.deleteAccount(phone).subscribe(
       (res) => {
