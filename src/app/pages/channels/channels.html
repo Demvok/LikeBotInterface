@@ -1,12 +1,39 @@
 <div class="content-wrapper">
-  <!-- Header -->
-  <header>
-    <h2>Channels Management</h2>
-    <div class="header-actions">
-      <button class="btn-primary" (click)="openAddModal()">
-        ➕ Add Channel
-      </button>
-      <button class="btn-secondary" (click)="getChannels()">🔄 Refresh</button>
+  <!-- Header with Filters -->
+  <header class="header-with-filters">
+    <div class="header-top">
+      <h2>Channels Management</h2>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="openAddModal()">
+          ➕ Add Channel
+        </button>
+        <button class="btn-secondary" (click)="getChannels()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="header-filters">
+      <div class="filter-group">
+        <input
+          type="text"
+          [(ngModel)]="searchChannelName"
+          placeholder="Search by channel name..."
+          class="form-control"
+        />
+      </div>
+
+      <div class="filter-group">
+        <select [(ngModel)]="selectedTag" class="form-control">
+          <option value="">-- All Tags --</option>
+          <option *ngFor="let tag of availableTags" [value]="tag">
+            {{ tag }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-primary" (click)="applyFilters()">🔍 Apply</button>
+        <button class="btn-secondary" (click)="clearFilters()">✖ Clear</button>
+      </div>
     </div>
   </header>
 
@@ -91,6 +118,12 @@
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let channel">
             <div class="actions-buttons">
+              <button class="btn-view" (click)="viewChannelPosts(channel)" title="View posts from this channel">
+                📄
+              </button>
+              <button class="btn-view" (click)="viewChannelSubscribers(channel)" title="View subscribed accounts">
+                👥
+              </button>
               <button class="btn-edit" (click)="openEditModal(channel)" title="Edit channel">
                 ✏️
               </button>
@@ -108,7 +141,7 @@
 
       <!-- Paginator -->
       <mat-paginator
-        [pageSizeOptions]="[5, 10, 25, 100]"
+        [pageSizeOptions]="[10, 15, 25, 100]"
         showFirstLastButtons
         aria-label="Select page"
       >

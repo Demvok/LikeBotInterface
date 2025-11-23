@@ -168,4 +168,14 @@ export class AccountsService {
       )
     );
   }
+
+  /** Index subscribed channels for an account */
+  indexAccountChannels(phone_number: string): Observable<{ message: string; channels_indexed: number }> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.post<{ message: string; channels_indexed: number }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/index-channels`,
+        {}
+      )
+    );
+  }
 }

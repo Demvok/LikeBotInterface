@@ -1,5 +1,12 @@
 <div class="content-wrapper">
     <header>
+        <div class="header-title">
+            <h2>Posts Management</h2>
+            <span *ngIf="filter.chat_id" class="filter-badge">
+                Filtering by Channel ID: <strong>{{ filter.chat_id }}</strong>
+                <button type="button" class="btn-clear-filter" (click)="resetFilters()">✕</button>
+            </span>
+        </div>
         <form class="filter-form" autocomplete="off">
             <label>
                 Post ID:

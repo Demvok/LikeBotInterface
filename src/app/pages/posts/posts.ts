@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -46,7 +47,7 @@ export class Posts {
 
   lastUpdate: string = '';
 
-  constructor(private postsService: PostsService, private dialog: MatDialog) {}
+  constructor(private postsService: PostsService, private dialog: MatDialog, private route: ActivatedRoute) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -64,8 +65,21 @@ export class Posts {
   }
 
   ngOnInit() {
-    this.getPosts();
-    this.lastUpdate = this.formatDate(new Date());
+    // Read query parameters
+    this.route.queryParams.subscribe((params) => {
+      this.filter = {};
+      if (params['channel_id']) {
+        this.filter.chat_id = parseInt(params['channel_id'], 10);
+      }
+      if (params['post_id']) {
+        this.filter.post_id = parseInt(params['post_id'], 10);
+      }
+      if (params['validated_only']) {
+        this.filter.validated_only = params['validated_only'] === 'true';
+      }
+      this.getPosts();
+      this.lastUpdate = this.formatDate(new Date());
+    });
   }
 
 

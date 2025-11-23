@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -59,6 +60,11 @@ export class Channels implements OnInit {
   deleteChannelId: number = 0;
   deleteChannelName: string = '';
 
+  // Filters
+  searchChannelName: string = '';
+  selectedTag: string = '';
+  availableTags: string[] = [];
+
   // Error message
   errorMessage: string = '';
   successMessage: string = '';
@@ -78,7 +84,7 @@ export class Channels implements OnInit {
     this.assignTableFeatures();
   }
 
-  constructor(private channelsService: ChannelsService, private cdr: ChangeDetectorRef) {}
+  constructor(private channelsService: ChannelsService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
     this.getChannels();
@@ -100,10 +106,19 @@ export class Channels implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.channelsService.getChannels().subscribe({
+    const filters: any = {};
+    if (this.searchChannelName.trim()) {
+      filters.name = this.searchChannelName.trim();
+    }
+    if (this.selectedTag.trim()) {
+      filters.tag = this.selectedTag.trim();
+    }
+
+    this.channelsService.getChannels(filters).subscribe({
       next: (data) => {
         this.channels = new MatTableDataSource<Channel>(data);
         this.assignTableFeatures();
+        this.extractAvailableTags(data);
         this.loading = false;
       },
       error: (error) => {
@@ -112,6 +127,26 @@ export class Channels implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private extractAvailableTags(channels: Channel[]) {
+    const tags = new Set<string>();
+    channels.forEach((channel) => {
+      if (channel.tags && Array.isArray(channel.tags)) {
+        channel.tags.forEach((tag) => tags.add(tag));
+      }
+    });
+    this.availableTags = Array.from(tags).sort();
+  }
+
+  applyFilters() {
+    this.getChannels();
+  }
+
+  clearFilters() {
+    this.searchChannelName = '';
+    this.selectedTag = '';
+    this.getChannels();
   }
 
   // Add modal
@@ -220,5 +255,13 @@ export class Channels implements OnInit {
 
   formatTags(tags: string[] | undefined): string {
     return tags && tags.length > 0 ? tags.join(', ') : '-';
+  }
+
+  viewChannelPosts(channel: Channel) {
+    this.router.navigate(['/posts'], { queryParams: { channel_id: channel.chat_id } });
+  }
+
+  viewChannelSubscribers(channel: Channel) {
+    this.router.navigate(['/accounts'], { queryParams: { channel_id: channel.chat_id } });
   }
 }

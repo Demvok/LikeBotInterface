@@ -13,6 +13,12 @@ export interface Account {
   status?: AccountStatus;
   created_at?: string;
   updated_at?: string;
+  last_error?: string;
+  last_error_type?: string;
+  last_error_time?: string;
+  last_success_time?: string;
+  last_checked?: string;
+  flood_wait_until?: string | null;
 }
 
 export interface Post {
