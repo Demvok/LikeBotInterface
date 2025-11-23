@@ -271,7 +271,7 @@ span .mat-mdc-button-touch-target {
   color: var(--color-text, #222);
   border-radius: 12px;
   padding: 1rem 1.25rem 0.75rem 1.25rem;
-  min-width: 320px;
+  min-width: 600px;
   max-width: 90vw;
   box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   display: flex;
@@ -411,11 +411,19 @@ span .star {
   background-color: var(--color-bg-accented-darker) !important;
 }
 
-.btn-password {
+.btn-index {
+  background-color: #059669 !important;
+}
+
+.btn-index:hover {
+  background-color: #047857 !important;
+}
+
+.btn-details {
   background-color: #1565c0 !important;
 }
 
-.btn-password:hover {
+.btn-details:hover {
   background-color: #0d47a1 !important;
 }
 
@@ -432,6 +440,51 @@ span .star {
   border: 2px solid #3b82f6 !important;
   font-weight: 500;
   color: var(--color-text) !important;
+}
+
+/* Details Modal Styles */
+.details-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.details-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.details-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.details-content::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.4);
+  border-radius: 3px;
+}
+
+.details-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
+}
+
+.details-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--color-bg-light);
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.details-section label {
+  margin-bottom: 0.75rem;
 }
 
 .modal-actions {

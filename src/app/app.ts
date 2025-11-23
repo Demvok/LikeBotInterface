@@ -41,11 +41,20 @@ export class App implements OnInit, OnDestroy {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.currentRoute = event.urlAfterRedirects;
+        // Check if we're on task-detailed route (which includes task/:id, task/:id/posts, etc.)
         this.is_task_detailed = this.currentRoute.startsWith('/task/');
-        this.task_id = this.is_task_detailed ? this.currentRoute.split('/')[2] : null;
+        const pathParts = this.currentRoute.split('/');
+        this.task_id = this.is_task_detailed && pathParts.length > 1 ? pathParts[2] : null;
         
         // Hide sidebar on login/register pages
         this.showSidebar = !this.currentRoute.startsWith('/login') && !this.currentRoute.startsWith('/register');
+        
+        // Close other categories when navigating to task-detailed
+        if (this.is_task_detailed) {
+          this.expandedCategories['main'] = false;
+          this.expandedCategories['admin'] = false;
+          this.expandedCategories['detailed'] = true;
+        }
       }
     });
   }

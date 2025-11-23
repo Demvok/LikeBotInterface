@@ -82,7 +82,7 @@ export class ChannelsService {
     if (data.is_private !== undefined) params['is_private'] = data.is_private.toString();
     if (data.has_enabled_reactions !== undefined) params['has_enabled_reactions'] = data.has_enabled_reactions.toString();
     if (data.reactions_only_for_subscribers !== undefined) params['reactions_only_for_subscribers'] = data.reactions_only_for_subscribers.toString();
-    if (data.discussion_chat_id !== undefined) params['discussion_chat_id'] = data.discussion_chat_id;
+    if (data.discussion_chat_id !== undefined && data.discussion_chat_id !== null) params['discussion_chat_id'] = data.discussion_chat_id;
     if (data.tags) params['tags'] = data.tags.join(',');
 
     return this.http.put(`${this.apiUrl}/${chatId}`, null, { params });

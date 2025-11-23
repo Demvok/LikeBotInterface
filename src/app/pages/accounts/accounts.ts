@@ -57,10 +57,10 @@ export class Accounts {
   readonly POLLING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
   readonly MAX_POLLING_ERRORS = 5; // Stop polling after 5 consecutive errors
 
-  // Password view
-  showPasswordModal: boolean = false;
-  passwordData: { phone_number: string; has_password: boolean; password: string | null } | null = null;
-  passwordLoading: boolean = false;
+  // Password/Details view
+  showDetailsModal: boolean = false;
+  detailsData: Account | null = null;
+  detailsLoading: boolean = false;
 
   constructor(private accountsService: AccountsService, private authService: AuthService) {}
 
@@ -559,30 +559,51 @@ export class Accounts {
   }
 
   // View account password (admin only)
-  viewPassword(account: Account) {
+  viewDetails(account: Account) {
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
     
-    this.passwordLoading = true;
-    this.showPasswordModal = true;
-    this.passwordData = null;
+    this.detailsLoading = true;
+    this.showDetailsModal = true;
+    this.detailsData = null;
     
     this.accountsService.getAccountPassword(phone).subscribe(
       (res) => {
-        this.passwordData = res;
-        this.passwordLoading = false;
+        // Merge details with account data
+        this.detailsData = { ...account, ...res };
+        this.detailsLoading = false;
       },
       (err) => {
-        this.showErrorMessage('Failed to retrieve password: ' + (err.error?.detail || err.message));
-        this.passwordLoading = false;
-        this.closePasswordModal();
+        // Still show account details even if password fetch fails
+        this.detailsData = account;
+        this.detailsLoading = false;
       }
     );
   }
 
-  closePasswordModal() {
-    this.showPasswordModal = false;
-    this.passwordData = null;
-    this.passwordLoading = false;
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.detailsData = null;
+    this.detailsLoading = false;
+  }
+
+  // Index subscribed channels for an account
+  indexAccountChannels(account: Account) {
+    const phone = this.sanitizePhoneNumber(account.phone_number);
+    if (!phone) return;
+
+    if (confirm(`Index subscribed channels for account ${account.phone_number}? This may take a while.`)) {
+      this.loading = true;
+      this.accountsService.indexAccountChannels(phone).subscribe(
+        (res) => {
+          alert(`✅ Success! Indexed ${res.channels_indexed} channels for account ${account.phone_number}`);
+          this.loading = false;
+        },
+        (err) => {
+          alert(`❌ Failed to index channels: ${err?.error?.detail || err?.message || 'Unknown error'}`);
+          this.loading = false;
+        }
+      );
+    }
   }
 }

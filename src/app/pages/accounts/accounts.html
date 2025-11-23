@@ -50,11 +50,14 @@
                         <button mat-button class="account-action-button btn-validate" (click)="validateAccount(account)" title="Validate Account">
                             Validate
                         </button>
+                        <button mat-button class="account-action-button btn-index" (click)="indexAccountChannels(account)" title="Index Subscribed Channels">
+                            Index Channels
+                        </button>
                         <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)" title="Edit Account">
                             Edit
                         </button>
-                        <button mat-button class="account-action-button btn-password" *ngIf="isAdmin()" (click)="viewPassword(account)" title="View Password (Admin Only)">
-                            View Password
+                        <button mat-button class="account-action-button btn-details" (click)="viewDetails(account)" title="View Account Details">
+                            View Details
                         </button>
                         <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)" title="Delete Account">
                             Delete
@@ -232,42 +235,108 @@
             </div>
         </div>
 
-        <!-- Modal for Password View (Admin Only) -->
-        <div class="modal-backdrop" *ngIf="showPasswordModal">
+        <!-- Modal for Account Details (Admin Only) -->
+        <div class="modal-backdrop" *ngIf="showDetailsModal">
             <div class="modal-window">
-                <h2>Account Password</h2>
-                <p class="modal-description">View account 2FA password (Admin only)</p>
+                <h2>Account Details</h2>
+                <p class="modal-description">View complete account information</p>
 
-                <div *ngIf="passwordLoading" class="info-message">
+                <div *ngIf="detailsLoading" class="info-message">
                     <mat-spinner diameter="20"></mat-spinner>
-                    Loading password...
+                    Loading details...
                 </div>
 
-                <div *ngIf="!passwordLoading && passwordData" class="password-content">
-                    <label>
-                        <span class="label-text">Phone Number:</span>
-                        <input 
-                            type="text" 
-                            [value]="passwordData.phone_number" 
-                            disabled />
-                    </label>
-                    <label *ngIf="passwordData.has_password">
-                        <span class="label-text">Password:</span>
-                        <div class="password-display">
-                            <input 
-                                type="text" 
-                                [value]="passwordData.password" 
-                                readonly 
-                                style="font-family: monospace; font-size: 1.1rem;" />
-                        </div>
-                    </label>
-                    <p *ngIf="!passwordData.has_password" class="help-text" style="color: #666; margin-top: 1rem;">
-                        This account does not have a 2FA password set.
-                    </p>
+                <div *ngIf="!detailsLoading && detailsData" class="details-content">
+                    <!-- Basic Information -->
+                    <div class="details-section">
+                        <h3 class="section-title">Basic Information</h3>
+                        <label>
+                            <span class="label-text">Phone Number:</span>
+                            <input type="text" [value]="detailsData.phone_number" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Account ID:</span>
+                            <input type="text" [value]="detailsData.account_id || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Session Name:</span>
+                            <input type="text" [value]="detailsData.session_name || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Status:</span>
+                            <input type="text" [value]="detailsData.status || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Notes:</span>
+                            <textarea [value]="detailsData.notes || '-'" readonly rows="3"></textarea>
+                        </label>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="details-section">
+                        <h3 class="section-title">Timestamps</h3>
+                        <label>
+                            <span class="label-text">Created At:</span>
+                            <input type="text" [value]="detailsData.created_at || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Updated At:</span>
+                            <input type="text" [value]="detailsData.updated_at || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Last Checked:</span>
+                            <input type="text" [value]="detailsData.last_checked || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Last Success Time:</span>
+                            <input type="text" [value]="detailsData.last_success_time || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Error Information -->
+                    <div class="details-section" *ngIf="detailsData.last_error">
+                        <h3 class="section-title">Error Information</h3>
+                        <label>
+                            <span class="label-text">Last Error:</span>
+                            <textarea [value]="detailsData.last_error || '-'" readonly rows="2"></textarea>
+                        </label>
+                        <label>
+                            <span class="label-text">Error Type:</span>
+                            <input type="text" [value]="detailsData.last_error_type || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Error Time:</span>
+                            <input type="text" [value]="detailsData.last_error_time || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Flood Wait -->
+                    <div class="details-section" *ngIf="detailsData.flood_wait_until">
+                        <h3 class="section-title">Flood Wait</h3>
+                        <label>
+                            <span class="label-text">Flood Wait Until:</span>
+                            <input type="text" [value]="detailsData.flood_wait_until || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Password (Admin Only) -->
+                    <div class="details-section" *ngIf="isAdmin() && detailsData.password_encrypted">
+                        <h3 class="section-title">2FA Password</h3>
+                        <label>
+                            <span class="label-text">Password:</span>
+                            <div class="password-display">
+                                <input 
+                                    type="text" 
+                                    [value]="detailsData.password_encrypted" 
+                                    readonly 
+                                    style="font-family: monospace; font-size: 1.1rem;" />
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" (click)="closePasswordModal()">Close</button>
+                    <button type="button" (click)="closeDetailsModal()">Close</button>
                 </div>
             </div>
         </div>
