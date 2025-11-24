@@ -8,6 +8,7 @@ import { Settings } from './pages/settings/settings';
 import { PalettePage } from './pages/palette/palette';
 import { Users } from './pages/users/users';
 import { Channels } from './pages/channels/channels';
+import { Proxies } from './pages/proxies/proxies';
 import { Info } from './pages/task-detailed/info/info';
 import { Posts as PostsDetailed} from './pages/task-detailed/posts/posts';
 import { Accounts as AccountsDetailed } from './pages/task-detailed/accounts/accounts';
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'channels', component: Channels, canActivate: [authGuard] },
   { path: 'settings', component: Settings, canActivate: [adminGuard] },
   { path: 'users', component: Users, canActivate: [adminGuard] },
+  { path: 'proxies', component: Proxies, canActivate: [adminGuard] },
   { path: 'palette', component: PalettePage, canActivate: [authGuard] },
   { path: 'task/:id', component: Info, canActivate: [authGuard] },
   { path: 'task/:id/posts', component: PostsDetailed, canActivate: [authGuard] },
