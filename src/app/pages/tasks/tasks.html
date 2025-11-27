@@ -231,6 +231,7 @@
                             <!-- Delete Button - always visible -->
                             <button mat-button class="management-btn delete" 
                                     (click)="$event.stopPropagation(); task.task_id && deleteTask(task.task_id, task.name)"
+                                    [disabled]="isGuest()"
                                     title="Delete task permanently">
                                 <mat-icon>delete</mat-icon>
                                 Delete
@@ -267,6 +268,7 @@
         <!-- Floating Action Button for Create Task -->
         <button mat-fab class="create-task-fab" 
                 (click)="navigateToCreateTask()" 
+                [disabled]="isGuest()"
                 title="Create New Task"
                 aria-label="Create New Task">
             <mat-icon>add</mat-icon>

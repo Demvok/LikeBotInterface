@@ -108,8 +108,8 @@
                             <!-- Start Button - hidden if FINISHED -->
                             <ng-container *ngIf="!isTaskFinished(task)">
                                 <button class="management-btn start" 
+                                        [disabled]="isGuest() || task.status === 'RUNNING'"
                                         (click)="startTask()"
-                                        [disabled]="task.status === 'RUNNING'"
                                         title="Start task execution">
                                     <span class="btn-icon">▶️</span>
                                     Start
@@ -119,8 +119,8 @@
                             <!-- Pause Button - hidden if FINISHED -->
                             <ng-container *ngIf="!isTaskFinished(task)">
                                 <button class="management-btn pause" 
+                                        [disabled]="isGuest() || task.status !== 'RUNNING'"
                                         (click)="pauseTask()"
-                                        [disabled]="task.status !== 'RUNNING'"
                                         title="Pause task execution">
                                     <span class="btn-icon">⏸️</span>
                                     Pause
@@ -131,7 +131,7 @@
                             <ng-container *ngIf="!isTaskFinished(task)">
                                 <button class="management-btn resume" 
                                         (click)="resumeTask()"
-                                        [disabled]="task.status !== 'PAUSED'"
+                                        [disabled]="isGuest() || task.status !== 'PAUSED'"
                                         title="Resume task execution">
                                     <span class="btn-icon">▶️</span>
                                     Resume
@@ -141,6 +141,7 @@
                             <!-- Delete Button - always visible -->
                             <button class="management-btn delete" 
                                     (click)="deleteTask()"
+                                    [disabled]="isGuest()"
                                     title="Delete task permanently">
                                 <span class="btn-icon">🗑️</span>
                                 Delete

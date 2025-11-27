@@ -4,7 +4,7 @@
     <div class="header-top">
       <h2>Channels Management</h2>
       <div class="header-actions">
-        <button class="btn-primary" (click)="openAddModal()">
+        <button class="btn-primary" (click)="openAddModal()" [disabled]="isGuest()">
           ➕ Add Channel
         </button>
         <button class="btn-secondary" (click)="getChannels()">🔄 Refresh</button>
@@ -118,16 +118,16 @@
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let channel">
             <div class="actions-buttons">
-              <button class="btn-view" (click)="viewChannelPosts(channel)" title="View posts from this channel">
+              <button class="btn-view" (click)="viewChannelPosts(channel)" [disabled]="isGuest()" title="View posts from this channel">
                 📄
               </button>
-              <button class="btn-view" (click)="viewChannelSubscribers(channel)" title="View subscribed accounts">
+              <button class="btn-view" (click)="viewChannelSubscribers(channel)" [disabled]="isGuest()" title="View subscribed accounts">
                 👥
               </button>
-              <button class="btn-edit" (click)="openEditModal(channel)" title="Edit channel">
+              <button class="btn-edit" (click)="openEditModal(channel)" [disabled]="isGuest()" title="Edit channel">
                 ✏️
               </button>
-              <button class="btn-delete" (click)="openDeleteConfirm(channel)" title="Delete channel">
+              <button class="btn-delete" (click)="openDeleteConfirm(channel)" [disabled]="isGuest()" title="Delete channel">
                 🗑️
               </button>
             </div>

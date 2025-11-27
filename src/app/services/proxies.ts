@@ -152,4 +152,119 @@ export class ProxiesService {
   getProxyStats(): Observable<ProxyStats> {
     return this.http.get<ProxyStats>(`${this.apiUrl}/stats/summary`);
   }
+
+  /**
+   * Import proxies from CSV file
+   */
+  importProxiesFromCsv(file: File): Observable<any> {
+    return new Observable(observer => {
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        try {
+          const csv = e.target.result;
+          const lines = csv.split('\n');
+          
+          // Parse CSV headers (first line)
+          const headers = lines[0].split(',').map((h: string) => h.trim().toLowerCase());
+          
+          // Parse CSV rows
+          const proxies: any[] = [];
+          const generatedNames = new Set<string>();
+          
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue; // Skip empty lines
+            
+            const values = line.split(',').map((v: string) => v.trim());
+            const proxy: any = {};
+            
+            headers.forEach((header: string, index: number) => {
+              proxy[header] = values[index];
+            });
+            
+            // Generate unique proxy name from host and port
+            if (proxy.host && proxy.port) {
+              // Create base name from host IP (last 2 octets)
+              const hostParts = proxy.host.split('.');
+              const shortHost = hostParts.slice(-2).join('_'); // e.g., "217_82"
+              let proxyName = `proxy_${shortHost}_${proxy.port}`;
+              
+              // Ensure unique name
+              let counter = 1;
+              let uniqueName = proxyName;
+              while (generatedNames.has(uniqueName)) {
+                uniqueName = `${proxyName}_${counter}`;
+                counter++;
+              }
+              
+              proxy.proxy_name = uniqueName;
+              generatedNames.add(uniqueName);
+              proxy.proxy_type = proxy.proxy_type || 'socks5'; // Default type
+              proxies.push(proxy);
+            }
+          }
+          
+          if (proxies.length === 0) {
+            observer.error({ error: { detail: 'No valid proxy data found in CSV' } });
+            return;
+          }
+          
+          // Import proxies one by one
+          const results: any[] = [];
+          let completed = 0;
+          
+          proxies.forEach((proxy, index) => {
+            const createData = {
+              proxy_name: proxy.proxy_name,
+              proxy_type: proxy.proxy_type || 'socks5',
+              host: proxy.host,
+              port: parseInt(proxy.port, 10),
+              username: proxy.username,
+              password: proxy.password,
+              is_active: true
+            };
+            
+            this.createProxy(createData).subscribe({
+              next: (response) => {
+                results[index] = {
+                  proxy_name: proxy.proxy_name,
+                  status: 'success',
+                  message: 'Proxy created successfully'
+                };
+                completed++;
+                
+                if (completed === proxies.length) {
+                  observer.next({ results });
+                  observer.complete();
+                }
+              },
+              error: (error) => {
+                const errorMsg = error?.error?.detail || 'Failed to create proxy';
+                results[index] = {
+                  proxy_name: proxy.proxy_name,
+                  status: errorMsg.includes('already exists') ? 'skipped' : 'error',
+                  message: errorMsg
+                };
+                completed++;
+                
+                if (completed === proxies.length) {
+                  observer.next({ results });
+                  observer.complete();
+                }
+              }
+            });
+          });
+        } catch (error) {
+          observer.error({ error: { detail: 'Failed to parse CSV file' } });
+        }
+      };
+      
+      reader.onerror = () => {
+        observer.error({ error: { detail: 'Failed to read file' } });
+      };
+      
+      reader.readAsText(file);
+    });
+  }
 }

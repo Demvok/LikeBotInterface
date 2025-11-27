@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
+import { AuthService } from '../../services/auth.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -47,7 +48,7 @@ export class Posts {
 
   lastUpdate: string = '';
 
-  constructor(private postsService: PostsService, private dialog: MatDialog, private route: ActivatedRoute) {}
+  constructor(private postsService: PostsService, private dialog: MatDialog, private route: ActivatedRoute, private authService: AuthService) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -254,5 +255,17 @@ export class Posts {
         this.loading = false;
       }
     );
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

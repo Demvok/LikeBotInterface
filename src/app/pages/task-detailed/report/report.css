@@ -298,7 +298,7 @@ main {
 /* Events Table */
 .events-table-container {
   flex: 1;
-  overflow: auto;
+  /* overflow: auto; */
   border-radius: 8px;
   border: 1px solid var(--color-bg-accented);
 }
@@ -311,8 +311,8 @@ main {
 
 .events-table thead {
   background-color: var(--color-bg-accented);
-  position: sticky;
-  top: 0;
+  /* position: sticky;
+  top: 0; */
   z-index: 10;
 }
 
@@ -593,7 +593,7 @@ footer {
   height: fit-content;
   text-align: center;
   margin-top: 1%;
-  padding: 1rem;
+  /* padding: 1rem; */
   color: var(--color-text-alt);
 }
 
@@ -605,7 +605,7 @@ footer {
 .run-id-footer {
   font-family: monospace;
   background-color: var(--color-bg-darker);
-  padding: 0.2rem 0.5rem;
+  /* padding: 0.2rem 0.5rem; */
   border-radius: 4px;
   font-size: 0.85rem;
 }

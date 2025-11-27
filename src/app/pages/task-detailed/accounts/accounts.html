@@ -62,10 +62,10 @@
                     <div class="table-cell action-buttons">
                         <button mat-button class="account-action-button btn-task" 
                                *ngIf="!account.inTask && task" 
-                               (click)="addToTask(account)">Add to Task</button>
+                               (click)="addToTask(account)" [disabled]="isGuest()">Add to Task</button>
                         <button mat-button class="account-action-button btn-remove" 
                                *ngIf="account.inTask && task" 
-                               (click)="removeFromTask(account)">Remove from Task</button>
+                               (click)="removeFromTask(account)" [disabled]="isGuest()">Remove from Task</button>
                     </div>
                 </td>
             </ng-container>

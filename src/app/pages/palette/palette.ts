@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PalettesService } from '../../services/palettes.service';
+import { AuthService } from '../../services/auth.service';
 import { Palette as PaletteModel } from '../../services/api.models';
 import { EmojiPickerComponent } from './emoji-picker/emoji-picker.component';
 
@@ -35,7 +36,7 @@ export class PalettePage implements OnInit {
   formError = '';
   isEditingEmojis = false; // Track if emoji picker is for create or edit form
 
-  constructor(private palettesService: PalettesService, private cdr: ChangeDetectorRef) {}
+  constructor(private palettesService: PalettesService, private cdr: ChangeDetectorRef, private authService: AuthService) {}
 
   ngOnInit() {
     this.fetchPalettes();
@@ -355,6 +356,18 @@ export class PalettePage implements OnInit {
 
   onEmojiPickerClosed() {
     this.closeEmojiPicker();
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 
 }

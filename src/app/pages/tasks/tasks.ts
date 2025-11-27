@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { TasksService, Task } from '../../services/tasks';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -82,7 +83,7 @@ export class Tasks implements OnInit, OnDestroy {
     { value: 'comment', label: 'Comment' }
   ];
 
-  constructor(private tasksService: TasksService, private router: Router) {}
+  constructor(private tasksService: TasksService, private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     this.loadTasks();
@@ -304,5 +305,17 @@ export class Tasks implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

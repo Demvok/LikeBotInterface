@@ -8,6 +8,7 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ChannelsService, Channel } from '../../services/channels';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-channels',
@@ -84,7 +85,7 @@ export class Channels implements OnInit {
     this.assignTableFeatures();
   }
 
-  constructor(private channelsService: ChannelsService, private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(private channelsService: ChannelsService, private cdr: ChangeDetectorRef, private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     this.getChannels();
@@ -263,5 +264,17 @@ export class Channels implements OnInit {
 
   viewChannelSubscribers(channel: Channel) {
     this.router.navigate(['/accounts'], { queryParams: { channel_id: channel.chat_id } });
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }
