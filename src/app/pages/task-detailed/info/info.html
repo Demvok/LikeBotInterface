@@ -105,27 +105,40 @@
                     </div>
                     <div class="card-content">
                         <div class="management-buttons">
-                            <button class="management-btn start" 
-                                    (click)="startTask()"
-                                    [disabled]="task.status === 'RUNNING'"
-                                    title="Start task execution">
-                                <span class="btn-icon">▶️</span>
-                                Start
-                            </button>
-                            <button class="management-btn pause" 
-                                    (click)="pauseTask()"
-                                    [disabled]="task.status !== 'RUNNING'"
-                                    title="Pause task execution">
-                                <span class="btn-icon">⏸️</span>
-                                Pause
-                            </button>
-                            <button class="management-btn resume" 
-                                    (click)="resumeTask()"
-                                    [disabled]="task.status !== 'PAUSED'"
-                                    title="Resume task execution">
-                                <span class="btn-icon">▶️</span>
-                                Resume
-                            </button>
+                            <!-- Start Button - hidden if FINISHED -->
+                            <ng-container *ngIf="!isTaskFinished(task)">
+                                <button class="management-btn start" 
+                                        (click)="startTask()"
+                                        [disabled]="task.status === 'RUNNING'"
+                                        title="Start task execution">
+                                    <span class="btn-icon">▶️</span>
+                                    Start
+                                </button>
+                            </ng-container>
+
+                            <!-- Pause Button - hidden if FINISHED -->
+                            <ng-container *ngIf="!isTaskFinished(task)">
+                                <button class="management-btn pause" 
+                                        (click)="pauseTask()"
+                                        [disabled]="task.status !== 'RUNNING'"
+                                        title="Pause task execution">
+                                    <span class="btn-icon">⏸️</span>
+                                    Pause
+                                </button>
+                            </ng-container>
+
+                            <!-- Resume Button - hidden if FINISHED -->
+                            <ng-container *ngIf="!isTaskFinished(task)">
+                                <button class="management-btn resume" 
+                                        (click)="resumeTask()"
+                                        [disabled]="task.status !== 'PAUSED'"
+                                        title="Resume task execution">
+                                    <span class="btn-icon">▶️</span>
+                                    Resume
+                                </button>
+                            </ng-container>
+
+                            <!-- Delete Button - always visible -->
                             <button class="management-btn delete" 
                                     (click)="deleteTask()"
                                     title="Delete task permanently">

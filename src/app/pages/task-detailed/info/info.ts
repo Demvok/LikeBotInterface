@@ -85,6 +85,11 @@ export class Info implements OnInit, OnDestroy {
         this.task = task;
         this.loading = false;
         this.lastUpdate = this.getFormattedTime();
+        
+        // Stop auto-refresh if task is finished
+        if (this.isTaskFinished(task)) {
+          this.stopAutoRefresh();
+        }
       },
       error: () => {
         this.loading = false;
@@ -102,6 +107,12 @@ export class Info implements OnInit, OnDestroy {
       'CRASHED': 'Failed'
     };
     return statusMap[status] || status;
+  }
+
+  // Helper method to check if task is finished
+  isTaskFinished(task: Task | null): boolean {
+    if (!task) return false;
+    return task.status === 'FINISHED';
   }
 
   getActionTypeText(actionType: string): string {
