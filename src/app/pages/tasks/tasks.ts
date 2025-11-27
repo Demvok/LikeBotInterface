@@ -233,6 +233,13 @@ export class Tasks implements OnInit, OnDestroy {
     }
   }
 
+  // Helper method to check if task is finished
+  isTaskFinished(task: Task): boolean {
+    const finished = task.status === 'FINISHED';
+    console.log(`Task ${task.task_id} status: '${task.status}' - isFinished: ${finished}`);
+    return finished;
+  }
+
   formatDate(date: Date): string {
     // Format as 'HH:mm:ss dd.MM.yyyy'
     const pad = (n: number) => n < 10 ? '0' + n : n;

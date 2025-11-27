@@ -1,0 +1,284 @@
+<div class="content-wrapper">
+  <!-- Header -->
+  <header>
+    <h2>Proxy Management</h2>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="openAddModal()">
+        ➕ Add Proxy
+      </button>
+      <button class="btn-secondary" (click)="getProxies()">🔄 Refresh</button>
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div class="message-container">
+    <div class="success-message" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+    <div class="error-message" *ngIf="errorMessage">
+      ❌ {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading proxies...</p>
+  </div>
+
+  <!-- Proxies Table -->
+  <main *ngIf="!loading" class="proxies-table-container">
+    <div class="table-wrapper">
+      <table
+        mat-table
+        [dataSource]="proxies"
+        matSort
+        class="proxies-table"
+      >
+        <!-- Proxy Name Column -->
+        <ng-container matColumnDef="proxy_name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Proxy Name</th>
+          <td mat-cell *matCellDef="let proxy">
+            <strong>{{ proxy.proxy_name }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Proxy Type Column -->
+        <ng-container matColumnDef="proxy_type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let proxy">
+            <span class="badge" [style.backgroundColor]="getProxyTypeColor(proxy.proxy_type)">
+              {{ proxy.proxy_type | uppercase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Host Column -->
+        <ng-container matColumnDef="host">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Host</th>
+          <td mat-cell *matCellDef="let proxy">{{ proxy.host }}</td>
+        </ng-container>
+
+        <!-- Port Column -->
+        <ng-container matColumnDef="port">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Port</th>
+          <td mat-cell *matCellDef="let proxy">{{ proxy.port }}</td>
+        </ng-container>
+
+        <!-- Username Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let proxy">
+            {{ proxy.username ? proxy.username : '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Active Status Column -->
+        <ng-container matColumnDef="is_active">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let proxy">
+            <span class="badge" [class]="proxy.is_active ? 'badge-active' : 'badge-inactive'">
+              {{ proxy.is_active ? '🟢 Active' : '🔴 Inactive' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Current Usage Column -->
+        <ng-container matColumnDef="current_usage">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Usage</th>
+          <td mat-cell *matCellDef="let proxy">
+            {{ proxy.current_usage || 0 }}
+            <span *ngIf="proxy.max_usage"> / {{ proxy.max_usage }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Max Usage Column -->
+        <ng-container matColumnDef="max_usage">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Max Usage</th>
+          <td mat-cell *matCellDef="let proxy">
+            {{ proxy.max_usage ? proxy.max_usage : '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Last Error Column -->
+        <ng-container matColumnDef="last_error">
+          <th mat-header-cell *matHeaderCellDef>Last Error</th>
+          <td mat-cell *matCellDef="let proxy">
+            <span *ngIf="proxy.last_error" class="error-text" [title]="proxy.last_error">
+              ⚠️ {{ proxy.last_error.substring(0, 30) }}...
+            </span>
+            <span *ngIf="!proxy.last_error" class="no-error">No errors</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let proxy">
+            <div class="actions-buttons">
+              <button class="btn-toggle" 
+                      (click)="toggleProxyStatus(proxy)" 
+                      [title]="proxy.is_active ? 'Deactivate proxy' : 'Activate proxy'">
+                {{ proxy.is_active ? '⏸️' : '▶️' }}
+                <span class="btn-label">{{ proxy.is_active ? 'Pause' : 'Resume' }}</span>
+              </button>
+              <button class="btn-edit" (click)="openEditModal(proxy)" title="Edit proxy">
+                ✏️
+                <span class="btn-label">Edit</span>
+              </button>
+              <button class="btn-delete" (click)="openDeleteConfirm(proxy)" title="Delete proxy">
+                🗑️
+                <span class="btn-label">Delete</span>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Header and Row Definition -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [pageSizeOptions]="[10, 15, 25, 100]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Proxy Modal -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Edit' : 'Add New' }} Proxy</h3>
+      <button class="modal-close" (click)="closeAddModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>Proxy Name: <span class="required">*</span></label>
+        <input
+          type="text"
+          name="proxy_name"
+          [(ngModel)]="formData.proxy_name"
+          placeholder="e.g., proxy1"
+          [disabled]="isEditing"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Proxy Type: <span class="required">*</span></label>
+        <select name="proxy_type" [(ngModel)]="formData.proxy_type" class="form-control">
+          <option value="socks5">SOCKS5</option>
+          <option value="socks4">SOCKS4</option>
+          <option value="http">HTTP</option>
+          <option value="https">HTTPS</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Host: <span class="required">*</span></label>
+          <input
+            type="text"
+            name="host"
+            [(ngModel)]="formData.host"
+            placeholder="IP or hostname"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Port: <span class="required">*</span></label>
+          <input
+            type="number"
+            name="port"
+            [(ngModel)]="formData.port"
+            placeholder="1-65535"
+            min="1"
+            max="65535"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          [(ngModel)]="formData.username"
+          placeholder="Optional"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Password:</label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="formPassword"
+          placeholder="Optional (encrypted on server)"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Max Usage (concurrent connections):</label>
+        <input
+          type="number"
+          name="max_usage"
+          [(ngModel)]="formData.max_usage"
+          placeholder="Optional"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="is_active" [(ngModel)]="formData.is_active" />
+          Active
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeAddModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveProxy()">
+        {{ isEditing ? 'Update Proxy' : 'Add Proxy' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Delete Proxy</h3>
+      <button class="modal-close" (click)="closeDeleteConfirm()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete proxy <strong>{{ deleteProxyName }}</strong>?</p>
+      <p style="color: #ef4444; font-size: 0.9rem; margin-top: 1rem;">
+        ⚠️ This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+      <button class="btn-delete" (click)="confirmDelete()">Delete Proxy</button>
+    </div>
+  </div>
+</div>
