@@ -68,10 +68,13 @@ export class AccountsService {
   }
 
   /** Get all accounts with optional filtering */
-  getAccounts(params?: { phone_number?: string }): Observable<Account[]> {
+  getAccounts(params?: { phone_number?: string; channel_id?: number }): Observable<Account[]> {
     let httpParams = new HttpParams();
     if (params?.phone_number) {
       httpParams = httpParams.set('phone_number', params.phone_number);
+    }
+    if (params?.channel_id) {
+      httpParams = httpParams.set('channel_id', params.channel_id.toString());
     }
     return this.http.get<Account[]>(this.apiUrl, { params: httpParams });
   }

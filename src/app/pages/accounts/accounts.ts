@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -9,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountsService, LoginStatusResponse } from '../../services/accounts';
 import { Account, AccountStatus } from '../../services/api.models';
+import { Proxy } from '../../services/proxies';
+import { ProxiesService } from '../../services/proxies';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthService } from '../../services/auth.service';
@@ -32,7 +35,7 @@ export class Accounts {
   ];
 
   loading: boolean = true;
-  filter: { phone_number?: string } = {};
+  filter: { phone_number?: string; channel_id?: number } = {};
 
   lastUpdate: string = '';
 
@@ -62,7 +65,12 @@ export class Accounts {
   detailsData: Account | null = null;
   detailsLoading: boolean = false;
 
-  constructor(private accountsService: AccountsService, private authService: AuthService) {}
+  // Proxies
+  proxies: Proxy[] = [];
+  loadingProxies: boolean = false;
+  selectedProxyFilter: string | null = null;
+
+  constructor(private accountsService: AccountsService, private authService: AuthService, private route: ActivatedRoute, private proxiesService: ProxiesService) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -80,8 +88,36 @@ export class Accounts {
   }
 
   ngOnInit() {
-    this.getAccounts();
+    // Read query parameters
+    this.route.queryParams.subscribe((params) => {
+      this.filter = {};
+      if (params['channel_id']) {
+        this.filter.channel_id = parseInt(params['channel_id'], 10);
+      }
+      if (params['phone_number']) {
+        this.filter.phone_number = params['phone_number'];
+      }
+      this.getAccounts();
+    });
+    
+    // Load proxies for filtering and selection
+    this.loadProxies();
+    
     this.lastUpdate = this.formatDate(new Date());
+  }
+
+  loadProxies() {
+    this.loadingProxies = true;
+    this.proxiesService.getProxies().subscribe({
+      next: (data) => {
+        this.proxies = data;
+        this.loadingProxies = false;
+      },
+      error: (error) => {
+        console.error('Error loading proxies:', error);
+        this.loadingProxies = false;
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -558,6 +594,12 @@ export class Accounts {
     return user?.role === 'admin';
   }
 
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
+  }
+
   // View account password (admin only)
   viewDetails(account: Account) {
     const phone = this.sanitizePhoneNumber(account.phone_number);
@@ -605,5 +647,64 @@ export class Accounts {
         }
       );
     }
+  }
+
+  // Toggle proxy selection for an account
+  toggleProxySelection(proxyName: string, isSelected: boolean) {
+    if (!this.editingAccount) {
+      return;
+    }
+
+    if (!this.editingAccount.proxy_names) {
+      this.editingAccount.proxy_names = [];
+    }
+
+    if (isSelected) {
+      // Add proxy if not already in list
+      if (!this.editingAccount.proxy_names.includes(proxyName)) {
+        this.editingAccount.proxy_names.push(proxyName);
+      }
+    } else {
+      // Remove proxy from list
+      const index = this.editingAccount.proxy_names.indexOf(proxyName);
+      if (index > -1) {
+        this.editingAccount.proxy_names.splice(index, 1);
+      }
+    }
+  }
+
+  // Toggle proxy selection for new account
+  toggleProxySelectionForNewAccount(proxyName: string, isSelected: boolean) {
+    if (!this.newAccount) {
+      return;
+    }
+
+    if (!this.newAccount.proxy_names) {
+      this.newAccount.proxy_names = [];
+    }
+
+    if (isSelected) {
+      // Add proxy if not already in list
+      if (!this.newAccount.proxy_names.includes(proxyName)) {
+        this.newAccount.proxy_names.push(proxyName);
+      }
+    } else {
+      // Remove proxy from list
+      const index = this.newAccount.proxy_names.indexOf(proxyName);
+      if (index > -1) {
+        this.newAccount.proxy_names.splice(index, 1);
+      }
+    }
+  }
+
+  // Filter accounts by proxy
+  filterByProxy(accounts: Account[]): Account[] {
+    if (!this.selectedProxyFilter) {
+      return accounts;
+    }
+
+    return accounts.filter(account =>
+      account.proxy_names && account.proxy_names.includes(this.selectedProxyFilter!)
+    );
   }
 }

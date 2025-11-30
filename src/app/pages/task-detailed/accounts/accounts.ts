@@ -11,6 +11,7 @@ import { MatSort } from '@angular/material/sort';
 import { Subscription } from 'rxjs';
 import { AccountsService } from '../../../services/accounts';
 import { TasksService, Task } from '../../../services/tasks';
+import { AuthService } from '../../../services/auth.service';
 import { Account } from '../../../services/api.models';
 
 // Extended account interface for task-specific view
@@ -54,7 +55,8 @@ export class Accounts implements OnInit, OnDestroy {
     private accountsService: AccountsService,
     private tasksService: TasksService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   private _paginator!: MatPaginator;
@@ -249,5 +251,17 @@ export class Accounts implements OnInit, OnDestroy {
     );
     
     this.subscriptions.add(createSub);
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

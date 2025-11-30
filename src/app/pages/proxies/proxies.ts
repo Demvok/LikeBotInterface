@@ -7,6 +7,7 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProxiesService, Proxy } from '../../services/proxies';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-proxies',
@@ -62,6 +63,15 @@ export class Proxies implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
+  // Import
+  showImportModal: boolean = false;
+  importResults: any = null;
+  importLoading: boolean = false;
+
+  // Error details modal
+  showErrorModal: boolean = false;
+  selectedError: any = null;
+
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
 
@@ -77,7 +87,7 @@ export class Proxies implements OnInit {
     this.assignTableFeatures();
   }
 
-  constructor(private proxiesService: ProxiesService) {}
+  constructor(private proxiesService: ProxiesService, private authService: AuthService) {}
 
   ngOnInit() {
     this.getProxies();
@@ -276,5 +286,90 @@ export class Proxies implements OnInit {
     if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleString('uk-UA');
+  }
+
+  // Error details modal
+  openErrorModal(proxy: Proxy) {
+    this.selectedError = {
+      proxy_name: proxy.proxy_name,
+      error: proxy.last_error,
+      error_time: proxy.last_error_time,
+      host: proxy.host,
+      port: proxy.port,
+      is_active: proxy.is_active
+    };
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.selectedError = null;
+  }
+
+  // Import modal
+  openImportModal() {
+    this.showImportModal = true;
+    this.importResults = null;
+    this.errorMessage = '';
+  }
+
+  closeImportModal() {
+    this.showImportModal = false;
+    this.importResults = null;
+    // Clear file input
+    const fileInput = document.getElementById('csvFile') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  // Handle file selection and import
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.csv')) {
+      this.errorMessage = 'Please select a CSV file';
+      return;
+    }
+
+    this.importLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.proxiesService.importProxiesFromCsv(file).subscribe({
+      next: (response) => {
+        this.importLoading = false;
+        this.importResults = response;
+        this.successMessage = `Import completed: ${response.results?.length || 0} proxies processed`;
+        
+        // Refresh table
+        setTimeout(() => {
+          this.getProxies();
+          this.closeImportModal();
+          // Clear success message after 3 seconds
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
+        }, 1000);
+      },
+      error: (error) => {
+        this.importLoading = false;
+        this.errorMessage = error?.error?.detail || 'Failed to import proxies';
+      }
+    });
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

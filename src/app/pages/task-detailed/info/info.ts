@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TasksService, Task } from '../../../services/tasks';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -25,7 +26,8 @@ export class Info implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -218,5 +220,17 @@ export class Info implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

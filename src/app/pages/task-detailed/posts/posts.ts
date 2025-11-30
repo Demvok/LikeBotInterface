@@ -8,6 +8,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { PostsService } from '../../../services/posts';
 import { TasksService } from '../../../services/tasks';
+import { AuthService } from '../../../services/auth.service';
 import { Post, Task } from '../../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -46,7 +47,8 @@ export class Posts implements OnInit, OnDestroy {
   constructor(
     private postsService: PostsService,
     private tasksService: TasksService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   private _paginator!: MatPaginator;
@@ -212,5 +214,17 @@ export class Posts implements OnInit, OnDestroy {
     );
     
     this.subscriptions.add(deleteSub);
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }
