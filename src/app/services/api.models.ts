@@ -19,7 +19,10 @@ export interface Account {
   last_success_time?: string;
   last_checked?: string;
   flood_wait_until?: string | null;
-  proxy_names?: string[]; // List of proxy names this account uses
+  /** Backend field name (preferred). */
+  assigned_proxies?: string[];
+  /** Legacy UI field name kept for compatibility during staged rollout. */
+  proxy_names?: string[];
 }
 
 export interface Post {

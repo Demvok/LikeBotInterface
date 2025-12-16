@@ -11,27 +11,46 @@ export interface Proxy {
   port: number;
   username?: string;
   is_active: boolean;
-  current_usage?: number;
-  max_usage?: number;
-  last_error?: string;
-  last_error_time?: string;
+  /** Backend field: number of accounts currently using the proxy. */
+  connected_accounts?: number;
+  /** Backend field: number of accounts linked to the proxy. */
+  linked_accounts_count?: number;
+  notes?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProxyImportResult {
+  message: string;
+  dry_run: boolean;
+  total: number;
+  imported?: number;
+  skipped?: Array<{ proxy_name: string; reason: string }>;
+  errors?: Array<any>;
+}
+
+export interface ProxyTestResult {
+  proxy_name: string;
+  endpoint: string;
+  target_url: string;
+  latency_ms: number;
+  status_code: number;
+  details?: any;
 }
 
 export interface ProxyStats {
   total_proxies: number;
   active_proxies: number;
   inactive_proxies: number;
-  total_usage: number;
-  proxies_with_errors: number;
-  proxies: Array<{
+  total_connected_accounts: number;
+  least_used_proxy?: {
     proxy_name: string;
-    current_usage: number;
-    max_usage?: number;
-    is_active: boolean;
-    has_error: boolean;
-  }>;
+    connected_accounts: number;
+  };
+  most_used_proxy?: {
+    proxy_name: string;
+    connected_accounts: number;
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -53,10 +72,9 @@ export class ProxiesService {
       port: port,
       username: apiProxy.username,
       is_active: apiProxy.active !== undefined ? apiProxy.active : apiProxy.is_active !== undefined ? apiProxy.is_active : true,
-      current_usage: apiProxy.connected_accounts !== undefined ? apiProxy.connected_accounts : apiProxy.current_usage,
-      max_usage: apiProxy.max_usage,
-      last_error: apiProxy.last_error,
-      last_error_time: apiProxy.last_error_time,
+      connected_accounts: apiProxy.connected_accounts,
+      linked_accounts_count: apiProxy.linked_accounts_count,
+      notes: apiProxy.notes,
       created_at: apiProxy.created_at,
       updated_at: apiProxy.updated_at
     };
@@ -98,7 +116,7 @@ export class ProxiesService {
     username?: string;
     password?: string;
     is_active?: boolean;
-    max_usage?: number;
+    notes?: string;
   }): Observable<any> {
     let params = new HttpParams();
     params = params.set('proxy_name', data.proxy_name);
@@ -109,7 +127,7 @@ export class ProxiesService {
     if (data.username) params = params.set('username', data.username);
     if (data.password) params = params.set('password', data.password);
     if (data.is_active !== undefined) params = params.set('active', data.is_active.toString());
-    if (data.max_usage !== undefined) params = params.set('notes', `Max usage: ${data.max_usage}`);
+    if (data.notes !== undefined) params = params.set('notes', data.notes || '');
 
     return this.http.post<any>(this.apiUrl, null, { params });
   }
@@ -124,7 +142,7 @@ export class ProxiesService {
     username: string;
     password: string;
     is_active: boolean;
-    max_usage: number;
+    notes: string;
   }>): Observable<any> {
     let params = new HttpParams();
     
@@ -134,7 +152,7 @@ export class ProxiesService {
     if (data.username !== undefined) params = params.set('username', data.username || '');
     if (data.password !== undefined) params = params.set('password', data.password || '');
     if (data.is_active !== undefined) params = params.set('active', data.is_active.toString());
-    if (data.max_usage !== undefined) params = params.set('notes', `Max usage: ${data.max_usage}`);
+    if (data.notes !== undefined) params = params.set('notes', data.notes || '');
 
     return this.http.put<any>(`${this.apiUrl}/${encodeURIComponent(proxy_name)}`, null, { params });
   }
@@ -151,6 +169,31 @@ export class ProxiesService {
    */
   getProxyStats(): Observable<ProxyStats> {
     return this.http.get<ProxyStats>(`${this.apiUrl}/stats/summary`);
+  }
+
+  /**
+   * Import proxies from a text file using backend bulk import endpoint.
+   * Backend expects multipart form-data with field name `proxy_file`.
+   */
+  importProxies(file: File, options?: { proxy_type?: string; base_name?: string; dry_run?: boolean }): Observable<ProxyImportResult> {
+    const form = new FormData();
+    form.append('proxy_file', file, file.name);
+
+    let params = new HttpParams();
+    if (options?.proxy_type) params = params.set('proxy_type', options.proxy_type);
+    if (options?.base_name) params = params.set('base_name', options.base_name);
+    if (options?.dry_run !== undefined) params = params.set('dry_run', String(options.dry_run));
+
+    return this.http.post<ProxyImportResult>(`${this.apiUrl}/import`, form, { params });
+  }
+
+  /** Test proxy connectivity via backend endpoint. */
+  testProxy(proxy_name: string, options?: { test_url?: string; timeout_seconds?: number }): Observable<ProxyTestResult> {
+    let params = new HttpParams();
+    if (options?.test_url) params = params.set('test_url', options.test_url);
+    if (options?.timeout_seconds !== undefined) params = params.set('timeout_seconds', String(options.timeout_seconds));
+
+    return this.http.post<ProxyTestResult>(`${this.apiUrl}/${encodeURIComponent(proxy_name)}/test`, {}, { params });
   }
 
   /**

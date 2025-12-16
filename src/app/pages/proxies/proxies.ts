@@ -28,15 +28,13 @@ export class Proxies implements OnInit {
   proxies = new MatTableDataSource<Proxy>([]);
 
   displayedColumns: string[] = [
-    'proxy_name',
     'proxy_type',
     'host',
     'port',
     'username',
     'is_active',
-    'current_usage',
-    'max_usage',
-    'last_error',
+    'connected_accounts',
+    'linked_accounts_count',
     'actions'
   ];
 
@@ -44,7 +42,6 @@ export class Proxies implements OnInit {
 
   // Modal states
   showAddModal: boolean = false;
-  showEditModal: boolean = false;
   showDeleteConfirm: boolean = false;
 
   // Form data
@@ -68,9 +65,8 @@ export class Proxies implements OnInit {
   importResults: any = null;
   importLoading: boolean = false;
 
-  // Error details modal
-  showErrorModal: boolean = false;
-  selectedError: any = null;
+  // Test
+  testLoadingByProxy: Record<string, boolean> = {};
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -111,7 +107,10 @@ export class Proxies implements OnInit {
 
     this.proxiesService.getProxies().subscribe({
       next: (data) => {
-        this.proxies = new MatTableDataSource<Proxy>(data);
+        const sorted = [...(data || [])].sort(
+          (a, b) => (b.connected_accounts ?? 0) - (a.connected_accounts ?? 0)
+        );
+        this.proxies = new MatTableDataSource<Proxy>(sorted);
         this.assignTableFeatures();
         this.loading = false;
       },
@@ -119,6 +118,28 @@ export class Proxies implements OnInit {
         console.error('Error loading proxies:', error);
         this.errorMessage = error?.error?.detail || 'Failed to load proxies';
         this.loading = false;
+      }
+    });
+  }
+
+  testProxy(proxy: Proxy) {
+    if (!proxy?.proxy_name) return;
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.testLoadingByProxy[proxy.proxy_name] = true;
+    this.proxiesService.testProxy(proxy.proxy_name).subscribe({
+      next: (res) => {
+        this.testLoadingByProxy[proxy.proxy_name] = false;
+        this.successMessage = `Proxy ${proxy.proxy_name} OK (${res.status_code}, ${Math.round(res.latency_ms)}ms)`;
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      error: (error) => {
+        this.testLoadingByProxy[proxy.proxy_name] = false;
+        this.errorMessage = error?.error?.detail || `Failed to test proxy ${proxy.proxy_name}`;
       }
     });
   }
@@ -182,7 +203,8 @@ export class Proxies implements OnInit {
         host: this.formData.host,
         port: this.formData.port,
         username: this.formData.username || undefined,
-        is_active: this.formData.is_active
+        is_active: this.formData.is_active,
+        notes: this.formData.notes ?? ''
       };
 
       if (this.formPassword) {
@@ -211,8 +233,7 @@ export class Proxies implements OnInit {
         port: this.formData.port!,
         username: this.formData.username,
         password: this.formPassword,
-        is_active: this.formData.is_active !== false,
-        max_usage: this.formData.max_usage
+        is_active: this.formData.is_active !== false
       };
 
       this.proxiesService.createProxy(createData).subscribe({
@@ -282,28 +303,42 @@ export class Proxies implements OnInit {
     }
   }
 
-  formatDate(dateString: string): string {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleString('uk-UA');
-  }
+  copyEditingProxyName() {
+    const name = this.formData.proxy_name;
+    if (!name) return;
 
-  // Error details modal
-  openErrorModal(proxy: Proxy) {
-    this.selectedError = {
-      proxy_name: proxy.proxy_name,
-      error: proxy.last_error,
-      error_time: proxy.last_error_time,
-      host: proxy.host,
-      port: proxy.port,
-      is_active: proxy.is_active
+    const setCopied = () => {
+      this.successMessage = 'Proxy name copied to clipboard';
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 2000);
     };
-    this.showErrorModal = true;
-  }
 
-  closeErrorModal() {
-    this.showErrorModal = false;
-    this.selectedError = null;
+    // Modern clipboard API
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(name)
+        .then(setCopied)
+        .catch(() => {
+          this.errorMessage = 'Failed to copy proxy name';
+        });
+      return;
+    }
+
+    // Fallback
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = name;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied();
+    } catch {
+      this.errorMessage = 'Failed to copy proxy name';
+    }
   }
 
   // Import modal
@@ -328,9 +363,11 @@ export class Proxies implements OnInit {
     const file: File = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.name.endsWith('.csv')) {
-      this.errorMessage = 'Please select a CSV file';
+    // Backend accepts text files; keep a light hint without blocking uploads.
+    const lowerName = file.name.toLowerCase();
+    const looksOk = lowerName.endsWith('.txt') || lowerName.endsWith('.csv') || lowerName.endsWith('.log');
+    if (!looksOk) {
+      this.errorMessage = 'Please select a .txt or .csv file';
       return;
     }
 
@@ -338,11 +375,13 @@ export class Proxies implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.proxiesService.importProxiesFromCsv(file).subscribe({
+    this.proxiesService.importProxies(file).subscribe({
       next: (response) => {
         this.importLoading = false;
         this.importResults = response;
-        this.successMessage = `Import completed: ${response.results?.length || 0} proxies processed`;
+        const imported = response?.imported ?? 0;
+        const total = response?.total ?? 0;
+        this.successMessage = `Import completed: ${imported}/${total} imported`;
         
         // Refresh table
         setTimeout(() => {
