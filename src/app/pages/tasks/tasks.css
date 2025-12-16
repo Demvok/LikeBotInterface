@@ -202,10 +202,14 @@ main {
 
 .error-icon {
   color: #ef4444;
+  width: 100%;
+  height: 100%;
 }
 
 .empty-icon {
   color: #f59e0b;
+  width: 100%;
+  height: 100%;
 }
 
 .error-container h2, .empty-container h2 {
