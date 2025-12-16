@@ -62,10 +62,12 @@ export class Tasks implements OnInit, OnDestroy {
   pageSizeOptions = [6, 12, 24, 48];
   
   // Auto-refresh properties
+  autoRefreshEnabled = false;
   private autoRefreshSubscription: Subscription | null = null;
   private countdownSubscription: Subscription | null = null;
-  private autoRefreshInterval = 10000; // 30 seconds in milliseconds
-  secondsUntilRefresh: number = 10; // Display countdown in seconds
+  private autoRefreshIntervalMs = 30000;
+  private autoRefreshCountdownSeconds = 30;
+  secondsUntilRefresh: number = this.autoRefreshCountdownSeconds;
   
   // Status options for filtering
   statusOptions = [
@@ -74,6 +76,7 @@ export class Tasks implements OnInit, OnDestroy {
     { value: 'running', label: 'Running' },
     { value: 'paused', label: 'Paused' },
     { value: 'finished', label: 'Finished' },
+    { value: 'failed', label: 'Failed' },
     { value: 'crashed', label: 'Crashed' }
   ];
   
@@ -87,30 +90,40 @@ export class Tasks implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadTasks();
-    this.startAutoRefresh();
   }
 
   ngOnDestroy() {
     this.stopAutoRefresh();
   }
 
+  toggleAutoRefresh() {
+    this.autoRefreshEnabled = !this.autoRefreshEnabled;
+    if (this.autoRefreshEnabled) {
+      this.startAutoRefresh();
+    } else {
+      this.stopAutoRefresh();
+    }
+  }
+
   startAutoRefresh() {
+    if (!this.autoRefreshEnabled) return;
+
     // Stop any existing auto-refresh
     this.stopAutoRefresh();
-    
-    // Initialize countdown to 10 seconds
-    this.secondsUntilRefresh = 10;
-    
+
+    // Initialize countdown
+    this.secondsUntilRefresh = this.autoRefreshCountdownSeconds;
+
     // Start countdown timer that updates every second
     this.countdownSubscription = interval(1000).subscribe(() => {
       this.secondsUntilRefresh--;
       if (this.secondsUntilRefresh <= 0) {
-        this.secondsUntilRefresh = 10;
+        this.secondsUntilRefresh = this.autoRefreshCountdownSeconds;
       }
     });
-    
-    // Start new auto-refresh interval (30 seconds)
-    this.autoRefreshSubscription = interval(this.autoRefreshInterval).subscribe(() => {
+
+    // Start new auto-refresh interval
+    this.autoRefreshSubscription = interval(this.autoRefreshIntervalMs).subscribe(() => {
       this.refreshTasks();
     });
   }
@@ -221,6 +234,7 @@ export class Tasks implements OnInit, OnDestroy {
       case 'running': return 'play_circle';
       case 'paused': return 'pause_circle';
       case 'finished': return 'check_circle';
+      case 'failed': return 'error';
       case 'crashed': return 'error';
       default: return 'help';
     }

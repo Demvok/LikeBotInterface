@@ -183,6 +183,7 @@ footer {
 .status-running    { background-color: rgba(6, 214, 160, 0.1); color: var(--color-text-running); }
 .status-paused     { background-color: rgba(245, 158, 11, 0.1); color: var(--color-text-warning); }
 .status-finished   { background-color: rgba(16, 185, 129, 0.1); color: var(--color-text-success); }
+.status-failed     { background-color: rgba(239, 68, 68, 0.1); color: var(--color-text-error); }
 .status-crashed    { background-color: rgba(239, 68, 68, 0.1); color: var(--color-text-error); }
 
 /* Action Card Styles */

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { TasksService, Task } from '../../../services/tasks';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-import { interval, Subscription } from 'rxjs';
+import { forkJoin, interval, Subscription } from 'rxjs';
+import { ReportService } from '../../../services/report.service';
 
 @Component({
   selector: 'app-info',
@@ -17,6 +18,12 @@ export class Info implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
 
+  kpis = {
+    successRate: 0,
+    errorCount: 0
+  };
+  kpisLoading = false;
+
   // Auto-refresh properties
   private autoRefreshSubscription: Subscription | null = null;
   private countdownSubscription: Subscription | null = null;
@@ -27,7 +34,8 @@ export class Info implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private tasksService: TasksService,
-    private authService: AuthService
+    private authService: AuthService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -36,7 +44,6 @@ export class Info implements OnInit, OnDestroy {
       this.route.params.subscribe(params => {
         const taskId = params['id'];
         this.loadTask(taskId);
-        this.startAutoRefresh();
       });
     }
   }
@@ -62,7 +69,7 @@ export class Info implements OnInit, OnDestroy {
     
     // Main auto-refresh interval (10 seconds)
     this.autoRefreshSubscription = interval(this.autoRefreshInterval).subscribe(() => {
-      if (this.task && this.task.task_id) {
+      if (this.task && this.task.task_id && this.task.status === 'RUNNING') {
         this.loadTask(this.task.task_id.toString());
       }
     });
@@ -87,15 +94,46 @@ export class Info implements OnInit, OnDestroy {
         this.task = task;
         this.loading = false;
         this.lastUpdate = this.getFormattedTime();
-        
-        // Stop auto-refresh if task is finished
-        if (this.isTaskFinished(task)) {
+
+        // Only auto-refresh while RUNNING
+        if (task.status === 'RUNNING') {
+          this.startAutoRefresh();
+          this.loadKpis();
+        } else {
           this.stopAutoRefresh();
+          this.loadKpis();
         }
       },
       error: () => {
         this.loading = false;
         this.error = 'Failed to load task information. Please try again.';
+      }
+    });
+  }
+
+  private loadKpis(): void {
+    if (!this.task?.task_id) return;
+
+    const accountsCount = this.task.accounts?.length ?? 0;
+    this.kpisLoading = true;
+
+    forkJoin({
+      success: this.reportService.getTaskReport(this.task.task_id, 'success'),
+      errors: this.reportService.getTaskReport(this.task.task_id, 'errors')
+    }).subscribe({
+      next: ({ success, errors }) => {
+        const successCount = success?.report?.events?.length ?? 0;
+        const errorCount = errors?.report?.events?.length ?? 0;
+
+        this.kpis = {
+          successRate: accountsCount > 0 ? Math.round((successCount / accountsCount) * 100) : 0,
+          errorCount
+        };
+        this.kpisLoading = false;
+      },
+      error: () => {
+        this.kpis = { successRate: 0, errorCount: 0 };
+        this.kpisLoading = false;
       }
     });
   }
@@ -106,6 +144,7 @@ export class Info implements OnInit, OnDestroy {
       'RUNNING': 'Running',
       'PAUSED': 'Paused',
       'FINISHED': 'Completed',
+      'FAILED': 'Failed',
       'CRASHED': 'Failed'
     };
     return statusMap[status] || status;

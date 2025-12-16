@@ -76,6 +76,15 @@ header {
   gap: 1rem;
 }
 
+.task-header-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 
 .task-info {
   display: flex;
@@ -90,6 +99,32 @@ header {
   margin: 0;
   font-size: 1.4rem;
   color: var(--color-text);
+}
+
+.task-kpis {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0;
+  flex-wrap: wrap;
+  align-self: stretch;
+}
+
+.task-kpi {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-bg-darker);
+  color: var(--color-text-light);
+  border-radius: 6px;
+  min-width: 120px;
+}
+
+.task-kpi-value {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.task-kpi-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
 }
 
 .task-info p {
@@ -147,22 +182,7 @@ header {
   transition: background-color 0.3s ease;
 }
 
-.view-toggle {
-  margin-left: auto;
-}
 
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.toggle-label input[type="checkbox"] {
-  margin: 0;
-  transform: scale(1.2);
-}
 
 footer {
   height: fit-content;

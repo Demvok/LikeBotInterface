@@ -8,11 +8,12 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { AccountsService } from '../../../services/accounts';
 import { TasksService, Task } from '../../../services/tasks';
 import { AuthService } from '../../../services/auth.service';
 import { Account } from '../../../services/api.models';
+import { ReportService } from '../../../services/report.service';
 
 // Extended account interface for task-specific view
 interface AccountWithTaskInfo extends Account {
@@ -27,23 +28,26 @@ interface AccountWithTaskInfo extends Account {
   styleUrl: './accounts.css'
 })
 export class Accounts implements OnInit, OnDestroy {
-  accounts = new MatTableDataSource<AccountWithTaskInfo>([]);
   taskAccounts = new MatTableDataSource<AccountWithTaskInfo>([]);
   allAccounts: Account[] = [];
+
+  kpis = {
+    successRate: 0,
+    errorCount: 0
+  };
+  kpisLoading = false;
   
   displayedColumns: string[] = [
     'phone_number',
     'account_id', 
     'session_name',
     // 'in_task',
-    'actions'
   ];
 
   loading: boolean = true;
   filter: { phone_number?: string } = {};
   taskId: string = '';
   task: Task | null = null;
-  showTaskAccountsOnly: boolean = true; // Default to showing only task accounts
 
   lastUpdate: string = '';
   showAddModal: boolean = false;
@@ -56,7 +60,8 @@ export class Accounts implements OnInit, OnDestroy {
     private tasksService: TasksService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private reportService: ReportService
   ) {}
 
   private _paginator!: MatPaginator;
@@ -94,12 +99,11 @@ export class Accounts implements OnInit, OnDestroy {
   }
 
   private assignTableFeatures() {
-    const dataSource = this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
     if (this._paginator) {
-      dataSource.paginator = this._paginator;
+      this.taskAccounts.paginator = this._paginator;
     }
     if (this._sort) {
-      dataSource.sort = this._sort;
+      this.taskAccounts.sort = this._sort;
     }
   }
 
@@ -110,6 +114,7 @@ export class Accounts implements OnInit, OnDestroy {
     const taskSub = this.tasksService.getTask(Number(this.taskId)).subscribe(
       (task: Task) => {
         this.task = task;
+        this.loadKpis();
         this.loadAccounts();
       },
       (error: any) => {
@@ -143,6 +148,33 @@ export class Accounts implements OnInit, OnDestroy {
     this.subscriptions.add(accountsSub);
   }
 
+  private loadKpis(): void {
+    if (!this.task?.task_id) return;
+
+    const accountsCount = this.task.accounts?.length ?? 0;
+    this.kpisLoading = true;
+
+    forkJoin({
+      success: this.reportService.getTaskReport(this.task.task_id, 'success'),
+      errors: this.reportService.getTaskReport(this.task.task_id, 'errors')
+    }).subscribe({
+      next: ({ success, errors }) => {
+        const successCount = success?.report?.events?.length ?? 0;
+        const errorCount = errors?.report?.events?.length ?? 0;
+
+        this.kpis = {
+          successRate: accountsCount > 0 ? Math.round((successCount / accountsCount) * 100) : 0,
+          errorCount
+        };
+        this.kpisLoading = false;
+      },
+      error: () => {
+        this.kpis = { successRate: 0, errorCount: 0 };
+        this.kpisLoading = false;
+      }
+    });
+  }
+
   updateAccountsDisplay() {
     if (this.task) {
       // Create enhanced account data with task membership info
@@ -151,13 +183,10 @@ export class Accounts implements OnInit, OnDestroy {
         inTask: this.task!.accounts.includes(account.phone_number)
       }));
       
-      this.accounts.data = enhancedAccounts;
-      
       // Filter accounts that are in the task
       const taskAccountsData = enhancedAccounts.filter(account => account.inTask);
       this.taskAccounts.data = taskAccountsData;
     } else {
-      this.accounts.data = this.allAccounts;
       this.taskAccounts.data = [];
     }
     
@@ -179,46 +208,6 @@ export class Accounts implements OnInit, OnDestroy {
   resetFilters() {
     this.filter = {};
     this.loadAccounts();
-  }
-
-  onShowTaskAccountsOnlyChange(value: boolean) {
-    // value comes from the checkbox (ngModelChange) so just apply it
-    this.showTaskAccountsOnly = value;
-    const newDataSource = this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
-    // Reassign paginator and sort to the selected data source and force update
-    if (this._paginator) {
-      newDataSource.paginator = this._paginator;
-      this._paginator.firstPage();
-    }
-    if (this._sort) {
-      newDataSource.sort = this._sort;
-    }
-    // Ensure Angular updates the view immediately
-    this.cd.detectChanges();
-  }
-
-  get currentDataSource() {
-    return this.showTaskAccountsOnly ? this.taskAccounts : this.accounts;
-  }
-
-  addToTask(account: AccountWithTaskInfo) {
-    if (!this.task || !account.phone_number) return;
-    
-    // Add account to task (this would need a proper API endpoint)
-    const updatedAccounts = [...this.task.accounts, account.phone_number];
-    // Here you would call an API to update the task
-    alert('Add to task functionality needs API implementation.');
-  }
-
-  removeFromTask(account: AccountWithTaskInfo) {
-    if (!this.task || !account.phone_number) return;
-    
-    if (!confirm('Remove this account from the task?')) return;
-    
-    // Remove account from task (this would need a proper API endpoint)
-    const updatedAccounts = this.task.accounts.filter((phone: string) => phone !== account.phone_number);
-    // Here you would call an API to update the task
-    alert('Remove from task functionality needs API implementation.');
   }
 
   openAddAccountModal() {
@@ -249,7 +238,7 @@ export class Accounts implements OnInit, OnDestroy {
         alert('Failed to create account.');
       }
     );
-    
+
     this.subscriptions.add(createSub);
   }
 

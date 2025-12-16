@@ -289,6 +289,7 @@ main {
 .status-icon.status-running { color: #3b82f6; }
 .status-icon.status-paused { color: #f97316; }
 .status-icon.status-finished { color: #10b981; }
+.status-icon.status-failed { color: #ef4444; }
 .status-icon.status-crashed { color: #ef4444; }
 
 .task-name {
@@ -345,6 +346,11 @@ main {
 }
 
 .status-chip.status-crashed {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.status-chip.status-failed {
   background-color: rgba(239, 68, 68, 0.2);
   color: #ef4444;
 }

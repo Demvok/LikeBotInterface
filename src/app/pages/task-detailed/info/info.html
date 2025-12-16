@@ -12,8 +12,9 @@
         </div>
     </header>
 
-    <!-- Auto-refresh progress line -->
-    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 10) * 100"></div>
+        <!-- Auto-refresh progress line (only while running) -->
+        <div class="auto-refresh-progress" *ngIf="task?.status === 'RUNNING'"
+            [style.width.%]="(secondsUntilRefresh / 10) * 100"></div>
 
     <main>
         <ng-container *ngIf="loading">
@@ -73,6 +74,14 @@
                                 <div class="stat-value">{{ task.accounts.length }}</div>
                                 <div class="stat-label">Accounts</div>
                             </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ kpisLoading ? '—' : (kpis.successRate + '%') }}</div>
+                                <div class="stat-label">Success</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ kpisLoading ? '—' : kpis.errorCount }}</div>
+                                <div class="stat-label">Errors</div>
+                            </div>
                         </div>
                         <div class="action-type">
                             <span class="label">Type:</span>
@@ -105,10 +114,10 @@
                     </div>
                     <div class="card-content">
                         <div class="management-buttons">
-                            <!-- Start Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Start Button - visible unless already RUNNING -->
+                            <ng-container *ngIf="task.status !== 'RUNNING'">
                                 <button class="management-btn start" 
-                                        [disabled]="isGuest() || task.status === 'RUNNING'"
+                                        [disabled]="isGuest()"
                                         (click)="startTask()"
                                         title="Start task execution">
                                     <span class="btn-icon">▶️</span>
@@ -116,25 +125,25 @@
                                 </button>
                             </ng-container>
 
-                            <!-- Pause Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Pause Button - visible only while RUNNING (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'RUNNING'">
                                 <button class="management-btn pause" 
-                                        [disabled]="isGuest() || task.status !== 'RUNNING'"
+                                        [disabled]="true"
                                         (click)="pauseTask()"
-                                        title="Pause task execution">
+                                        title="Pause task execution (disabled)">
                                     <span class="btn-icon">⏸️</span>
                                     Pause
                                 </button>
                             </ng-container>
 
-                            <!-- Resume Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Continue Button - visible only while PAUSED (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'PAUSED'">
                                 <button class="management-btn resume" 
                                         (click)="resumeTask()"
-                                        [disabled]="isGuest() || task.status !== 'PAUSED'"
-                                        title="Resume task execution">
+                                        [disabled]="true"
+                                        title="Continue task execution (disabled)">
                                     <span class="btn-icon">▶️</span>
-                                    Resume
+                                    Continue
                                 </button>
                             </ng-container>
 

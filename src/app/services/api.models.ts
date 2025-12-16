@@ -41,7 +41,7 @@ export interface TaskAction {
   content?: string;
 }
 
-export type TaskStatus = 'PENDING' | 'RUNNING' | 'PAUSED' | 'FINISHED' | 'CRASHED';
+export type TaskStatus = 'PENDING' | 'RUNNING' | 'PAUSED' | 'FINISHED' | 'FAILED' | 'CRASHED';
 
 export interface Task {
   task_id?: number;
@@ -93,10 +93,15 @@ export interface ReportEvent {
   action_type?: string;
 }
 
+export interface TaskReportPayload {
+  events: ReportEvent[];
+  summary?: any;
+}
+
 export interface TaskReport {
   task_id: number;
   run_id: string | null;
-  report: ReportEvent[];  // Direct array, not nested in events
+  report: TaskReportPayload;
 }
 
 export interface Palette {
