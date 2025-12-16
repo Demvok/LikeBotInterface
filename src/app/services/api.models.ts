@@ -13,6 +13,13 @@ export interface Account {
   status?: AccountStatus;
   created_at?: string;
   updated_at?: string;
+  last_error?: string;
+  last_error_type?: string;
+  last_error_time?: string;
+  last_success_time?: string;
+  last_checked?: string;
+  flood_wait_until?: string | null;
+  proxy_names?: string[]; // List of proxy names this account uses
 }
 
 export interface Post {
@@ -102,4 +109,30 @@ export interface Palette {
 
 export interface ApiError {
   detail: string;
+}
+
+export type UserRole = 'user' | 'admin' | 'guest';
+
+export interface User {
+  username: string;
+  is_verified: boolean;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Channel {
+  chat_id: number;
+  channel_name: string;
+  is_private: boolean;
+  has_enabled_reactions: boolean;
+  reactions_only_for_subscribers: boolean;
+  discussion_chat_id?: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChannelWithPostCount extends Channel {
+  post_count: number;
 }

@@ -8,6 +8,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { PostsService } from '../../../services/posts';
 import { TasksService } from '../../../services/tasks';
+import { AuthService } from '../../../services/auth.service';
 import { Post, Task } from '../../../services/api.models';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -26,7 +27,6 @@ export class Posts implements OnInit, OnDestroy {
 
   displayedColumns: string[] = [
     'post_id',
-    'is_validated',
     'message_link',
     'chat_id',
     'message_id',
@@ -36,7 +36,7 @@ export class Posts implements OnInit, OnDestroy {
   ];
 
   loading: boolean = true;
-  filter: { post_id?: number; chat_id?: number; validated_only?: boolean } = {};
+  filter: { post_id?: number; chat_id?: number } = {};
   taskId: string = '';
   task: Task | null = null;
 
@@ -47,7 +47,8 @@ export class Posts implements OnInit, OnDestroy {
   constructor(
     private postsService: PostsService,
     private tasksService: TasksService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   private _paginator!: MatPaginator;
@@ -151,11 +152,7 @@ export class Posts implements OnInit, OnDestroy {
           filteredData = filteredData.filter(post => post.chat_id === this.filter.chat_id);
         }
         
-        if (this.filter.validated_only !== undefined) {
-          filteredData = filteredData.filter(post => {
-            return this.filter.validated_only ? post.validated : !post.validated;
-          });
-        }
+        // validation filter removed (not needed on this page)
         
         // Sort posts by updated_at descending (most recent first)
         const sortedData = filteredData.sort((a, b) => {
@@ -195,21 +192,7 @@ export class Posts implements OnInit, OnDestroy {
     this.getPosts();
   }
 
-  validatePost(post: Post) {
-    if (!post.post_id) return;
-    const validateSub = this.postsService.validatePost(post.post_id).subscribe(
-      (res) => {
-        console.log('Post validated successfully:', res);
-        this.getPosts();
-      },
-      (err) => {
-        console.error('Failed to validate post:', err);
-        alert('Failed to validate post: ' + (err.error?.detail || err.message || 'Unknown error'));
-      }
-    );
-    
-    this.subscriptions.add(validateSub);
-  }
+  // validatePost removed — validation UI/flow not required on this page
 
   editPost(post: Post) {
     // Placeholder for edit logic (e.g., open modal)
@@ -231,5 +214,17 @@ export class Posts implements OnInit, OnDestroy {
     );
     
     this.subscriptions.add(deleteSub);
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

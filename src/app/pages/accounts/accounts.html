@@ -1,12 +1,32 @@
 <div class="content-wrapper">
     <header>
+        <div class="header-title">
+            <h2>Accounts Management</h2>
+            <span *ngIf="filter.channel_id" class="filter-badge">
+                Filtering by Channel ID: <strong>{{ filter.channel_id }}</strong>
+                <button type="button" class="btn-clear-filter" (click)="resetFilters()">✕</button>
+            </span>
+        </div>
         <form class="filter-form" (ngSubmit)="getAccounts()" autocomplete="off">
             <label>
                 Phone Number:
                 <input type="text" [(ngModel)]="filter.phone_number" name="phone_number" />
             </label>
+            <label>
+                Proxy:
+                <select [(ngModel)]="selectedProxyFilter" name="proxy_filter" (change)="getAccounts()">
+                    <option [value]="null">All Proxies</option>
+                    <option *ngFor="let proxy of proxies" [value]="proxy.proxy_name">
+                        {{ proxy.proxy_name }} ({{ proxy.host }}:{{ proxy.port }})
+                    </option>
+                </select>
+            </label>
             <button type="submit">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
+            <button type="button" class="add-account-btn" (click)="openAddAccountModal()" [disabled]="isGuest()" title="Add New Account">
+                <mat-icon>add_circle</mat-icon>
+                <span>Add Account</span>
+            </button>
         </form>
     </header>
     <main>
@@ -43,16 +63,19 @@
                 <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
                 <td mat-cell *matCellDef="let account">
                     <div class="table-cell">
-                        <button mat-button class="account-action-button btn-validate" (click)="validateAccount(account)" title="Validate Account">
+                        <button mat-button class="account-action-button btn-validate" (click)="validateAccount(account)" [disabled]="isGuest()" title="Validate Account">
                             Validate
                         </button>
-                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)" title="Edit Account">
+                        <button mat-button class="account-action-button btn-index" (click)="indexAccountChannels(account)" [disabled]="isGuest()" title="Index Subscribed Channels">
+                            Index Channels
+                        </button>
+                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)" [disabled]="isGuest()" title="Edit Account">
                             Edit
                         </button>
-                        <button mat-button class="account-action-button btn-password" *ngIf="isAdmin()" (click)="viewPassword(account)" title="View Password (Admin Only)">
-                            View Password
+                        <button mat-button class="account-action-button btn-details" (click)="viewDetails(account)" title="View Account Details">
+                            View Details
                         </button>
-                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)" title="Delete Account">
+                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)" [disabled]="isGuest()" title="Delete Account">
                             Delete
                         </button>
                     </div>
@@ -61,11 +84,6 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-
-        <!-- Floating Add Button -->
-        <button class="fab-add-account" title="Add Account" (click)="openAddAccountModal()">
-            <span class="fab-plus">+</span>
-        </button>
 
         <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
         <div *ngIf="!loading && accounts.data.length === 0" class="no-accounts">No accounts found.</div>
@@ -124,6 +142,24 @@
                         If your account has Two-Step Verification enabled, provide the password here. 
                         If you don't provide it now, you'll be prompted later during the login process.
                     </p>
+                    <label>
+                        <span class="label-text">Proxies:</span>
+                        <div class="proxy-selection">
+                            <div class="proxy-checkboxes">
+                                <div *ngFor="let proxy of proxies" class="proxy-checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        [id]="'add_proxy_' + proxy.proxy_name"
+                                        [checked]="newAccount.proxy_names && newAccount.proxy_names.includes(proxy.proxy_name)"
+                                        (change)="toggleProxySelectionForNewAccount(proxy.proxy_name, $any($event).target.checked)" 
+                                        [disabled]="loginInProgress" />
+                                    <label [for]="'add_proxy_' + proxy.proxy_name">
+                                        {{ proxy.proxy_name }} ({{ proxy.host }}:{{ proxy.port }})
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
                     <label>
                         <span class="label-text">Notes:</span>
                         <textarea 
@@ -219,6 +255,23 @@
                             [(ngModel)]="editingAccount.session_name" />
                     </label>
                     <label>
+                        <span class="label-text">Proxies:</span>
+                        <div class="proxy-selection">
+                            <div class="proxy-checkboxes">
+                                <div *ngFor="let proxy of proxies" class="proxy-checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        [id]="'proxy_' + proxy.proxy_name"
+                                        [checked]="editingAccount.proxy_names && editingAccount.proxy_names.includes(proxy.proxy_name)"
+                                        (change)="toggleProxySelection(proxy.proxy_name, $any($event).target.checked)" />
+                                    <label [for]="'proxy_' + proxy.proxy_name">
+                                        {{ proxy.proxy_name }} ({{ proxy.host }}:{{ proxy.port }})
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <label>
                         <span class="label-text">Notes:</span>
                         <textarea 
                             name="notes" 
@@ -233,42 +286,121 @@
             </div>
         </div>
 
-        <!-- Modal for Password View (Admin Only) -->
-        <div class="modal-backdrop" *ngIf="showPasswordModal">
+        <!-- Modal for Account Details (Admin Only) -->
+        <div class="modal-backdrop" *ngIf="showDetailsModal">
             <div class="modal-window">
-                <h2>Account Password</h2>
-                <p class="modal-description">View account 2FA password (Admin only)</p>
+                <h2>Account Details</h2>
+                <p class="modal-description">View complete account information</p>
 
-                <div *ngIf="passwordLoading" class="info-message">
+                <div *ngIf="detailsLoading" class="info-message">
                     <mat-spinner diameter="20"></mat-spinner>
-                    Loading password...
+                    Loading details...
                 </div>
 
-                <div *ngIf="!passwordLoading && passwordData" class="password-content">
-                    <label>
-                        <span class="label-text">Phone Number:</span>
-                        <input 
-                            type="text" 
-                            [value]="passwordData.phone_number" 
-                            disabled />
-                    </label>
-                    <label *ngIf="passwordData.has_password">
-                        <span class="label-text">Password:</span>
-                        <div class="password-display">
-                            <input 
-                                type="text" 
-                                [value]="passwordData.password" 
-                                readonly 
-                                style="font-family: monospace; font-size: 1.1rem;" />
-                        </div>
-                    </label>
-                    <p *ngIf="!passwordData.has_password" class="help-text" style="color: #666; margin-top: 1rem;">
-                        This account does not have a 2FA password set.
-                    </p>
+                <div *ngIf="!detailsLoading && detailsData" class="details-content">
+                    <!-- Basic Information -->
+                    <div class="details-section">
+                        <h3 class="section-title">Basic Information</h3>
+                        <label>
+                            <span class="label-text">Phone Number:</span>
+                            <input type="text" [value]="detailsData.phone_number" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Account ID:</span>
+                            <input type="text" [value]="detailsData.account_id || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Session Name:</span>
+                            <input type="text" [value]="detailsData.session_name || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Status:</span>
+                            <input type="text" [value]="detailsData.status || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Notes:</span>
+                            <textarea [value]="detailsData.notes || '-'" readonly rows="3"></textarea>
+                        </label>
+                        <label>
+                            <span class="label-text">Proxies:</span>
+                            <div class="proxy-display">
+                                <div *ngIf="detailsData.proxy_names && detailsData.proxy_names.length > 0" class="proxy-list">
+                                    <div *ngFor="let proxyName of detailsData.proxy_names" class="proxy-item">
+                                        • {{ proxyName }}
+                                    </div>
+                                </div>
+                                <div *ngIf="!detailsData.proxy_names || detailsData.proxy_names.length === 0" class="proxy-none">
+                                    No proxies assigned
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="details-section">
+                        <h3 class="section-title">Timestamps</h3>
+                        <label>
+                            <span class="label-text">Created At:</span>
+                            <input type="text" [value]="detailsData.created_at || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Updated At:</span>
+                            <input type="text" [value]="detailsData.updated_at || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Last Checked:</span>
+                            <input type="text" [value]="detailsData.last_checked || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Last Success Time:</span>
+                            <input type="text" [value]="detailsData.last_success_time || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Error Information -->
+                    <div class="details-section" *ngIf="detailsData.last_error">
+                        <h3 class="section-title">Error Information</h3>
+                        <label>
+                            <span class="label-text">Last Error:</span>
+                            <textarea [value]="detailsData.last_error || '-'" readonly rows="2"></textarea>
+                        </label>
+                        <label>
+                            <span class="label-text">Error Type:</span>
+                            <input type="text" [value]="detailsData.last_error_type || '-'" readonly />
+                        </label>
+                        <label>
+                            <span class="label-text">Error Time:</span>
+                            <input type="text" [value]="detailsData.last_error_time || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Flood Wait -->
+                    <div class="details-section" *ngIf="detailsData.flood_wait_until">
+                        <h3 class="section-title">Flood Wait</h3>
+                        <label>
+                            <span class="label-text">Flood Wait Until:</span>
+                            <input type="text" [value]="detailsData.flood_wait_until || '-'" readonly />
+                        </label>
+                    </div>
+
+                    <!-- Password (Admin Only) -->
+                    <div class="details-section" *ngIf="isAdmin() && detailsData.password_encrypted">
+                        <h3 class="section-title">2FA Password</h3>
+                        <label>
+                            <span class="label-text">Password:</span>
+                            <div class="password-display">
+                                <input 
+                                    type="text" 
+                                    [value]="detailsData.password_encrypted" 
+                                    readonly 
+                                    style="font-family: monospace; font-size: 1.1rem;" />
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" (click)="closePasswordModal()">Close</button>
+                    <button type="button" (click)="closeDetailsModal()">Close</button>
                 </div>
             </div>
         </div>

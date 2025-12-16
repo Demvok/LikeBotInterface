@@ -58,6 +58,22 @@ export class Report implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
   Math = Math;
 
+  // KPI values for header display
+  kpis: {
+    totalEvents: number;
+    totalEventsAll: number;
+    errorCount: number;
+    successRate: number; // percent
+  } = {
+    totalEvents: 0,
+    totalEventsAll: 0,
+    errorCount: 0,
+    successRate: 0
+  };
+
+  // Modal
+  selectedMessage: ReportEvent | null = null;
+
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.taskId = +params['id'];
@@ -126,21 +142,30 @@ export class Report implements OnInit {
   processReportData() {
     if (!this.reportData) return;
 
-    this.filteredEvents = [...this.reportData.report];
-    this.calculateStats();
+    // Extract clients first, then apply filters to compute KPIs on the filtered set
     this.extractUniqueClients();
     this.applyFilters();
+    this.calculateStats();
     this.sortEvents();
   }
 
   calculateStats() {
-    if (!this.reportData) return;
+    // Calculate KPIs based on the currently filtered events
+    const events = this.filteredEvents || [];
+    const total = events.length;
+    const errorCount = events.filter((e: any) => e.error !== null && e.error !== undefined).length;
+    const successCount = total - errorCount;
 
-    const events = this.reportData.report;
-    
-    // Filter only events that have client info (success/error reports, not all logs)
-    const clientEvents = events.filter((e: any) => e.client);
-    this.stats.errorCount = clientEvents.filter((e: any) => e.error !== null && e.error !== undefined).length;
+    // total events in the raw report (unfiltered)
+    const totalAll = (this.reportData && Array.isArray(this.reportData.report)) ? this.reportData.report.length : 0;
+
+    this.stats.errorCount = errorCount;
+    this.kpis = {
+      totalEvents: total,
+      totalEventsAll: totalAll,
+      errorCount,
+      successRate: total > 0 ? Math.round((successCount / total) * 100) : 0
+    };
   }
 
   extractUniqueClients() {
@@ -321,5 +346,14 @@ export class Report implements OnInit {
     }
     // Fall back to index if we can't create a unique identifier
     return index;
+  }
+
+  // Modal methods
+  openMessageModal(event: ReportEvent): void {
+    this.selectedMessage = event;
+  }
+
+  closeMessageModal(): void {
+    this.selectedMessage = null;
   }
 }

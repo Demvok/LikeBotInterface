@@ -9,10 +9,7 @@
                 Chat ID:
                 <input type="number" [(ngModel)]="filter.chat_id" (change)="getPosts()" name="chat_id" />
             </label>
-            <label>
-                <input type="checkbox" [(ngModel)]="filter.validated_only" (change)="getPosts()" name="validated_only" />
-                Validated only
-            </label>
+            <!-- validated filter removed -->
             <button type="button" (click)="getPosts()">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
         </form>
@@ -42,11 +39,7 @@
                 </td>
             </ng-container>
 
-            <!-- Is Validated Column -->
-            <ng-container matColumnDef="is_validated">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Is Validated</div></th>
-                <td mat-cell *matCellDef="let post"><div class="table-cell">{{ post.validated ? 'Yes' : 'No' }}</div></td>
-            </ng-container>
+            <!-- (Validation UI removed) -->
 
             <!-- Chat ID Column -->
             <ng-container matColumnDef="chat_id">
@@ -77,12 +70,9 @@
                 <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
                 <td mat-cell *matCellDef="let post">
                     <div class="table-cell">
-                        <button mat-button class="post-action-button btn-validate" 
-                                (click)="validatePost(post)" 
-                                *ngIf="!post.validated"
-                                title="Validate post">Validate</button>
-                        <button mat-button class="post-action-button btn-edit" (click)="editPost(post)">Edit</button>
-                        <button mat-button class="post-action-button btn-delete" (click)="deletePost(post)">Delete</button>
+            <!-- Validate button removed (not needed on this page) -->
+                        <button mat-button class="post-action-button btn-edit" (click)="editPost(post)" [disabled]="isGuest()">Edit</button>
+                        <button mat-button class="post-action-button btn-delete" (click)="deletePost(post)" [disabled]="isGuest()">Delete</button>
                     </div>
                 </td>
             </ng-container>

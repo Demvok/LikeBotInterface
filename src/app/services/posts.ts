@@ -113,7 +113,12 @@ export class PostsService {
    * Validate a post by ID
    */
   validatePost(post_id: number): Observable<{ message: string; chat_id: number; message_id: number }> {
-    return this.http.post<{ message: string; chat_id: number; message_id: number }>(`${this.apiUrl}/${post_id}/validate`, {});
+    return this.http.post<{ message: string; chat_id: number; message_id: number }>(`${this.apiUrl}/${post_id}/validate`, {}).pipe(
+      catchError((error) => {
+        console.error('Error validating post:', error);
+        throw error;
+      })
+    );
   }
 
 }

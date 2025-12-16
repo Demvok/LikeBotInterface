@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { TasksService, Task } from '../../services/tasks';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -36,7 +38,7 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './tasks.html',
   styleUrl: './tasks.css'
 })
-export class Tasks implements OnInit {
+export class Tasks implements OnInit, OnDestroy {
   allTasks: Task[] = [];
   filteredTasks: Task[] = [];
   paginatedTasks: Task[] = [];
@@ -59,6 +61,12 @@ export class Tasks implements OnInit {
   totalItems = 0;
   pageSizeOptions = [6, 12, 24, 48];
   
+  // Auto-refresh properties
+  private autoRefreshSubscription: Subscription | null = null;
+  private countdownSubscription: Subscription | null = null;
+  private autoRefreshInterval = 10000; // 30 seconds in milliseconds
+  secondsUntilRefresh: number = 10; // Display countdown in seconds
+  
   // Status options for filtering
   statusOptions = [
     { value: 'all', label: 'All Statuses' },
@@ -75,10 +83,47 @@ export class Tasks implements OnInit {
     { value: 'comment', label: 'Comment' }
   ];
 
-  constructor(private tasksService: TasksService, private router: Router) {}
+  constructor(private tasksService: TasksService, private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     this.loadTasks();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  startAutoRefresh() {
+    // Stop any existing auto-refresh
+    this.stopAutoRefresh();
+    
+    // Initialize countdown to 10 seconds
+    this.secondsUntilRefresh = 10;
+    
+    // Start countdown timer that updates every second
+    this.countdownSubscription = interval(1000).subscribe(() => {
+      this.secondsUntilRefresh--;
+      if (this.secondsUntilRefresh <= 0) {
+        this.secondsUntilRefresh = 10;
+      }
+    });
+    
+    // Start new auto-refresh interval (30 seconds)
+    this.autoRefreshSubscription = interval(this.autoRefreshInterval).subscribe(() => {
+      this.refreshTasks();
+    });
+  }
+
+  stopAutoRefresh() {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+      this.autoRefreshSubscription = null;
+    }
+    if (this.countdownSubscription) {
+      this.countdownSubscription.unsubscribe();
+      this.countdownSubscription = null;
+    }
   }
   
   loadTasks() {
@@ -189,6 +234,13 @@ export class Tasks implements OnInit {
     }
   }
 
+  // Helper method to check if task is finished
+  isTaskFinished(task: Task): boolean {
+    const finished = task.status === 'FINISHED';
+    console.log(`Task ${task.task_id} status: '${task.status}' - isFinished: ${finished}`);
+    return finished;
+  }
+
   formatDate(date: Date): string {
     // Format as 'HH:mm:ss dd.MM.yyyy'
     const pad = (n: number) => n < 10 ? '0' + n : n;
@@ -253,5 +305,17 @@ export class Tasks implements OnInit {
         }
       });
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

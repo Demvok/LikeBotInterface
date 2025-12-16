@@ -4,7 +4,7 @@
       <h1>Набір емодзі</h1>
     </div>
     <div class="header-actions">
-      <button class="btn-primary" (click)="openCreateForm()">+ Створити палітру</button>
+      <button class="btn-primary" (click)="openCreateForm()" [disabled]="isGuest()">+ Створити палітру</button>
     </div>
   </header>
 
@@ -200,8 +200,8 @@
             </div>
           </div>
           <div class="palette-actions">
-            <button class="btn-edit" (click)="openEditForm(p)" title="Редагувати">✎</button>
-            <button class="btn-delete" (click)="deletePalette(p)" title="Видалити">🗑</button>
+            <button class="btn-edit" (click)="openEditForm(p)" [disabled]="isGuest()" title="Редагувати">✎</button>
+            <button class="btn-delete" (click)="deletePalette(p)" [disabled]="isGuest()" title="Видалити">🗑</button>
           </div>
         </div>
       }
