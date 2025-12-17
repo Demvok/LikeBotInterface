@@ -1,0 +1,277 @@
+<div class="content-wrapper">
+  <!-- Header with Filters -->
+  <header class="header-with-filters">
+    <div class="header-top">
+      <h2>Channels Management</h2>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="openAddModal()" [disabled]="isGuest()">
+          ➕ Add Channel
+        </button>
+        <button class="btn-secondary" (click)="getChannels()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="header-filters">
+      <div class="filter-group">
+        <input
+          type="text"
+          [(ngModel)]="searchChannelName"
+          placeholder="Search by channel name..."
+          class="form-control"
+        />
+      </div>
+
+      <div class="filter-group">
+        <select [(ngModel)]="selectedTag" class="form-control">
+          <option value="">-- All Tags --</option>
+          <option *ngFor="let tag of availableTags" [value]="tag">
+            {{ tag }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-primary" (click)="applyFilters()">🔍 Apply</button>
+        <button class="btn-secondary" (click)="clearFilters()">✖ Clear</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div class="message-container">
+    <div class="success-message" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+    <div class="error-message" *ngIf="errorMessage">
+      ❌ {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading channels...</p>
+  </div>
+
+  <!-- Channels Table -->
+  <main *ngIf="!loading" class="channels-table-container">
+    <div class="table-wrapper">
+      <table
+        mat-table
+        [dataSource]="channels"
+        matSort
+        class="channels-table"
+      >
+        <!-- Chat ID Column -->
+        <ng-container matColumnDef="chat_id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Chat ID</th>
+          <td mat-cell *matCellDef="let channel">{{ channel.chat_id }}</td>
+        </ng-container>
+
+        <!-- Channel Name Column -->
+        <ng-container matColumnDef="channel_name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Channel Name</th>
+          <td mat-cell *matCellDef="let channel">{{ channel.channel_name }}</td>
+        </ng-container>
+
+        <!-- Private Column -->
+        <ng-container matColumnDef="is_private">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Private</th>
+          <td mat-cell *matCellDef="let channel">
+            <span class="badge" [class]="channel.is_private ? 'badge-private' : 'badge-public'">
+              {{ channel.is_private ? 'Private' : 'Public' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Reactions Column -->
+        <ng-container matColumnDef="has_enabled_reactions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Reactions</th>
+          <td mat-cell *matCellDef="let channel">
+            <span class="badge" [class]="channel.has_enabled_reactions ? 'badge-enabled' : 'badge-disabled'">
+              {{ channel.has_enabled_reactions ? 'Enabled' : 'Disabled' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Tags Column -->
+        <ng-container matColumnDef="tags">
+          <th mat-header-cell *matHeaderCellDef>Tags</th>
+          <td mat-cell *matCellDef="let channel">
+            <div class="tags-container">
+              <span class="tag" *ngFor="let tag of channel.tags">{{ tag }}</span>
+              <span *ngIf="!channel.tags || channel.tags.length === 0" class="no-tags">No tags</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Created At Column -->
+        <ng-container matColumnDef="created_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+          <td mat-cell *matCellDef="let channel">
+            {{ formatDate(channel.created_at) }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let channel">
+            <div class="actions-buttons">
+              <button class="btn-view" (click)="viewChannelPosts(channel)" [disabled]="isGuest()" title="View posts from this channel">
+                📄
+              </button>
+              <button class="btn-view" (click)="viewChannelSubscribers(channel)" [disabled]="isGuest()" title="View subscribed accounts">
+                👥
+              </button>
+              <button class="btn-edit" (click)="openEditModal(channel)" [disabled]="isGuest()" title="Edit channel">
+                ✏️
+              </button>
+              <button class="btn-delete" (click)="openDeleteConfirm(channel)" [disabled]="isGuest()" title="Delete channel">
+                🗑️
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Header and Row Definition -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [pageSizeOptions]="[10, 15, 25, 100]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Channel Modal -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Edit' : 'Add New' }} Channel</h3>
+      <button class="modal-close" (click)="closeAddModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>Channel Name: <span class="required">*</span></label>
+        <input
+          type="text"
+          [(ngModel)]="formData.channel_name"
+          placeholder="Channel name"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Is Private:</label>
+        <div class="toggle-group">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="!formData.is_private"
+            (click)="formData.is_private = false"
+          >
+            Public
+          </button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="formData.is_private"
+            (click)="formData.is_private = true"
+          >
+            Private
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Reactions:</label>
+        <div class="toggle-group">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="!formData.has_enabled_reactions"
+            (click)="formData.has_enabled_reactions = false"
+          >
+            Disabled
+          </button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="formData.has_enabled_reactions"
+            (click)="formData.has_enabled_reactions = true"
+          >
+            Enabled
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="formData.reactions_only_for_subscribers" />
+          Reactions Only for Subscribers
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Discussion Chat ID:</label>
+        <input
+          type="number"
+          [(ngModel)]="formData.discussion_chat_id"
+          placeholder="Optional"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Tags (comma-separated):</label>
+        <input
+          type="text"
+          [(ngModel)]="tagsInput"
+          placeholder="e.g., crypto, news, tech"
+          class="form-control"
+        />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeAddModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveChannel()">
+        {{ isEditing ? 'Update Channel' : 'Add Channel' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Delete Channel</h3>
+      <button class="modal-close" (click)="closeDeleteConfirm()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete channel <strong>{{ deleteChannelName }}</strong> (ID: {{ deleteChannelId }})?</p>
+      <p style="color: #ef4444; font-size: 0.9rem; margin-top: 1rem;">
+        ⚠️ This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+      <button class="btn-delete" (click)="confirmDelete()">Delete Channel</button>
+    </div>
+  </div>
+</div>

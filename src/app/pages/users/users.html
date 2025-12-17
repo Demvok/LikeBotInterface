@@ -1,0 +1,179 @@
+<div class="content-wrapper">
+  <!-- Admin Only Section -->
+  <div class="admin-section" *ngIf="isAdminUser">
+    <!-- Header -->
+    <header>
+      <h2>Users Management</h2>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="getUsers()">🔄 Refresh</button>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="message-container">
+      <div class="success-message" *ngIf="successMessage">
+        ✅ {{ successMessage }}
+      </div>
+      <div class="error-message" *ngIf="errorMessage">
+        ❌ {{ errorMessage }}
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading users...</p>
+    </div>
+
+    <!-- Users Table -->
+    <main *ngIf="!loading" class="users-table-container">
+      <div class="table-wrapper">
+        <table
+          mat-table
+          [dataSource]="users"
+          matSort
+          class="users-table"
+        >
+          <!-- Username Column -->
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
+            <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+          </ng-container>
+
+          <!-- Role Column -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="role-badge" [class]="'role-' + user.role">
+                {{ user.role }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Verified Column -->
+          <ng-container matColumnDef="is_verified">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Verified</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="verified-badge" [class]="user.is_verified ? 'verified' : 'unverified'">
+                {{ user.is_verified ? '✓ Verified' : '✗ Unverified' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Created At Column -->
+          <ng-container matColumnDef="created_at">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+            <td mat-cell *matCellDef="let user">
+              {{ formatDate(user.created_at) }}
+            </td>
+          </ng-container>
+
+          <!-- Updated At Column -->
+          <ng-container matColumnDef="updated_at">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Updated</th>
+            <td mat-cell *matCellDef="let user">
+              {{ formatDate(user.updated_at) }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="actions-buttons">
+                <button class="btn-edit" (click)="openEditModal(user)" title="Edit user">
+                  ✏️
+                </button>
+                <button class="btn-delete" (click)="openDeleteConfirm(user.username)" title="Delete user">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Definition -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Paginator -->
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          showFirstLastButtons
+          aria-label="Select page"
+        >
+        </mat-paginator>
+      </div>
+    </main>
+  </div>
+
+  <!-- Non-Admin Message -->
+  <div class="non-admin-message" *ngIf="!isAdminUser">
+    <div class="access-denied">
+      <span class="lock-icon">🔒</span>
+      <h3>Access Denied</h3>
+      <p>User management is available only for administrators.</p>
+      <p>If you believe you should have access, please contact your system administrator.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit User: {{ editingUser?.username }}</h3>
+      <button class="modal-close" (click)="closeEditModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Role:</label>
+        <select [(ngModel)]="selectedRole" class="form-control">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+          <option value="guest">Guest</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="selectedVerified" />
+          Verified
+        </label>
+      </div>
+
+      <div class="modal-info">
+        <p><strong>Created:</strong> {{ formatDate(editingUser?.created_at || '') }}</p>
+        <p><strong>Updated:</strong> {{ formatDate(editingUser?.updated_at || '') }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeEditModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveEditModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Delete User</h3>
+      <button class="modal-close" (click)="closeDeleteConfirm()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete user <strong>{{ deleteUsername }}</strong>?</p>
+      <p style="color: #ef4444; font-size: 0.9rem; margin-top: 1rem;">
+        ⚠️ This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDeleteConfirm()">Cancel</button>
+      <button class="btn-delete" (click)="confirmDelete()">Delete User</button>
+    </div>
+  </div>
+</div>

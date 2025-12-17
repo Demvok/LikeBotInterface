@@ -45,9 +45,18 @@
                 <button mat-icon-button (click)="refreshTasks()" class="refresh-btn" title="Refresh tasks">
                     <mat-icon>refresh</mat-icon>
                 </button>
+
+                <button mat-icon-button (click)="toggleAutoRefresh()" class="refresh-btn"
+                        [title]="autoRefreshEnabled ? 'Disable auto-refresh' : 'Enable auto-refresh'">
+                    <mat-icon>{{ autoRefreshEnabled ? 'pause' : 'schedule' }}</mat-icon>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Auto-refresh progress line -->
+    <div class="auto-refresh-progress" *ngIf="autoRefreshEnabled"
+         [style.width.%]="(secondsUntilRefresh / 30) * 100"></div>
 
     <main>
         <!-- Loading State -->
@@ -99,8 +108,10 @@
                         </mat-icon>
                     </div>
                     <mat-card-title>
-                        <span class="task-name">{{ task.name }}</span>
-                        <mat-chip class="task-id-chip">#{{ task.task_id }}</mat-chip>
+                        <div class="task_metadata">
+                            <span class="task-name">{{ task.name }}</span>
+                            <mat-chip class="task-id-chip">#{{ task.task_id }}</mat-chip>
+                        </div>
                     </mat-card-title>
                     <mat-card-subtitle>
                         <div class="status-container">
@@ -190,29 +201,43 @@
                             Task Management
                         </h4>
                         <div class="management-buttons">
-                            <button mat-button class="management-btn start" 
-                                    (click)="$event.stopPropagation(); task.task_id && startTask(task.task_id)"
-                                    [disabled]="task.status === 'RUNNING'"
-                                    title="Start task execution">
-                                <mat-icon>play_arrow</mat-icon>
-                                Start
-                            </button>
-                            <button mat-button class="management-btn pause" 
-                                    (click)="$event.stopPropagation(); task.task_id && pauseTask(task.task_id)"
-                                    [disabled]="task.status !== 'RUNNING'"
-                                    title="Pause task execution">
-                                <mat-icon>pause</mat-icon>
-                                Pause
-                            </button>
-                            <button mat-button class="management-btn resume" 
-                                    (click)="$event.stopPropagation(); task.task_id && resumeTask(task.task_id)"
-                                    [disabled]="task.status !== 'PAUSED'"
-                                    title="Resume task execution">
-                                <mat-icon>play_arrow</mat-icon>
-                                Resume
-                            </button>
+                            <!-- Start Button - visible unless already RUNNING -->
+                            <ng-container *ngIf="task.status !== 'RUNNING'">
+                                <button mat-button class="management-btn start" 
+                                        (click)="$event.stopPropagation(); task.task_id && startTask(task.task_id)"
+                                        [disabled]="isGuest()"
+                                        title="Start task execution">
+                                    <mat-icon>play_arrow</mat-icon>
+                                    Start
+                                </button>
+                            </ng-container>
+
+                            <!-- Pause Button - visible only while RUNNING (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'RUNNING'">
+                                <button mat-button class="management-btn pause" 
+                                        (click)="$event.stopPropagation(); task.task_id && pauseTask(task.task_id)"
+                                        [disabled]="true"
+                                        title="Pause task execution (disabled)">
+                                    <mat-icon>pause</mat-icon>
+                                    Pause
+                                </button>
+                            </ng-container>
+
+                            <!-- Continue Button - visible only while PAUSED (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'PAUSED'">
+                                <button mat-button class="management-btn resume" 
+                                        (click)="$event.stopPropagation(); task.task_id && resumeTask(task.task_id)"
+                                        [disabled]="true"
+                                        title="Continue task execution (disabled)">
+                                    <mat-icon>play_arrow</mat-icon>
+                                    Continue
+                                </button>
+                            </ng-container>
+
+                            <!-- Delete Button - always visible -->
                             <button mat-button class="management-btn delete" 
                                     (click)="$event.stopPropagation(); task.task_id && deleteTask(task.task_id, task.name)"
+                                    [disabled]="isGuest()"
                                     title="Delete task permanently">
                                 <mat-icon>delete</mat-icon>
                                 Delete
@@ -249,6 +274,7 @@
         <!-- Floating Action Button for Create Task -->
         <button mat-fab class="create-task-fab" 
                 (click)="navigateToCreateTask()" 
+                [disabled]="isGuest()"
                 title="Create New Task"
                 aria-label="Create New Task">
             <mat-icon>add</mat-icon>

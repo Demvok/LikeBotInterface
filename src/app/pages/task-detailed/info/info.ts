@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TasksService, Task } from '../../../services/tasks';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { forkJoin, interval, Subscription } from 'rxjs';
+import { ReportService } from '../../../services/report.service';
 
 @Component({
   selector: 'app-info',
@@ -10,14 +13,29 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './info.html',
   styleUrl: './info.css'
 })
-export class Info implements OnInit {
+export class Info implements OnInit, OnDestroy {
   task: Task | null = null;
   loading = true;
   error: string | null = null;
 
+  kpis = {
+    successRate: 0,
+    errorCount: 0
+  };
+  kpisLoading = false;
+
+  // Auto-refresh properties
+  private autoRefreshSubscription: Subscription | null = null;
+  private countdownSubscription: Subscription | null = null;
+  private autoRefreshInterval = 10000; // 10 seconds in milliseconds
+  secondsUntilRefresh: number = 10; // Display countdown in seconds
+  lastUpdate: string = '';
+
   constructor(
     private route: ActivatedRoute,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private authService: AuthService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -30,6 +48,44 @@ export class Info implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  private startAutoRefresh(): void {
+    // Stop any existing auto-refresh
+    this.stopAutoRefresh();
+    
+    // Initialize countdown to 10 seconds
+    this.secondsUntilRefresh = 10;
+    
+    // Start countdown timer that updates every second
+    this.countdownSubscription = interval(1000).subscribe(() => {
+      this.secondsUntilRefresh--;
+      if (this.secondsUntilRefresh <= 0) {
+        this.secondsUntilRefresh = 10;
+      }
+    });
+    
+    // Main auto-refresh interval (10 seconds)
+    this.autoRefreshSubscription = interval(this.autoRefreshInterval).subscribe(() => {
+      if (this.task && this.task.task_id && this.task.status === 'RUNNING') {
+        this.loadTask(this.task.task_id.toString());
+      }
+    });
+  }
+
+  private stopAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+      this.autoRefreshSubscription = null;
+    }
+    if (this.countdownSubscription) {
+      this.countdownSubscription.unsubscribe();
+      this.countdownSubscription = null;
+    }
+  }
+
   private loadTask(id: string) {
     this.loading = true;
     this.error = null;
@@ -37,10 +93,47 @@ export class Info implements OnInit {
       next: (task: Task) => {
         this.task = task;
         this.loading = false;
+        this.lastUpdate = this.getFormattedTime();
+
+        // Only auto-refresh while RUNNING
+        if (task.status === 'RUNNING') {
+          this.startAutoRefresh();
+          this.loadKpis();
+        } else {
+          this.stopAutoRefresh();
+          this.loadKpis();
+        }
       },
       error: () => {
         this.loading = false;
         this.error = 'Failed to load task information. Please try again.';
+      }
+    });
+  }
+
+  private loadKpis(): void {
+    if (!this.task?.task_id) return;
+
+    const accountsCount = this.task.accounts?.length ?? 0;
+    this.kpisLoading = true;
+
+    forkJoin({
+      success: this.reportService.getTaskReport(this.task.task_id, 'success'),
+      errors: this.reportService.getTaskReport(this.task.task_id, 'errors')
+    }).subscribe({
+      next: ({ success, errors }) => {
+        const successCount = success?.report?.events?.length ?? 0;
+        const errorCount = errors?.report?.events?.length ?? 0;
+
+        this.kpis = {
+          successRate: accountsCount > 0 ? Math.round((successCount / accountsCount) * 100) : 0,
+          errorCount
+        };
+        this.kpisLoading = false;
+      },
+      error: () => {
+        this.kpis = { successRate: 0, errorCount: 0 };
+        this.kpisLoading = false;
       }
     });
   }
@@ -51,9 +144,16 @@ export class Info implements OnInit {
       'RUNNING': 'Running',
       'PAUSED': 'Paused',
       'FINISHED': 'Completed',
+      'FAILED': 'Failed',
       'CRASHED': 'Failed'
     };
     return statusMap[status] || status;
+  }
+
+  // Helper method to check if task is finished
+  isTaskFinished(task: Task | null): boolean {
+    if (!task) return false;
+    return task.status === 'FINISHED';
   }
 
   getActionTypeText(actionType: string): string {
@@ -159,5 +259,17 @@ export class Info implements OnInit {
         }
       });
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

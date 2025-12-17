@@ -70,7 +70,7 @@
         <p>{{error}}</p>
         <button (click)="loadReportData()" class="retry-btn">Try Again</button>
       </div>
-    } @else if (!reportData || reportData.report.length === 0) {
+    } @else if (!reportData || reportData.report.events.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">📊</div>
         <h3>No report data available</h3>
@@ -119,12 +119,6 @@
                 }
               </th>
               <th>Message</th>
-              @if (reportType === 'all' || reportType === 'success') {
-                <th>Status</th>
-              }
-              @if (reportType === 'errors') {
-                <th>Error Details</th>
-              }
             </tr>
           </thead>
           <tbody>
@@ -163,30 +157,16 @@
                   }
                 </td>
                 <td class="message-cell">
-                  <div class="message-content">
-                    {{event.message}}
-                  </div>
-                </td>
-                @if (reportType === 'all' || reportType === 'success') {
-                  <td class="status-cell">
-                    @if (event.error) {
-                      <span class="status-badge error">
-                        ❌ Error
-                      </span>
-                    } @else {
-                      <span class="status-badge success">
-                        ✅ Success
-                      </span>
+                  <div class="message-content" (click)="openMessageModal(event)">
+                    <span class="message-text">{{event.message}}</span>
+                    @if (event.message && event.message.length > 50) {
+                      <span class="expand-icon">↗</span>
                     }
-                  </td>
-                }
-                @if (reportType === 'errors') {
-                  <td class="error-details-cell">
-                    <div class="error-content">
-                      {{event.error}}
-                    </div>
-                  </td>
-                }
+                  </div>
+                  @if (event.error) {
+                    <div class="error-badge">⚠️ {{event.error}}</div>
+                  }
+                </td>
               </tr>
             }
           </tbody>
@@ -239,4 +219,53 @@
       </div>
     }
   </footer>
+
+  <!-- Message Modal -->
+  @if (selectedMessage) {
+    <div class="modal-overlay" (click)="closeMessageModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Full Message</h3>
+          <button class="close-btn" (click)="closeMessageModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="message-display">
+            {{selectedMessage.message}}
+          </div>
+          @if (selectedMessage.error) {
+            <div class="error-section">
+              <h4>Error Details:</h4>
+              <div class="error-display">
+                {{selectedMessage.error}}
+              </div>
+            </div>
+          }
+          <div class="event-details">
+            <div class="detail-item">
+              <span class="detail-label">Timestamp:</span>
+              <span class="detail-value">{{formatDate(selectedMessage.datetime || selectedMessage.ts)}}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Client:</span>
+              <span class="detail-value">{{formatPhoneNumber(selectedMessage.client || '')}}</span>
+            </div>
+            @if (selectedMessage.palette) {
+              <div class="detail-item">
+                <span class="detail-label">Reaction:</span>
+                <span class="detail-value">
+                  @if (selectedMessage.palette === 'positive') {
+                    👍 Positive
+                  } @else if (selectedMessage.palette === 'negative') {
+                    👎 Negative
+                  } @else {
+                    {{selectedMessage.palette}}
+                  }
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

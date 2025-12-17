@@ -13,6 +13,16 @@ export interface Account {
   status?: AccountStatus;
   created_at?: string;
   updated_at?: string;
+  last_error?: string;
+  last_error_type?: string;
+  last_error_time?: string;
+  last_success_time?: string;
+  last_checked?: string;
+  flood_wait_until?: string | null;
+  /** Backend field name (preferred). */
+  assigned_proxies?: string[];
+  /** Legacy UI field name kept for compatibility during staged rollout. */
+  proxy_names?: string[];
 }
 
 export interface Post {
@@ -31,7 +41,7 @@ export interface TaskAction {
   content?: string;
 }
 
-export type TaskStatus = 'PENDING' | 'RUNNING' | 'PAUSED' | 'FINISHED' | 'CRASHED';
+export type TaskStatus = 'PENDING' | 'RUNNING' | 'PAUSED' | 'FINISHED' | 'FAILED' | 'CRASHED';
 
 export interface Task {
   task_id?: number;
@@ -83,10 +93,15 @@ export interface ReportEvent {
   action_type?: string;
 }
 
+export interface TaskReportPayload {
+  events: ReportEvent[];
+  summary?: any;
+}
+
 export interface TaskReport {
   task_id: number;
   run_id: string | null;
-  report: ReportEvent[];  // Direct array, not nested in events
+  report: TaskReportPayload;
 }
 
 export interface Palette {
@@ -102,4 +117,30 @@ export interface Palette {
 
 export interface ApiError {
   detail: string;
+}
+
+export type UserRole = 'user' | 'admin' | 'guest';
+
+export interface User {
+  username: string;
+  is_verified: boolean;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Channel {
+  chat_id: number;
+  channel_name: string;
+  is_private: boolean;
+  has_enabled_reactions: boolean;
+  reactions_only_for_subscribers: boolean;
+  discussion_chat_id?: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChannelWithPostCount extends Channel {
+  post_count: number;
 }

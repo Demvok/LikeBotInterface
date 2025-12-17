@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { TasksService, Task } from '../../services/tasks';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -36,7 +38,7 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './tasks.html',
   styleUrl: './tasks.css'
 })
-export class Tasks implements OnInit {
+export class Tasks implements OnInit, OnDestroy {
   allTasks: Task[] = [];
   filteredTasks: Task[] = [];
   paginatedTasks: Task[] = [];
@@ -59,6 +61,14 @@ export class Tasks implements OnInit {
   totalItems = 0;
   pageSizeOptions = [6, 12, 24, 48];
   
+  // Auto-refresh properties
+  autoRefreshEnabled = false;
+  private autoRefreshSubscription: Subscription | null = null;
+  private countdownSubscription: Subscription | null = null;
+  private autoRefreshIntervalMs = 30000;
+  private autoRefreshCountdownSeconds = 30;
+  secondsUntilRefresh: number = this.autoRefreshCountdownSeconds;
+  
   // Status options for filtering
   statusOptions = [
     { value: 'all', label: 'All Statuses' },
@@ -66,6 +76,7 @@ export class Tasks implements OnInit {
     { value: 'running', label: 'Running' },
     { value: 'paused', label: 'Paused' },
     { value: 'finished', label: 'Finished' },
+    { value: 'failed', label: 'Failed' },
     { value: 'crashed', label: 'Crashed' }
   ];
   
@@ -75,10 +86,57 @@ export class Tasks implements OnInit {
     { value: 'comment', label: 'Comment' }
   ];
 
-  constructor(private tasksService: TasksService, private router: Router) {}
+  constructor(private tasksService: TasksService, private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     this.loadTasks();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  toggleAutoRefresh() {
+    this.autoRefreshEnabled = !this.autoRefreshEnabled;
+    if (this.autoRefreshEnabled) {
+      this.startAutoRefresh();
+    } else {
+      this.stopAutoRefresh();
+    }
+  }
+
+  startAutoRefresh() {
+    if (!this.autoRefreshEnabled) return;
+
+    // Stop any existing auto-refresh
+    this.stopAutoRefresh();
+
+    // Initialize countdown
+    this.secondsUntilRefresh = this.autoRefreshCountdownSeconds;
+
+    // Start countdown timer that updates every second
+    this.countdownSubscription = interval(1000).subscribe(() => {
+      this.secondsUntilRefresh--;
+      if (this.secondsUntilRefresh <= 0) {
+        this.secondsUntilRefresh = this.autoRefreshCountdownSeconds;
+      }
+    });
+
+    // Start new auto-refresh interval
+    this.autoRefreshSubscription = interval(this.autoRefreshIntervalMs).subscribe(() => {
+      this.refreshTasks();
+    });
+  }
+
+  stopAutoRefresh() {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+      this.autoRefreshSubscription = null;
+    }
+    if (this.countdownSubscription) {
+      this.countdownSubscription.unsubscribe();
+      this.countdownSubscription = null;
+    }
   }
   
   loadTasks() {
@@ -176,6 +234,7 @@ export class Tasks implements OnInit {
       case 'running': return 'play_circle';
       case 'paused': return 'pause_circle';
       case 'finished': return 'check_circle';
+      case 'failed': return 'error';
       case 'crashed': return 'error';
       default: return 'help';
     }
@@ -187,6 +246,13 @@ export class Tasks implements OnInit {
       case 'comment': return 'comment';
       default: return 'help';
     }
+  }
+
+  // Helper method to check if task is finished
+  isTaskFinished(task: Task): boolean {
+    const finished = task.status === 'FINISHED';
+    console.log(`Task ${task.task_id} status: '${task.status}' - isFinished: ${finished}`);
+    return finished;
   }
 
   formatDate(date: Date): string {
@@ -253,5 +319,17 @@ export class Tasks implements OnInit {
         }
       });
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

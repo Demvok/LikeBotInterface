@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -9,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { PostsService } from '../../services/posts';
 import { Post } from '../../services/api.models';
+import { AuthService } from '../../services/auth.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -46,7 +48,7 @@ export class Posts {
 
   lastUpdate: string = '';
 
-  constructor(private postsService: PostsService, private dialog: MatDialog) {}
+  constructor(private postsService: PostsService, private dialog: MatDialog, private route: ActivatedRoute, private authService: AuthService) {}
 
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
@@ -64,8 +66,21 @@ export class Posts {
   }
 
   ngOnInit() {
-    this.getPosts();
-    this.lastUpdate = this.formatDate(new Date());
+    // Read query parameters
+    this.route.queryParams.subscribe((params) => {
+      this.filter = {};
+      if (params['channel_id']) {
+        this.filter.chat_id = parseInt(params['channel_id'], 10);
+      }
+      if (params['post_id']) {
+        this.filter.post_id = parseInt(params['post_id'], 10);
+      }
+      if (params['validated_only']) {
+        this.filter.validated_only = params['validated_only'] === 'true';
+      }
+      this.getPosts();
+      this.lastUpdate = this.formatDate(new Date());
+    });
   }
 
 
@@ -240,5 +255,17 @@ export class Posts {
         this.loading = false;
       }
     );
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  // Check if current user is guest
+  isGuest(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'guest';
   }
 }

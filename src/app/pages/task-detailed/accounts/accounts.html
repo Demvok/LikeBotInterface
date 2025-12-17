@@ -1,11 +1,19 @@
 <div class="content-wrapper">
     <header>
-        <div class="task-info" *ngIf="task">
-            <h2>Task: {{ task.name }}</h2>
-            <p>{{ task.description }}</p>
-            <div class="task-stats">
-                <span>Total accounts in task: {{ task.accounts.length }}</span>
-                <span [ngClass]="'status-' + task.status">Task status: {{ task.status }}</span>
+        <div class="task-header-row" *ngIf="task">
+            <div class="task-info">
+                <h2>Total accounts in task: {{ task.accounts.length }}</h2>
+            </div>
+
+            <div class="task-kpis">
+                <div class="task-kpi">
+                    <div class="task-kpi-value">{{ kpisLoading ? '—' : (kpis.successRate + '%') }}</div>
+                    <div class="task-kpi-label">Success</div>
+                </div>
+                <div class="task-kpi">
+                    <div class="task-kpi-value">{{ kpisLoading ? '—' : kpis.errorCount }}</div>
+                    <div class="task-kpi-label">Errors</div>
+                </div>
             </div>
         </div>
         
@@ -16,20 +24,13 @@
             </label>
             <button type="button" (click)="getAccounts()">Search</button>
             <button type="button" (click)="resetFilters()">Reset</button>
-            
-            <div class="view-toggle">
-                <label class="toggle-label">
-                    <input type="checkbox" [(ngModel)]="showTaskAccountsOnly" (change)="toggleTaskFilter()" name="taskFilter" />
-                    Show only task accounts
-                </label>
-            </div>
         </form>
     </header>
     
     <main>
         <div *ngIf="loading" class="loading">Loading accounts...</div>
         
-        <table mat-table [dataSource]="currentDataSource" matSort *ngIf="!loading && currentDataSource.data.length > 0">
+        <table mat-table [dataSource]="taskAccounts" matSort *ngIf="!loading && taskAccounts.data.length > 0">
             <!-- Phone Number Column -->
             <ng-container matColumnDef="phone_number">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header><div class="table-header">Phone Number</div></th>
@@ -59,23 +60,6 @@
                     </div>
                 </td>
             </ng-container> -->
-            
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef><div class="table-header">Actions</div></th>
-                <td mat-cell *matCellDef="let account">
-                    <div class="table-cell action-buttons">
-                        <button mat-button class="account-action-button btn-edit" (click)="editAccount(account)">Edit</button>
-                        <button mat-button class="account-action-button btn-delete" (click)="deleteAccount(account)">Delete</button>
-                        <button mat-button class="account-action-button btn-task" 
-                               *ngIf="!account.inTask && task" 
-                               (click)="addToTask(account)">Add to Task</button>
-                        <button mat-button class="account-action-button btn-remove" 
-                               *ngIf="account.inTask && task" 
-                               (click)="removeFromTask(account)">Remove from Task</button>
-                    </div>
-                </td>
-            </ng-container>
             
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
