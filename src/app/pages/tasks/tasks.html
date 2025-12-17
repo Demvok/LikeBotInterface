@@ -45,12 +45,18 @@
                 <button mat-icon-button (click)="refreshTasks()" class="refresh-btn" title="Refresh tasks">
                     <mat-icon>refresh</mat-icon>
                 </button>
+
+                <button mat-icon-button (click)="toggleAutoRefresh()" class="refresh-btn"
+                        [title]="autoRefreshEnabled ? 'Disable auto-refresh' : 'Enable auto-refresh'">
+                    <mat-icon>{{ autoRefreshEnabled ? 'pause' : 'schedule' }}</mat-icon>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Auto-refresh progress line -->
-    <div class="auto-refresh-progress" [style.width.%]="(secondsUntilRefresh / 10) * 100"></div>
+    <div class="auto-refresh-progress" *ngIf="autoRefreshEnabled"
+         [style.width.%]="(secondsUntilRefresh / 30) * 100"></div>
 
     <main>
         <!-- Loading State -->
@@ -195,36 +201,36 @@
                             Task Management
                         </h4>
                         <div class="management-buttons">
-                            <!-- Start Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Start Button - visible unless already RUNNING -->
+                            <ng-container *ngIf="task.status !== 'RUNNING'">
                                 <button mat-button class="management-btn start" 
                                         (click)="$event.stopPropagation(); task.task_id && startTask(task.task_id)"
-                                        [disabled]="task.status === 'RUNNING'"
+                                        [disabled]="isGuest()"
                                         title="Start task execution">
                                     <mat-icon>play_arrow</mat-icon>
                                     Start
                                 </button>
                             </ng-container>
 
-                            <!-- Pause Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Pause Button - visible only while RUNNING (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'RUNNING'">
                                 <button mat-button class="management-btn pause" 
                                         (click)="$event.stopPropagation(); task.task_id && pauseTask(task.task_id)"
-                                        [disabled]="task.status !== 'RUNNING'"
-                                        title="Pause task execution">
+                                        [disabled]="true"
+                                        title="Pause task execution (disabled)">
                                     <mat-icon>pause</mat-icon>
                                     Pause
                                 </button>
                             </ng-container>
 
-                            <!-- Resume Button - hidden if FINISHED -->
-                            <ng-container *ngIf="!isTaskFinished(task)">
+                            <!-- Continue Button - visible only while PAUSED (disabled for now) -->
+                            <ng-container *ngIf="task.status === 'PAUSED'">
                                 <button mat-button class="management-btn resume" 
                                         (click)="$event.stopPropagation(); task.task_id && resumeTask(task.task_id)"
-                                        [disabled]="task.status !== 'PAUSED'"
-                                        title="Resume task execution">
+                                        [disabled]="true"
+                                        title="Continue task execution (disabled)">
                                     <mat-icon>play_arrow</mat-icon>
-                                    Resume
+                                    Continue
                                 </button>
                             </ng-container>
 

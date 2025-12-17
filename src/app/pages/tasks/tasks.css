@@ -202,10 +202,14 @@ main {
 
 .error-icon {
   color: #ef4444;
+  width: 100%;
+  height: 100%;
 }
 
 .empty-icon {
   color: #f59e0b;
+  width: 100%;
+  height: 100%;
 }
 
 .error-container h2, .empty-container h2 {
@@ -285,6 +289,7 @@ main {
 .status-icon.status-running { color: #3b82f6; }
 .status-icon.status-paused { color: #f97316; }
 .status-icon.status-finished { color: #10b981; }
+.status-icon.status-failed { color: #ef4444; }
 .status-icon.status-crashed { color: #ef4444; }
 
 .task-name {
@@ -341,6 +346,11 @@ main {
 }
 
 .status-chip.status-crashed {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.status-chip.status-failed {
   background-color: rgba(239, 68, 68, 0.2);
   color: #ef4444;
 }

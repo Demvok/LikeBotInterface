@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Account } from './api.models';
 import { environment } from '../../environments/environment';
 
@@ -36,6 +37,43 @@ export class AccountsService {
   private apiUrl = `${environment.apiUrl}/accounts`;
 
   constructor(private http: HttpClient) {}
+
+  private normalizeAccountFromApi(apiAccount: any): Account {
+    if (!apiAccount || typeof apiAccount !== 'object') {
+      return apiAccount as Account;
+    }
+
+    const assigned = Array.isArray(apiAccount.assigned_proxies) ? apiAccount.assigned_proxies : undefined;
+    const legacy = Array.isArray(apiAccount.proxy_names) ? apiAccount.proxy_names : undefined;
+
+    // Keep both populated for compatibility, but prefer backend naming.
+    const assigned_proxies = assigned ?? legacy;
+    const proxy_names = legacy ?? assigned;
+
+    return {
+      ...(apiAccount as Account),
+      assigned_proxies,
+      proxy_names
+    };
+  }
+
+  private normalizeAccountToApi(input: Partial<Account>): any {
+    if (!input || typeof input !== 'object') {
+      return input;
+    }
+
+    const payload: any = { ...input };
+
+    // Prefer assigned_proxies for backend, but accept legacy UI field.
+    if (payload.assigned_proxies === undefined && Array.isArray(payload.proxy_names)) {
+      payload.assigned_proxies = payload.proxy_names;
+    }
+
+    // Avoid sending legacy fields that backend may reject.
+    delete payload.proxy_names;
+
+    return payload;
+  }
 
   private getPhoneVariants(phone_number: string): { primary: string; fallback?: string } {
     if (!phone_number) {
@@ -76,25 +114,32 @@ export class AccountsService {
     if (params?.channel_id) {
       httpParams = httpParams.set('channel_id', params.channel_id.toString());
     }
-    return this.http.get<Account[]>(this.apiUrl, { params: httpParams });
+    return this.http.get<any[]>(this.apiUrl, { params: httpParams }).pipe(
+      map((accounts) => (Array.isArray(accounts) ? accounts.map((a) => this.normalizeAccountFromApi(a)) : []))
+    );
   }
 
   /** Get a specific account by phone number */
   getAccount(phone_number: string): Observable<Account> {
     return this.withPhoneFallback(phone_number, (normalized) =>
-      this.http.get<Account>(`${this.apiUrl}/${encodeURIComponent(normalized)}`)
+      this.http.get<any>(`${this.apiUrl}/${encodeURIComponent(normalized)}`).pipe(
+        map((account) => this.normalizeAccountFromApi(account))
+      )
     );
   }
 
   /** Create a new account */
   createAccount(account: Account): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(this.apiUrl, account);
+    return this.http.post<{ message: string }>(this.apiUrl, this.normalizeAccountToApi(account));
   }
 
   /** Update an existing account */
   updateAccount(phone_number: string, data: Partial<Account>): Observable<{ message: string }> {
     return this.withPhoneFallback(phone_number, (normalized) =>
-      this.http.put<{ message: string }>(`${this.apiUrl}/${encodeURIComponent(normalized)}`, data)
+      this.http.put<{ message: string }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}`,
+        this.normalizeAccountToApi(data)
+      )
     );
   }
 
@@ -117,7 +162,10 @@ export class AccountsService {
 
   /** Bulk create accounts */
   bulkCreateAccounts(accounts: Account[]): Observable<{ results: Array<{ phone_number: string; status: string; message: string }> }> {
-    return this.http.post<{ results: Array<{ phone_number: string; status: string; message: string }> }>(`${this.apiUrl}/bulk`, accounts);
+    return this.http.post<{ results: Array<{ phone_number: string; status: string; message: string }> }>(
+      `${this.apiUrl}/bulk`,
+      accounts.map((account) => this.normalizeAccountToApi(account))
+    );
   }
 
   /** Bulk delete accounts */
@@ -180,5 +228,51 @@ export class AccountsService {
         {}
       )
     );
+  }
+
+  // Proxy linking (Stage 1)
+
+  /** List proxies linked to an account. */
+  getAccountProxies(phone_number: string): Observable<any[]> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.get<any[]>(`${this.apiUrl}/${encodeURIComponent(normalized)}/proxies`)
+    );
+  }
+
+  /** Link a proxy to an account. */
+  linkProxyToAccount(phone_number: string, proxy_name: string): Observable<{ message: string }> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.post<{ message: string }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/proxies/${encodeURIComponent(proxy_name)}`,
+        {}
+      )
+    );
+  }
+
+  /** Unlink a proxy from an account. */
+  unlinkProxyFromAccount(phone_number: string, proxy_name: string): Observable<{ message: string }> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.delete<{ message: string }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/proxies/${encodeURIComponent(proxy_name)}`
+      )
+    );
+  }
+
+  /** Auto-assign proxies to an account. */
+  autoAssignProxies(
+    phone_number: string,
+    options?: { desired_count?: number; active_only?: boolean }
+  ): Observable<{ phone_number: string; target: number; assigned_proxies: string[]; added: string[]; remaining: number }> {
+    return this.withPhoneFallback(phone_number, (normalized) => {
+      let params = new HttpParams();
+      if (options?.desired_count !== undefined) params = params.set('desired_count', String(options.desired_count));
+      if (options?.active_only !== undefined) params = params.set('active_only', String(options.active_only));
+
+      return this.http.post<{ phone_number: string; target: number; assigned_proxies: string[]; added: string[]; remaining: number }>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/proxies/auto-assign`,
+        {},
+        { params }
+      );
+    });
   }
 }

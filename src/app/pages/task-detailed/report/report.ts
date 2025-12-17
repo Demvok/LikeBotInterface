@@ -157,7 +157,7 @@ export class Report implements OnInit {
     const successCount = total - errorCount;
 
     // total events in the raw report (unfiltered)
-    const totalAll = (this.reportData && Array.isArray(this.reportData.report)) ? this.reportData.report.length : 0;
+    const totalAll = this.reportData?.report?.events?.length ?? 0;
 
     this.stats.errorCount = errorCount;
     this.kpis = {
@@ -170,14 +170,14 @@ export class Report implements OnInit {
 
   extractUniqueClients() {
     if (!this.reportData) return;
-    const clientEvents = this.reportData.report.filter((e: any) => e.client);
+    const clientEvents = this.reportData.report.events.filter((e: any) => e.client);
     this.uniqueClients = [...new Set(clientEvents.map((e: any) => e.client))].sort();
   }
 
   applyFilters() {
     if (!this.reportData) return;
 
-    this.filteredEvents = this.reportData.report.filter((event: any) => {
+    this.filteredEvents = this.reportData.report.events.filter((event: any) => {
       if (this.filters.client && event.client && !event.client.includes(this.filters.client)) return false;
       return true;
     });

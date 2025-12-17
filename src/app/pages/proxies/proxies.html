@@ -38,14 +38,6 @@
         matSort
         class="proxies-table"
       >
-        <!-- Proxy Name Column -->
-        <ng-container matColumnDef="proxy_name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Proxy Name</th>
-          <td mat-cell *matCellDef="let proxy">
-            <strong>{{ proxy.proxy_name }}</strong>
-          </td>
-        </ng-container>
-
         <!-- Proxy Type Column -->
         <ng-container matColumnDef="proxy_type">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
@@ -87,36 +79,18 @@
         </ng-container>
 
         <!-- Current Usage Column -->
-        <ng-container matColumnDef="current_usage">
+        <ng-container matColumnDef="connected_accounts">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Usage</th>
           <td mat-cell *matCellDef="let proxy">
-            {{ proxy.current_usage || 0 }}
-            <span *ngIf="proxy.max_usage"> / {{ proxy.max_usage }}</span>
+            {{ proxy.connected_accounts ?? 0 }}
           </td>
         </ng-container>
 
-        <!-- Max Usage Column -->
-        <ng-container matColumnDef="max_usage">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Max Usage</th>
+        <!-- Linked Accounts Count Column -->
+        <ng-container matColumnDef="linked_accounts_count">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Linked</th>
           <td mat-cell *matCellDef="let proxy">
-            {{ proxy.max_usage ? proxy.max_usage : '-' }}
-          </td>
-        </ng-container>
-
-        <!-- Last Error Column -->
-        <ng-container matColumnDef="last_error">
-          <th mat-header-cell *matHeaderCellDef>Last Error</th>
-          <td mat-cell *matCellDef="let proxy">
-            <div class="error-cell">
-              <span *ngIf="proxy.last_error" 
-                    class="error-text clickable" 
-                    (click)="openErrorModal(proxy)"
-                    [title]="'Click to view full error'">
-                ⚠️ {{ proxy.last_error.substring(0, 40) }}
-                <span *ngIf="proxy.last_error.length > 40" class="expand-icon">↗</span>
-              </span>
-              <span *ngIf="!proxy.last_error" class="no-error">No errors</span>
-            </div>
+            {{ proxy.linked_accounts_count ?? '-' }}
           </td>
         </ng-container>
 
@@ -125,6 +99,13 @@
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let proxy">
             <div class="actions-buttons">
+              <button class="btn-test"
+                      (click)="testProxy(proxy)"
+                      [disabled]="isGuest() || testLoadingByProxy[proxy.proxy_name]"
+                      title="Test proxy connectivity">
+                🧪
+                <span class="btn-label">Test</span>
+              </button>
               <button class="btn-toggle" 
                       (click)="toggleProxyStatus(proxy)" 
                       [disabled]="isGuest()"
@@ -175,14 +156,25 @@
 
       <div class="form-group">
         <label>Proxy Name: <span class="required">*</span></label>
-        <input
-          type="text"
-          name="proxy_name"
-          [(ngModel)]="formData.proxy_name"
-          placeholder="e.g., proxy1"
-          [disabled]="isEditing"
-          class="form-control"
-        />
+        <div class="proxy-name-row">
+          <input
+            type="text"
+            name="proxy_name"
+            [(ngModel)]="formData.proxy_name"
+            placeholder="e.g., proxy1"
+            [disabled]="isEditing"
+            class="form-control"
+          />
+          <button
+            *ngIf="isEditing"
+            type="button"
+            class="btn-secondary btn-copy"
+            (click)="copyEditingProxyName()"
+            title="Copy proxy name"
+          >
+            📋
+          </button>
+        </div>
       </div>
 
       <div class="form-group">
@@ -243,18 +235,18 @@
         />
       </div>
 
-      <div class="form-group">
-        <label>Max Usage (concurrent connections):</label>
-        <input
-          type="number"
-          name="max_usage"
-          [(ngModel)]="formData.max_usage"
-          placeholder="Optional"
+      <div class="form-group" *ngIf="isEditing">
+        <label>Notes:</label>
+        <textarea
+          name="notes"
+          [(ngModel)]="formData.notes"
+          placeholder="Optional notes about this proxy"
           class="form-control"
-        />
+          rows="3"
+        ></textarea>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" *ngIf="!isEditing">
         <label>
           <input type="checkbox" name="is_active" [(ngModel)]="formData.is_active" />
           Active
@@ -293,61 +285,11 @@
   </div>
 </div>
 
-<!-- Error Details Modal -->
-<div class="modal-overlay" *ngIf="showErrorModal" (click)="closeErrorModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Error Details - {{ selectedError?.proxy_name }}</h3>
-      <button class="modal-close" (click)="closeErrorModal()">×</button>
-    </div>
-
-    <div class="modal-body">
-      <div class="error-details-container">
-        <!-- Proxy Info -->
-        <div class="proxy-info">
-          <div class="info-row">
-            <span class="info-label">Proxy Name:</span>
-            <span class="info-value">{{ selectedError?.proxy_name }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Host:</span>
-            <span class="info-value">{{ selectedError?.host }}:{{ selectedError?.port }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Status:</span>
-            <span class="info-value">
-              <span class="badge" [class]="selectedError?.is_active ? 'badge-active' : 'badge-inactive'">
-                {{ selectedError?.is_active ? '🟢 Active' : '🔴 Inactive' }}
-              </span>
-            </span>
-          </div>
-          <div class="info-row" *ngIf="selectedError?.error_time">
-            <span class="info-label">Error Time:</span>
-            <span class="info-value">{{ formatDate(selectedError.error_time) }}</span>
-          </div>
-        </div>
-
-        <!-- Error Message -->
-        <div class="error-message-section">
-          <h4>Error Message</h4>
-          <div class="error-message-box">
-            {{ selectedError?.error || 'No error message available' }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeErrorModal()">Close</button>
-    </div>
-  </div>
-</div>
-
 <!-- Import CSV Modal -->
 <div class="modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>Import Proxies from CSV</h3>
+      <h3>Import Proxies</h3>
       <button class="modal-close" (click)="closeImportModal()">×</button>
     </div>
 
@@ -357,17 +299,17 @@
       </div>
 
       <p style="margin-bottom: 1.5rem; color: var(--color-text);">
-        Upload a CSV file with columns: <strong>host, port, username, password</strong>
+        Upload a <strong>.txt</strong> or <strong>.csv</strong> file. Each line may contain <strong>host:port</strong> or <strong>host:port:user:pass</strong>.
       </p>
 
       <div class="import-file-input">
         <label for="csvFile" class="file-label">
-          📁 Choose CSV File
+          📁 Choose File
         </label>
         <input 
           id="csvFile"
           type="file" 
-          accept=".csv" 
+          accept=".txt,.csv" 
           (change)="onFileSelected($event)"
           class="file-input"
           [disabled]="importLoading"
@@ -382,16 +324,25 @@
       <div class="import-results" *ngIf="importResults && !importLoading">
         <h4>Import Results</h4>
         <div class="results-summary">
-          <p>Total processed: <strong>{{ importResults.results?.length || 0 }}</strong></p>
-          <div class="results-list">
-            <div *ngFor="let result of importResults.results" 
-                 class="result-item"
-                 [class.success]="result.status === 'success'"
-                 [class.error]="result.status === 'error'"
-                 [class.skipped]="result.status === 'skipped'">
-              <strong>{{ result.proxy_name || 'Unknown' }}</strong>
-              <span class="status-badge">{{ result.status | uppercase }}</span>
-              <p class="result-message">{{ result.message }}</p>
+          <p *ngIf="importResults.message">{{ importResults.message }}</p>
+          <p>Total: <strong>{{ importResults.total ?? 0 }}</strong></p>
+          <p *ngIf="importResults.imported !== undefined">Imported: <strong>{{ importResults.imported }}</strong></p>
+          <p *ngIf="importResults.skipped">Skipped: <strong>{{ importResults.skipped?.length || 0 }}</strong></p>
+          <p *ngIf="importResults.errors">Errors: <strong>{{ importResults.errors?.length || 0 }}</strong></p>
+
+          <div class="results-list" *ngIf="importResults.skipped?.length">
+            <div *ngFor="let skipped of importResults.skipped" class="result-item skipped">
+              <strong>{{ skipped.proxy_name }}</strong>
+              <span class="status-badge">SKIPPED</span>
+              <p class="result-message">{{ skipped.reason }}</p>
+            </div>
+          </div>
+
+          <div class="results-list" *ngIf="importResults.errors?.length">
+            <div *ngFor="let err of importResults.errors" class="result-item error">
+              <strong>Error</strong>
+              <span class="status-badge">ERROR</span>
+              <p class="result-message">{{ err?.detail || (err | json) }}</p>
             </div>
           </div>
         </div>
