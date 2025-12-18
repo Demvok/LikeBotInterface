@@ -1,0 +1,11 @@
+# This project renders both browser and server bundles.
+# Pin the Node target to a version esbuild/Angular supports reliably.
+
+last 2 Chrome versions
+last 2 Edge versions
+last 2 Firefox versions
+last 2 Safari versions
+
+iOS >= 16
+
+node 20

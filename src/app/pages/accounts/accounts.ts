@@ -28,7 +28,15 @@ import { firstValueFrom } from 'rxjs';
 export class Accounts {
   accounts = new MatTableDataSource<Account>([]);
 
-  accountStatuses: AccountStatus[] = ['NEW', 'ACTIVE', 'LOGGED_IN', 'BANNED', 'ERROR'];
+  accountStatuses: AccountStatus[] = [
+    'NEW',
+    'ACTIVE',
+    'AUTH_KEY_INVALID',
+    'BANNED',
+    'DEACTIVATED',
+    'RESTRICTED',
+    'ERROR'
+  ];
 
   displayedColumns: string[] = [
     'phone_number',
@@ -81,6 +89,13 @@ export class Accounts {
   validateTargetPhone: string = '';
   validateModalMessage: string = '';
   validateModalIsError: boolean = false;
+
+  // Channel indexing modal state
+  showChannelIndexModal: boolean = false;
+  channelIndexing: boolean = false;
+  channelIndexTargetPhone: string = '';
+  channelIndexMessage: string = '';
+  channelIndexIsError: boolean = false;
 
   // Proxies
   proxies: Proxy[] = [];
@@ -574,6 +589,14 @@ export class Accounts {
     this.validateModalIsError = false;
   }
 
+  closeChannelIndexModal() {
+    if (this.channelIndexing) return;
+    this.showChannelIndexModal = false;
+    this.channelIndexTargetPhone = '';
+    this.channelIndexMessage = '';
+    this.channelIndexIsError = false;
+  }
+
   deleteAccount(account: Account) {   
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
@@ -1058,6 +1081,9 @@ export class Accounts {
       case 'LOGGED_IN':
         return 'status-active';
       case 'BANNED':
+      case 'AUTH_KEY_INVALID':
+      case 'DEACTIVATED':
+      case 'RESTRICTED':
       case 'ERROR':
         return 'status-error';
       case 'NEW':
@@ -1141,19 +1167,30 @@ export class Accounts {
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
 
-    if (confirm(`Index subscribed channels for account ${account.phone_number}? This may take a while.`)) {
-      this.loading = true;
-      this.accountsService.indexAccountChannels(phone).subscribe(
-        (res) => {
-          alert(`✅ Success! Indexed ${res.channels_indexed} channels for account ${account.phone_number}`);
-          this.loading = false;
-        },
-        (err) => {
-          alert(`❌ Failed to index channels: ${err?.error?.detail || err?.message || 'Unknown error'}`);
-          this.loading = false;
-        }
-      );
+    if (!confirm(`Index subscribed channels for account ${account.phone_number}? This may take a while.`)) {
+      return;
     }
+
+    if (this.channelIndexing) return;
+
+    this.showChannelIndexModal = true;
+    this.channelIndexing = true;
+    this.channelIndexTargetPhone = account.phone_number;
+    this.channelIndexMessage = 'Fetching channels... Please wait.';
+    this.channelIndexIsError = false;
+
+    this.accountsService.indexAccountChannels(phone).subscribe(
+      (res) => {
+        this.channelIndexMessage = `Success! Indexed ${res.channels_indexed} channels.`;
+        this.channelIndexIsError = false;
+        this.channelIndexing = false;
+      },
+      (err) => {
+        this.channelIndexMessage = 'Failed to fetch channels: ' + this.formatApiError(err);
+        this.channelIndexIsError = true;
+        this.channelIndexing = false;
+      }
+    );
   }
 
   // Toggle proxy selection for an account

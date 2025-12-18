@@ -1,6 +1,7 @@
 <div class="content-wrapper">
   <header>
     <div class="header-title">
+      <a routerLink="/accounts" class="return-link">← Accounts</a>
       <h2>Task Report #{{taskId}}</h2>
       
       <div class="control-group">
@@ -19,7 +20,8 @@
       </div>
       
       <button (click)="loadReportData()" [disabled]="isLoading || !selectedRunId" class="refresh-btn">
-        <span [class.spinning]="isLoading">↻</span> Refresh
+        <mat-icon [class.app-spin]="isLoading" aria-hidden="true">refresh</mat-icon>
+        Refresh
       </button>
     </div>
 

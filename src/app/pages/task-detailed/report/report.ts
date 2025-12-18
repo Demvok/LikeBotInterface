@@ -1,10 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TaskReport, ReportEvent, Run } from '../../../services/api.models';
 import { ReportService } from '../../../services/report.service';
 import { TasksService } from '../../../services/tasks';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 interface FilterOptions {
   client: string;
@@ -18,7 +19,7 @@ interface ReportStats {
 
 @Component({
   selector: 'app-report',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   providers: [DatePipe],
   templateUrl: './report.html',
   styleUrl: './report.css'

@@ -212,7 +212,7 @@
   @if (!loading && palettes.length === 0 && !error) {
     <div class="empty-state">
       <p>Немає доступних наборів емоцій.</p>
-      <button class="btn-link" (click)="openCreateForm()">Створити першу палету.</button>
+      <button class="btn-link" (click)="openCreateForm()" [disabled]="isGuest()">Створити першу палету.</button>
     </div>
   }
 

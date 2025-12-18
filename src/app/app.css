@@ -260,6 +260,11 @@
   margin-bottom: 16px;
 }
 
+.theme-toggle--sidebar-top {
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+
 .theme-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;

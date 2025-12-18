@@ -29,6 +29,16 @@ header {
   flex-wrap: wrap;
 }
 
+.return-link {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.return-link:hover {
+  text-decoration: underline;
+}
+
 .header-title h2 {
   font-size: 1.5rem;
   font-weight: 600;
@@ -147,14 +157,6 @@ header {
 .refresh-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* Controls Section for Run and Report Type Selection */

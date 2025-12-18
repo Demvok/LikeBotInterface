@@ -1,5 +1,8 @@
 <div class="content-wrapper">
     <header>
+        <div class="header-nav">
+            <a routerLink="/accounts" class="return-link">← Accounts</a>
+        </div>
         <div class="task-header-row" *ngIf="task">
             <div class="task-info">
                 <h2>Total accounts in task: {{ task.accounts.length }}</h2>

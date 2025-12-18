@@ -121,6 +121,27 @@
             </div>
         </div>
 
+        <!-- Modal for Channel Fetching -->
+        <div class="modal-backdrop" *ngIf="showChannelIndexModal">
+            <div class="modal-window modal-window--small">
+                <h2>Fetch Channels</h2>
+                <p class="modal-description" *ngIf="channelIndexTargetPhone">{{ channelIndexTargetPhone }}</p>
+
+                <div *ngIf="channelIndexing" class="info-message">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    Please wait for completion...
+                </div>
+
+                <div *ngIf="!channelIndexing && channelIndexMessage" [class]="channelIndexIsError ? 'error-message' : 'info-message'">
+                    {{ channelIndexMessage }}
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" (click)="closeChannelIndexModal()" [disabled]="channelIndexing">Close</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal for Account Creation -->
         <div class="modal-backdrop" *ngIf="showAddModal">
             <div class="modal-window">

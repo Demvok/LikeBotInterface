@@ -16,6 +16,44 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
+  private normalizePostFromApi(apiPost: any): Post {
+    if (!apiPost || typeof apiPost !== 'object') {
+      return apiPost as Post;
+    }
+
+    const is_validated = typeof apiPost.is_validated === 'boolean'
+      ? apiPost.is_validated
+      : (typeof apiPost.validated === 'boolean' ? apiPost.validated : undefined);
+
+    const validated = typeof apiPost.validated === 'boolean'
+      ? apiPost.validated
+      : (typeof apiPost.is_validated === 'boolean' ? apiPost.is_validated : undefined);
+
+    return {
+      ...(apiPost as Post),
+      is_validated,
+      validated
+    };
+  }
+
+  private normalizePostToApi(input: Partial<Post>): any {
+    if (!input || typeof input !== 'object') {
+      return input;
+    }
+
+    const payload: any = { ...input };
+
+    // Prefer backend naming, but accept legacy UI field.
+    if (payload.is_validated === undefined && typeof payload.validated === 'boolean') {
+      payload.is_validated = payload.validated;
+    }
+
+    // Avoid sending legacy fields that backend may reject.
+    delete payload.validated;
+
+    return payload;
+  }
+
 
   /**
    * Get all posts with optional filtering
@@ -27,7 +65,8 @@ export class PostsService {
       if (params.chat_id !== undefined) httpParams = httpParams.set('chat_id', params.chat_id.toString());
       if (params.validated_only !== undefined) httpParams = httpParams.set('validated_only', String(params.validated_only));
     }
-    return this.http.get<Post[]>(this.apiUrl, { params: httpParams }).pipe(
+    return this.http.get<any[]>(this.apiUrl, { params: httpParams }).pipe(
+      map((posts) => (Array.isArray(posts) ? posts.map((p) => this.normalizePostFromApi(p)) : [])),
       catchError((error) => {
         console.error('Error fetching posts:', error);
         return of([]);
@@ -39,7 +78,7 @@ export class PostsService {
    * Get a specific post by ID
    */
   getPost(post_id: number): Observable<Post> {
-    return this.http.get<Post>(`${this.apiUrl}/${post_id}`);
+    return this.http.get<any>(`${this.apiUrl}/${post_id}`).pipe(map((p) => this.normalizePostFromApi(p)));
   }
 
   /**
@@ -78,14 +117,14 @@ export class PostsService {
    * Create a new post
    */
   createPost(post: Partial<Post>): Observable<{ message: string; post_id: number }> {
-    return this.http.post<{ message: string; post_id: number }>(this.apiUrl, post);
+    return this.http.post<{ message: string; post_id: number }>(this.apiUrl, this.normalizePostToApi(post));
   }
 
   /**
    * Update an existing post
    */
   updatePost(post_id: number, post: Partial<Post>): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.apiUrl}/${post_id}`, post);
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${post_id}`, this.normalizePostToApi(post));
   }
 
   /**
@@ -99,7 +138,7 @@ export class PostsService {
    * Bulk create posts
    */
   bulkCreatePosts(posts: Partial<Post>[]): Observable<{ results: any[] }> {
-    return this.http.post<{ results: any[] }>(`${this.apiUrl}/bulk`, posts);
+    return this.http.post<{ results: any[] }>(`${this.apiUrl}/bulk`, posts.map((p) => this.normalizePostToApi(p)));
   }
 
   /**

@@ -106,6 +106,7 @@ export class PalettePage implements OnInit {
 
   // Create palette form
   openCreateForm() {
+    if (this.isGuest()) return;
     this.showCreateForm = true;
     this.showEditForm = false;
     this.formName = '';
@@ -126,6 +127,7 @@ export class PalettePage implements OnInit {
   }
 
   submitCreateForm() {
+    if (this.isGuest()) return;
     if (!this.formName.trim() || !this.formEmojis.trim()) {
       this.formError = 'Будь ласка, заповніть усі поля.';
       return;
@@ -189,6 +191,7 @@ export class PalettePage implements OnInit {
 
   // Edit palette form
   openEditForm(p: PaletteModel) {
+    if (this.isGuest()) return;
     console.log('Opening edit form for palette:', p);
     this.editingPalette = p;
     this.formName = p.palette_name;
@@ -220,6 +223,7 @@ export class PalettePage implements OnInit {
   }
 
   submitEditForm() {
+    if (this.isGuest()) return;
     if (!this.formName.trim() || !this.formEmojis.trim()) {
       this.formError = 'Будь ласка, заповніть усі поля.';
       return;
@@ -306,6 +310,7 @@ export class PalettePage implements OnInit {
 
   // Delete palette
   deletePalette(p: PaletteModel) {
+    if (this.isGuest()) return;
     if (!confirm(`Ви впевнені, що хочете видалити палету "${p.palette_name}"?`)) {
       return;
     }
