@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -28,7 +28,15 @@ import { firstValueFrom } from 'rxjs';
 export class Accounts {
   accounts = new MatTableDataSource<Account>([]);
 
-  accountStatuses: AccountStatus[] = ['NEW', 'ACTIVE', 'LOGGED_IN', 'BANNED', 'ERROR'];
+  accountStatuses: AccountStatus[] = [
+    'NEW',
+    'ACTIVE',
+    'AUTH_KEY_INVALID',
+    'BANNED',
+    'DEACTIVATED',
+    'RESTRICTED',
+    'ERROR'
+  ];
 
   displayedColumns: string[] = [
     'phone_number',
@@ -82,6 +90,13 @@ export class Accounts {
   validateModalMessage: string = '';
   validateModalIsError: boolean = false;
 
+  // Channel fetching (sync) modal state
+  showChannelIndexModal: boolean = false;
+  channelIndexing: boolean = false;
+  channelIndexTargetPhone: string = '';
+  channelIndexMessage: string = '';
+  channelIndexIsError: boolean = false;
+
   // Proxies
   proxies: Proxy[] = [];
   loadingProxies: boolean = false;
@@ -109,7 +124,13 @@ export class Accounts {
   bulkAutoAssignDesiredCount: number = 1;
   bulkAutoAssignActiveOnly: boolean = true;
 
-  constructor(private accountsService: AccountsService, private authService: AuthService, private route: ActivatedRoute, private proxiesService: ProxiesService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private proxiesService: ProxiesService
+  ) {}
 
   private formatApiError(err: any): string {
     const detail = err?.error?.detail;
@@ -572,6 +593,14 @@ export class Accounts {
     this.validateTargetPhone = '';
     this.validateModalMessage = '';
     this.validateModalIsError = false;
+  }
+
+  closeChannelIndexModal() {
+    if (this.channelIndexing) return;
+    this.showChannelIndexModal = false;
+    this.channelIndexTargetPhone = '';
+    this.channelIndexMessage = '';
+    this.channelIndexIsError = false;
   }
 
   deleteAccount(account: Account) {   
@@ -1058,6 +1087,9 @@ export class Accounts {
       case 'LOGGED_IN':
         return 'status-active';
       case 'BANNED':
+      case 'AUTH_KEY_INVALID':
+      case 'DEACTIVATED':
+      case 'RESTRICTED':
       case 'ERROR':
         return 'status-error';
       case 'NEW':
@@ -1136,24 +1168,43 @@ export class Accounts {
     this.detailsPasswordError = '';
   }
 
+  viewSubscribedChannels(account: Account) {
+    const phone = this.sanitizePhoneNumber(account.phone_number);
+    if (!phone) return;
+
+    this.router.navigate(['/channels'], {
+      queryParams: { subscribed_phone: phone }
+    });
+  }
+
   // Index subscribed channels for an account
   indexAccountChannels(account: Account) {
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
 
-    if (confirm(`Index subscribed channels for account ${account.phone_number}? This may take a while.`)) {
-      this.loading = true;
-      this.accountsService.indexAccountChannels(phone).subscribe(
-        (res) => {
-          alert(`✅ Success! Indexed ${res.channels_indexed} channels for account ${account.phone_number}`);
-          this.loading = false;
-        },
-        (err) => {
-          alert(`❌ Failed to index channels: ${err?.error?.detail || err?.message || 'Unknown error'}`);
-          this.loading = false;
-        }
-      );
-    }
+    if (!confirm(`Sync subscribed channels for account ${account.phone_number}? This may take a while.`)) return;
+
+    if (this.channelIndexing) return;
+
+    this.showChannelIndexModal = true;
+    this.channelIndexing = true;
+    this.channelIndexTargetPhone = account.phone_number;
+    this.channelIndexMessage = 'Syncing channels... Please wait.';
+    this.channelIndexIsError = false;
+
+    this.accountsService.indexAccountChannels(phone).subscribe(
+      (res) => {
+        this.channelIndexMessage = `Success! Synced ${res.channels_count} channels.`;
+        this.channelIndexIsError = false;
+        this.channelIndexing = false;
+        this.getAccounts();
+      },
+      (err) => {
+        this.channelIndexMessage = 'Failed to sync channels: ' + this.formatApiError(err);
+        this.channelIndexIsError = true;
+        this.channelIndexing = false;
+      }
+    );
   }
 
   // Toggle proxy selection for an account

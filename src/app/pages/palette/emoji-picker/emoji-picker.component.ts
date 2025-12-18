@@ -1,18 +1,33 @@
-import { Component, EventEmitter, Output, CUSTOM_ELEMENTS_SCHEMA, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-emoji-picker',
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [CommonModule],
   template: `
-    <div class="emoji-picker-wrapper">
+    <div class="emoji-picker-wrapper" role="dialog" aria-label="Emoji picker">
       <div class="emoji-picker-header">
         <h3>Виберіть емоції</h3>
-        <button type="button" class="close-btn" (click)="close()">✕</button>
+        <button type="button" class="close-btn" (click)="close()" aria-label="Закрити">✕</button>
       </div>
-      <div class="emoji-picker-container" #pickerContainer>
-        <emoji-picker #emojiPicker></emoji-picker>
+
+      <div class="emoji-picker-container">
+        <div class="emoji-grid" *ngIf="allowedEmojis?.length; else empty">
+          <button
+            type="button"
+            class="emoji-btn"
+            *ngFor="let e of allowedEmojis; trackBy: trackByEmoji"
+            (click)="select(e)"
+            [attr.aria-label]="e"
+          >
+            {{ e }}
+          </button>
+        </div>
+
+        <ng-template #empty>
+          <div class="empty">Немає доступних емодзі.</div>
+        </ng-template>
       </div>
     </div>
   `,
@@ -20,23 +35,19 @@ import { isPlatformBrowser } from '@angular/common';
     .emoji-picker-wrapper {
       display: flex;
       flex-direction: column;
-      background: #ffffff;
-      border-radius: 16px;
+      background: var(--color-bg-alt);
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      width: 90vw;
-      max-width: 400px;
-      z-index: 1001;
-      border: 1px solid #e5e7eb;
-      height: 70vh;
-      max-height: 70vh;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+      width: 100%;
+      border: 1px solid var(--color-border);
     }
 
     .emoji-picker-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 20px;
+      padding: 12px 14px;
       border-bottom: none;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #ffffff;
@@ -45,7 +56,7 @@ import { isPlatformBrowser } from '@angular/common';
 
     .emoji-picker-header h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       color: #ffffff;
       letter-spacing: -0.3px;
@@ -54,12 +65,12 @@ import { isPlatformBrowser } from '@angular/common';
     .close-btn {
       background: rgba(255, 255, 255, 0.2);
       border: none;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
       color: #ffffff;
       padding: 0;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -73,157 +84,62 @@ import { isPlatformBrowser } from '@angular/common';
     }
 
     .emoji-picker-container {
-      padding: 0;
-      overflow: hidden;
-      background: #ffffff;
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
+      padding: 10px;
+      max-height: 260px;
+      overflow: auto;
+      background: var(--color-bg-alt);
     }
 
-    .emoji-picker-container::-webkit-scrollbar {
-      width: 8px;
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 6px;
+      align-content: start;
     }
 
-    .emoji-picker-container::-webkit-scrollbar-track {
-      background: #f0f4ff;
-      border-radius: 4px;
-    }
-
-    .emoji-picker-container::-webkit-scrollbar-thumb {
-      background: #667eea;
-      border-radius: 4px;
-    }
-
-    .emoji-picker-container::-webkit-scrollbar-thumb:hover {
-      background: #764ba2;
-    }
-
-    ::ng-deep emoji-picker {
-      --category-icon-active-color: #667eea;
-      --category-icon-color: #9ca3af;
-      --border-color: #e5e7eb;
-      --emoji-padding: 8px;
-      --emoji-size: 2rem;
-      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      --outline-color: #667eea;
-      --input-font-color: #1f2937;
-      --input-border-color: #e5e7eb;
-      --input-border-radius: 8px;
-      --input-font-size: 14px;
-      --input-padding: 10px 12px;
-      --emoji-hover-color: #f0f4ff;
-      --background: #ffffff !important;
-      --text-color: #1f2937 !important;
-      --category-font-color: #6b7280 !important;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    ::ng-deep emoji-picker {
-      background: #ffffff !important;
-      color: #1f2937 !important;
-      filter: none !important;
-    }
-
-    ::ng-deep emoji-picker-search {
-      background: #ffffff !important;
-    }
-
-    ::ng-deep .emoji-picker-search {
-      background: #ffffff !important;
-      border-color: #e5e7eb !important;
-      color: #1f2937 !important;
-    }
-
-    ::ng-deep emoji-picker input,
-    ::ng-deep emoji-picker search {
-      background: #ffffff !important;
-      border-color: #e5e7eb !important;
-      color: #1f2937 !important;
-    }
-
-    ::ng-deep emoji-picker input::placeholder {
-      color: #9ca3af !important;
-    }
-
-    ::ng-deep emoji-picker .emoji-picker {
-      background: #ffffff !important;
-      color: #1f2937 !important;
-    }
-
-    ::ng-deep emoji-picker section {
-      background: #ffffff !important;
-    }
-
-    ::ng-deep emoji-picker .emoji-nav {
-      background: #f9fafb !important;
-      border-color: #e5e7eb !important;
-    }
-
-    ::ng-deep emoji-picker .emoji-nav button {
-      color: #6b7280 !important;
-      background: transparent !important;
-    }
-
-    ::ng-deep emoji-picker .emoji-nav button.active {
-      color: #667eea !important;
-      border-bottom-color: #667eea !important;
-    }
-
-    ::ng-deep emoji-picker .emoji-category {
-      background: #ffffff !important;
-      color: #1f2937 !important;
-    }
-
-    ::ng-deep emoji-picker .emoji {
-      background: transparent !important;
-    }
-
-    ::ng-deep emoji-picker .emoji:hover {
-      background: #f0f4ff !important;
+    .emoji-btn {
+      border: 2px solid transparent;
+      background: transparent;
       border-radius: 8px;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      padding: 6px 0;
+      transition: all 0.15s ease;
     }
 
-    ::ng-deep emoji-picker .emoji-menu {
-      background: #ffffff !important;
+    .emoji-btn:hover {
+      background: var(--color-bg-light);
+      border-color: var(--color-border);
+      transform: translateY(-1px);
     }
 
-    ::ng-deep emoji-picker [role="listbox"] {
-      background: #ffffff !important;
-      color: #1f2937 !important;
+    .emoji-btn:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+
+    .empty {
+      padding: 12px;
+      color: var(--color-text-alt);
+      font-size: 13px;
+      text-align: center;
     }
   `]
 })
-export class EmojiPickerComponent implements AfterViewInit {
+export class EmojiPickerComponent {
+  @Input() allowedEmojis: string[] = [];
   @Output() emojiSelected = new EventEmitter<string>();
   @Output() pickerClosed = new EventEmitter<void>();
-  @ViewChild('emojiPicker', { static: false }) emojiPickerRef?: ElementRef;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  trackByEmoji(_index: number, emoji: string) {
+    return emoji;
+  }
 
-  ngAfterViewInit() {
-    // Only load emoji picker in browser environment
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    // Dynamically import emoji-picker-element only in browser
-    import('emoji-picker-element').then(() => {
-      if (this.emojiPickerRef) {
-        const pickerElement = this.emojiPickerRef.nativeElement;
-        pickerElement.addEventListener('emoji-click', (event: any) => {
-          const emoji = event.detail?.unicode || event.detail?.emoji;
-          if (emoji) {
-            this.emojiSelected.emit(emoji);
-          }
-        });
-      }
-    });
+  select(emoji: string) {
+    if (!emoji) return;
+    this.emojiSelected.emit(emoji);
   }
 
   close() {

@@ -555,6 +555,14 @@ main {
   gap: 10px;
 }
 
+.emoji-picker-inline {
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
+}
+
 .emoji-input-group textarea {
   flex: 1;
 }
@@ -594,32 +602,6 @@ main {
   opacity: 0.5;
   cursor: not-allowed;
   background: var(--color-bg-light);
-}
-
-.emoji-picker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
-  backdrop-filter: blur(4px);
-}
-
-.emoji-picker-container-modal {
-  height: 70vh;
-  max-height: 70vh;
-  width: 90vw;
-  max-width: 400px;
-  overflow: hidden;
-  border-radius: 16px;
-  animation: slideUp 0.3s ease-out;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 /* Selected Palette Panel */

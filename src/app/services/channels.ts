@@ -19,12 +19,31 @@ export interface ChannelWithPostCount extends Channel {
   post_count: number;
 }
 
+// /channels/with-post-counts returns a minimal shape (at least chat_id + post_count).
+export interface ChannelPostCountItem {
+  chat_id: number;
+  post_count: number;
+  channel_name?: string;
+  tags?: string[];
+  created_at?: string;
+}
+
 export interface ChannelStats {
   total_channels: number;
   private_channels: number;
   public_channels: number;
   channels_with_reactions: number;
   tag_distribution: Record<string, number>;
+}
+
+export interface ChannelSubscriberAccount {
+  phone_number: string;
+  account_id?: number;
+  session_name?: string;
+  status?: string;
+  subscribed_to?: number[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 @Injectable({
@@ -105,7 +124,14 @@ export class ChannelsService {
   /**
    * Get all channels with their post counts
    */
-  getChannelsWithPostCounts(): Observable<ChannelWithPostCount[]> {
-    return this.http.get<ChannelWithPostCount[]>(`${this.apiUrl}/with-post-counts`);
+  getChannelsWithPostCounts(): Observable<ChannelPostCountItem[]> {
+    return this.http.get<ChannelPostCountItem[]>(`${this.apiUrl}/with-post-counts`);
+  }
+
+  /**
+   * Get all accounts subscribed to a channel
+   */
+  getChannelSubscribers(chatId: number): Observable<ChannelSubscriberAccount[]> {
+    return this.http.get<ChannelSubscriberAccount[]>(`${this.apiUrl}/${chatId}/subscribers`);
   }
 }

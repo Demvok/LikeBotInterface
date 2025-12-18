@@ -1,8 +1,11 @@
 <div class="content-wrapper">
     <header>
         <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="task-id-header" *ngIf="task" style="font-size: 1.2rem; font-weight: bold; color: var(--color-text-dark); font-family: 'Courier New', monospace; letter-spacing: 0.1rem; min-width: 120px;">
-                #{{ task.task_id }}
+            <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 120px;">
+                <a routerLink="/tasks" class="return-link">← Tasks</a>
+                <div class="task-id-header" *ngIf="task" style="font-size: 1.2rem; font-weight: bold; color: var(--color-text-dark); font-family: 'Courier New', monospace; letter-spacing: 0.1rem;">
+                    #{{ task.task_id }}
+                </div>
             </div>
             <div style="text-align: center; flex: 1;">
                 <h1>Task Overview</h1>

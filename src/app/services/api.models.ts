@@ -1,6 +1,15 @@
 // API models for LikeBot
 
-export type AccountStatus = 'NEW' | 'ACTIVE' | 'LOGGED_IN' | 'BANNED' | 'ERROR';
+// Backend statuses (API v1.2.x) + legacy UI status kept for staged compatibility.
+export type AccountStatus =
+  | 'NEW'
+  | 'ACTIVE'
+  | 'AUTH_KEY_INVALID'
+  | 'BANNED'
+  | 'DEACTIVATED'
+  | 'RESTRICTED'
+  | 'ERROR'
+  | 'LOGGED_IN';
 
 export interface Account {
   phone_number: string;
@@ -30,6 +39,9 @@ export interface Post {
   message_link: string;
   chat_id?: number;
   message_id?: number;
+  /** Backend field name (preferred). */
+  is_validated?: boolean;
+  /** Legacy UI field name kept for compatibility during staged rollout. */
   validated?: boolean;
   created_at?: string;
   updated_at?: string;

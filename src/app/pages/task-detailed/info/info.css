@@ -9,6 +9,17 @@
   flex-direction: column;
 }
 
+.return-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.return-link:hover {
+  text-decoration: underline;
+}
+
 header, main, footer {
   width: 100%;
   justify-content: center;

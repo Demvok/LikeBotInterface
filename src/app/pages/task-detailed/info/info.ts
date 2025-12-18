@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TasksService, Task } from '../../../services/tasks';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { forkJoin, interval, Subscription } from 'rxjs';
 import { ReportService } from '../../../services/report.service';
@@ -9,7 +9,7 @@ import { ReportService } from '../../../services/report.service';
 @Component({
   selector: 'app-info',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './info.html',
   styleUrl: './info.css'
 })

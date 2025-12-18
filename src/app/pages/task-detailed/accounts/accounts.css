@@ -76,6 +76,22 @@ header {
   gap: 1rem;
 }
 
+.header-nav {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.return-link {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.return-link:hover {
+  text-decoration: underline;
+}
+
 .task-header-row {
   width: 100%;
   display: flex;

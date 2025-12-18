@@ -31,6 +31,8 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
   showTaskPreview = false;
   isCreatingTask = false;
 
+  private static readonly PERMITTED_ACCOUNT_STATUS = 'ACTIVE';
+
   constructor(
     private taskCreationService: TaskCreationService,
     private accountsService: AccountsService,
@@ -62,7 +64,24 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
     this.subscription.add(
       this.accountsService.getAccounts().subscribe({
         next: (accounts) => {
-          this.availableAccounts = accounts;
+          // Frontend-only restriction: only ACTIVE accounts are permitted for new task creation.
+          this.availableAccounts = (accounts || []).filter(
+            (account) => account.status === CreateTaskStage3.PERMITTED_ACCOUNT_STATUS
+          );
+
+          // Prune any previously selected accounts that are not permitted.
+          const permittedPhoneNumbers = new Set(
+            this.availableAccounts.map((account) => account.phone_number)
+          );
+          const prunedSelected = this.selectedAccounts.filter((phone) => permittedPhoneNumbers.has(phone));
+          if (prunedSelected.length !== this.selectedAccounts.length) {
+            this.selectedAccounts = prunedSelected;
+            this.updateTaskAccounts();
+          }
+
+          if (this.accountCount > this.availableAccounts.length) {
+            this.accountCount = this.availableAccounts.length;
+          }
           this.isLoadingAccounts = false;
         },
         error: (error) => {
@@ -135,6 +154,20 @@ export class CreateTaskStage3 implements OnInit, OnDestroy {
   createTask() {
     if (!this.canCreateTask || this.isCreatingTask) {
       return;
+    }
+
+    // Safety check: ensure only permitted (ACTIVE) accounts are submitted.
+    const permittedPhoneNumbers = new Set(
+      this.availableAccounts.map((account) => account.phone_number)
+    );
+    const prunedSelected = this.selectedAccounts.filter((phone) => permittedPhoneNumbers.has(phone));
+    if (prunedSelected.length !== this.selectedAccounts.length) {
+      this.selectedAccounts = prunedSelected;
+      this.updateTaskAccounts();
+      if (this.selectedAccounts.length === 0) {
+        alert('Only ACTIVE accounts can be used to create a task. Please select at least one ACTIVE account.');
+        return;
+      }
     }
 
     this.isCreatingTask = true;
