@@ -2,6 +2,24 @@
     <main>
         <h1>Вітаємо у LikeBot!</h1>
         <p>Для початку роботи будь-ласка оберіть одну категорію зі списку зліва</p>
+
+        <div class="versions" aria-label="Application versions">
+            <h3>Versions</h3>
+            <div class="version-row">
+                <span class="version-label">Frontend</span>
+                <span class="version-value">{{ frontendVersion }}</span>
+            </div>
+            <div class="version-row">
+                <span class="version-label">Backend</span>
+                <span class="version-value" *ngIf="backendVersionLoading">Loading...</span>
+                <span class="version-value" *ngIf="!backendVersionLoading && backendVersion">{{ backendVersion }}</span>
+                <span class="version-value version-error" *ngIf="!backendVersionLoading && backendVersionError">{{ backendVersionError }}</span>
+            </div>
+            <div class="version-row" *ngIf="backendMessage">
+                <span class="version-label">Message</span>
+                <span class="version-value">{{ backendMessage }}</span>
+            </div>
+        </div>
     </main>
 </div>
 

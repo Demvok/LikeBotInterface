@@ -106,8 +106,10 @@ export class PalettePage implements OnInit {
 
   // Create palette form
   openCreateForm() {
+    if (this.isGuest()) return;
     this.showCreateForm = true;
     this.showEditForm = false;
+    this.showEmojiPicker = false;
     this.formName = '';
     this.formDescription = '';
     this.formEmojis = '';
@@ -118,6 +120,7 @@ export class PalettePage implements OnInit {
 
   cancelCreateForm() {
     this.showCreateForm = false;
+    this.showEmojiPicker = false;
     this.formName = '';
     this.formDescription = '';
     this.formEmojis = '';
@@ -126,6 +129,7 @@ export class PalettePage implements OnInit {
   }
 
   submitCreateForm() {
+    if (this.isGuest()) return;
     if (!this.formName.trim() || !this.formEmojis.trim()) {
       this.formError = 'Будь ласка, заповніть усі поля.';
       return;
@@ -189,6 +193,7 @@ export class PalettePage implements OnInit {
 
   // Edit palette form
   openEditForm(p: PaletteModel) {
+    if (this.isGuest()) return;
     console.log('Opening edit form for palette:', p);
     this.editingPalette = p;
     this.formName = p.palette_name;
@@ -203,6 +208,7 @@ export class PalettePage implements OnInit {
     });
     this.showEditForm = true;
     this.showCreateForm = false;
+    this.showEmojiPicker = false;
     this.formError = '';
     this.isEditingEmojis = true;
     // Force change detection to ensure checkbox state is rendered
@@ -211,6 +217,7 @@ export class PalettePage implements OnInit {
 
   cancelEditForm() {
     this.showEditForm = false;
+    this.showEmojiPicker = false;
     this.editingPalette = null;
     this.formName = '';
     this.formDescription = '';
@@ -220,6 +227,7 @@ export class PalettePage implements OnInit {
   }
 
   submitEditForm() {
+    if (this.isGuest()) return;
     if (!this.formName.trim() || !this.formEmojis.trim()) {
       this.formError = 'Будь ласка, заповніть усі поля.';
       return;
@@ -306,6 +314,7 @@ export class PalettePage implements OnInit {
 
   // Delete palette
   deletePalette(p: PaletteModel) {
+    if (this.isGuest()) return;
     if (!confirm(`Ви впевнені, що хочете видалити палету "${p.palette_name}"?`)) {
       return;
     }
@@ -337,7 +346,7 @@ export class PalettePage implements OnInit {
 
   // Emoji picker methods
   openEmojiPicker() {
-    this.showEmojiPicker = true;
+    this.showEmojiPicker = !this.showEmojiPicker;
   }
 
   closeEmojiPicker() {

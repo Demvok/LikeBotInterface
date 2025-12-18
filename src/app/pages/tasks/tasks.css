@@ -140,10 +140,6 @@
   transform: translateY(-2px);
 }
 
-.refresh-btn:hover {
-  transform: rotate(180deg);
-}
-
 /* Center icons in buttons */
 .clear-filters-btn mat-icon,
 .refresh-btn mat-icon {

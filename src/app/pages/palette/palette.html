@@ -64,6 +64,15 @@
                     😊
                   </button>
                 </div>
+                @if (showEmojiPicker) {
+                  <div class="emoji-picker-inline">
+                    <app-emoji-picker 
+                      [allowedEmojis]="allowedEmojis"
+                      (emojiSelected)="onEmojiSelected($event)"
+                      (pickerClosed)="onEmojiPickerClosed()"
+                    ></app-emoji-picker>
+                  </div>
+                }
               </div>
               <div class="form-group checkbox">
                 <label for="create-order">
@@ -140,6 +149,15 @@
                     😊
                   </button>
                 </div>
+                @if (showEmojiPicker) {
+                  <div class="emoji-picker-inline">
+                    <app-emoji-picker 
+                      [allowedEmojis]="allowedEmojis"
+                      (emojiSelected)="onEmojiSelected($event)"
+                      (pickerClosed)="onEmojiPickerClosed()"
+                    ></app-emoji-picker>
+                  </div>
+                }
               </div>
               <div class="form-group checkbox">
                 <label for="edit-order">
@@ -163,19 +181,6 @@
               {{ formSubmitting ? 'Оновлення...' : 'Оновити' }}
             </button>
           </div>
-        </div>
-      </div>
-    }
-
-    <!-- Emoji Picker Modal -->
-    @if (showEmojiPicker) {
-      <div class="emoji-picker-overlay" (click)="closeEmojiPicker()">
-        <div class="emoji-picker-container-modal" (click)="$event.stopPropagation()">
-          <app-emoji-picker 
-            [allowedEmojis]="allowedEmojis"
-            (emojiSelected)="onEmojiSelected($event)"
-            (pickerClosed)="onEmojiPickerClosed()"
-          ></app-emoji-picker>
         </div>
       </div>
     }
@@ -212,7 +217,7 @@
   @if (!loading && palettes.length === 0 && !error) {
     <div class="empty-state">
       <p>Немає доступних наборів емоцій.</p>
-      <button class="btn-link" (click)="openCreateForm()">Створити першу палету.</button>
+      <button class="btn-link" (click)="openCreateForm()" [disabled]="isGuest()">Створити першу палету.</button>
     </div>
   }
 

@@ -1,14 +1,17 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ChannelsService, Channel } from '../../services/channels';
+import { ChannelsService, Channel, ChannelStats, ChannelSubscriberAccount, ChannelPostCountItem } from '../../services/channels';
+import { AccountsService } from '../../services/accounts';
 import { AuthService } from '../../services/auth.service';
+
+type ChannelRow = Channel & { post_count?: number | null };
 
 @Component({
   selector: 'app-channels',
@@ -26,11 +29,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './channels.css'
 })
 export class Channels implements OnInit {
-  channels = new MatTableDataSource<Channel>([]);
+  channels = new MatTableDataSource<ChannelRow>([]);
+
+  // Route-driven filter: show channels subscribed by an account
+  subscribedPhoneFilter: string | null = null;
+  private subscribedBaseRows: ChannelRow[] = [];
 
   displayedColumns: string[] = [
     'chat_id',
     'channel_name',
+    'post_count',
     'is_private',
     'has_enabled_reactions',
     'tags',
@@ -70,6 +78,23 @@ export class Channels implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
+  // KPIs (Stage 3)
+  statsLoading: boolean = false;
+  statsError: string = '';
+  channelStats: ChannelStats | null = null;
+
+  // Post counts (Stage 3)
+  postCountsLoading: boolean = false;
+  postCountsError: string = '';
+  private postCountsByChatId = new Map<number, number>();
+
+  // Channel subscribers (Stage 3)
+  showSubscribersModal: boolean = false;
+  subscribersLoading: boolean = false;
+  subscribersError: string = '';
+  subscribersChannel: Channel | null = null;
+  subscriberAccounts: ChannelSubscriberAccount[] = [];
+
   private _paginator!: MatPaginator;
   private _sort!: MatSort;
 
@@ -85,10 +110,23 @@ export class Channels implements OnInit {
     this.assignTableFeatures();
   }
 
-  constructor(private channelsService: ChannelsService, private cdr: ChangeDetectorRef, private router: Router, private authService: AuthService) {}
+  constructor(
+    private channelsService: ChannelsService,
+    private accountsService: AccountsService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    this.getChannels();
+    this.route.queryParams.subscribe((params) => {
+      const raw = params['subscribed_phone'];
+      const normalized = typeof raw === 'string' ? raw.trim() : '';
+      this.subscribedPhoneFilter = normalized || null;
+
+      this.refreshAll();
+    });
   }
 
   ngAfterViewInit() {
@@ -100,6 +138,79 @@ export class Channels implements OnInit {
       this.channels.paginator = this._paginator;
       this.channels.sort = this._sort;
     }
+  }
+
+  refreshAll() {
+    this.loadChannelStats();
+
+    if (this.subscribedPhoneFilter) {
+      this.loadSubscribedChannelsForAccount(this.subscribedPhoneFilter);
+      return;
+    }
+
+    this.getChannels();
+  }
+
+  clearSubscribedFilter() {
+    this.router.navigate(['/channels']);
+  }
+
+  private loadSubscribedChannelsForAccount(phone: string) {
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.subscribedBaseRows = [];
+
+    this.accountsService.getAccountSubscribedChannels(phone).subscribe({
+      next: (subscribed) => {
+        const subscribedIds = new Set<number>((Array.isArray(subscribed) ? subscribed : []).map((c) => c.chat_id));
+
+        this.channelsService.getChannels().subscribe({
+          next: (allChannels) => {
+            const subset = (Array.isArray(allChannels) ? allChannels : []).filter((c) => subscribedIds.has(c.chat_id));
+            const rows: ChannelRow[] = subset.map((c) => ({
+              ...c,
+              post_count: this.postCountsByChatId.get(c.chat_id) ?? null
+            }));
+
+            this.subscribedBaseRows = rows;
+            this.channels = new MatTableDataSource<ChannelRow>(rows);
+            this.assignTableFeatures();
+            this.extractAvailableTags(subset);
+            this.loading = false;
+
+            // Merge counts after loading
+            this.refreshPostCounts();
+          },
+          error: (error) => {
+            console.error('Error loading channels:', error);
+            this.errorMessage = error?.error?.detail || 'Failed to load channels';
+            this.loading = false;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error loading account subscriptions:', error);
+        this.errorMessage = error?.error?.detail || 'Failed to load subscribed channels for account';
+        this.loading = false;
+      }
+    });
+  }
+
+  private loadChannelStats() {
+    this.statsLoading = true;
+    this.statsError = '';
+    this.channelsService.getChannelStats().subscribe({
+      next: (stats) => {
+        this.channelStats = stats;
+        this.statsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading channel stats:', error);
+        this.statsError = error?.error?.detail || 'Failed to load channel stats';
+        this.statsLoading = false;
+      }
+    });
   }
 
   getChannels() {
@@ -117,15 +228,51 @@ export class Channels implements OnInit {
 
     this.channelsService.getChannels(filters).subscribe({
       next: (data) => {
-        this.channels = new MatTableDataSource<Channel>(data);
+        const rows: ChannelRow[] = (Array.isArray(data) ? data : []).map((c) => ({
+          ...c,
+          post_count: this.postCountsByChatId.get(c.chat_id) ?? null
+        }));
+
+        this.channels = new MatTableDataSource<ChannelRow>(rows);
         this.assignTableFeatures();
         this.extractAvailableTags(data);
         this.loading = false;
+
+        // Post counts are fetched from a separate endpoint. Merge them in once loaded.
+        this.refreshPostCounts();
       },
       error: (error) => {
         console.error('Error loading channels:', error);
         this.errorMessage = error?.error?.detail || 'Failed to load channels';
         this.loading = false;
+      }
+    });
+  }
+
+  private refreshPostCounts() {
+    this.postCountsLoading = true;
+    this.postCountsError = '';
+
+    this.channelsService.getChannelsWithPostCounts().subscribe({
+      next: (channelsWithCounts: ChannelPostCountItem[]) => {
+        this.postCountsByChatId = new Map(
+          (Array.isArray(channelsWithCounts) ? channelsWithCounts : []).map((c) => [c.chat_id, c.post_count])
+        );
+
+        const updated = (this.channels?.data ?? []).map((c) => ({
+          ...c,
+          post_count: this.postCountsByChatId.get(c.chat_id) ?? null
+        }));
+
+        this.channels.data = updated;
+        this.assignTableFeatures();
+        this.cdr.detectChanges();
+        this.postCountsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading channel post counts:', error);
+        this.postCountsError = error?.error?.detail || 'Failed to load post counts';
+        this.postCountsLoading = false;
       }
     });
   }
@@ -141,13 +288,68 @@ export class Channels implements OnInit {
   }
 
   applyFilters() {
+    if (this.subscribedPhoneFilter) {
+      this.applyLocalFilters();
+      return;
+    }
+
     this.getChannels();
   }
 
   clearFilters() {
     this.searchChannelName = '';
     this.selectedTag = '';
+
+    if (this.subscribedPhoneFilter) {
+      this.channels.data = this.subscribedBaseRows.slice();
+      this.assignTableFeatures();
+      return;
+    }
+
     this.getChannels();
+  }
+
+  private applyLocalFilters() {
+    const name = this.searchChannelName.trim().toLowerCase();
+    const tag = this.selectedTag.trim();
+
+    const filtered = this.subscribedBaseRows.filter((c) => {
+      const matchesName = !name || (c.channel_name || '').toLowerCase().includes(name);
+      const matchesTag = !tag || (Array.isArray(c.tags) && c.tags.includes(tag));
+      return matchesName && matchesTag;
+    });
+
+    this.channels.data = filtered;
+    this.assignTableFeatures();
+    this.cdr.detectChanges();
+  }
+
+  openSubscribersModal(channel: Channel) {
+    this.subscribersChannel = channel;
+    this.subscriberAccounts = [];
+    this.subscribersError = '';
+    this.subscribersLoading = true;
+    this.showSubscribersModal = true;
+
+    this.channelsService.getChannelSubscribers(channel.chat_id).subscribe({
+      next: (accounts) => {
+        this.subscriberAccounts = Array.isArray(accounts) ? accounts : [];
+        this.subscribersLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading channel subscribers:', error);
+        this.subscribersError = error?.error?.detail || 'Failed to load subscribers';
+        this.subscribersLoading = false;
+      }
+    });
+  }
+
+  closeSubscribersModal() {
+    this.showSubscribersModal = false;
+    this.subscribersLoading = false;
+    this.subscribersError = '';
+    this.subscribersChannel = null;
+    this.subscriberAccounts = [];
   }
 
   // Add modal
@@ -263,7 +465,7 @@ export class Channels implements OnInit {
   }
 
   viewChannelSubscribers(channel: Channel) {
-    this.router.navigate(['/accounts'], { queryParams: { channel_id: channel.chat_id } });
+    this.openSubscribersModal(channel);
   }
 
   // Check if current user is admin

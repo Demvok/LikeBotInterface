@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -23,7 +23,7 @@ interface AccountWithTaskInfo extends Account {
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatTableModule, MatButtonModule, MatPaginatorModule, MatSortModule],
   templateUrl: './accounts.html',
   styleUrl: './accounts.css'
 })

@@ -33,6 +33,25 @@ a {
     color: inherit;
 }
 
+/* Standard centered spin utility (for refresh/loading icons) */
+.app-spin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    animation: appSpin 1s linear infinite;
+}
+
+@keyframes appSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 img, picture, video, canvas, svg {
     display: block;
     max-width: 100%;

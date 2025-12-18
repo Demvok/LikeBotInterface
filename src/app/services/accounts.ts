@@ -29,7 +29,23 @@ export interface LoginVerifyResponse {
 export interface ValidateAccountResponse {
   message: string;
   account_id: number;
-  connection_status: string;
+  account_status: string;
+  has_session: boolean;
+}
+
+export interface ChannelSyncResponse {
+  message: string;
+  phone_number: string;
+  channels_count: number;
+  chat_ids: number[];
+  synced_at: string;
+}
+
+export interface AccountSubscribedChannel {
+  chat_id: number;
+  channel_name: string;
+  is_private: boolean;
+  tags: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -107,16 +123,36 @@ export class AccountsService {
 
   /** Get all accounts with optional filtering */
   getAccounts(params?: { phone_number?: string; channel_id?: number }): Observable<Account[]> {
-    let httpParams = new HttpParams();
-    if (params?.phone_number) {
-      httpParams = httpParams.set('phone_number', params.phone_number);
-    }
-    if (params?.channel_id) {
-      httpParams = httpParams.set('channel_id', params.channel_id.toString());
-    }
-    return this.http.get<any[]>(this.apiUrl, { params: httpParams }).pipe(
+    const buildParams = (input?: { phone_number?: string; channel_id?: number }, includeChannelId: boolean = true): HttpParams => {
+      let httpParams = new HttpParams();
+      if (input?.phone_number) {
+        httpParams = httpParams.set('phone_number', input.phone_number);
+      }
+      if (includeChannelId && input?.channel_id !== undefined) {
+        httpParams = httpParams.set('channel_id', input.channel_id.toString());
+      }
+      return httpParams;
+    };
+
+    const withChannelFilter = this.http.get<any[]>(this.apiUrl, { params: buildParams(params, true) }).pipe(
       map((accounts) => (Array.isArray(accounts) ? accounts.map((a) => this.normalizeAccountFromApi(a)) : []))
     );
+
+    // If backend dropped the old channel_id filter, retry without it to keep the page usable.
+    if (params?.channel_id !== undefined) {
+      return withChannelFilter.pipe(
+        catchError((err) => {
+          if (err?.status === 400 || err?.status === 404 || err?.status === 422) {
+            return this.http.get<any[]>(this.apiUrl, { params: buildParams(params, false) }).pipe(
+              map((accounts) => (Array.isArray(accounts) ? accounts.map((a) => this.normalizeAccountFromApi(a)) : []))
+            );
+          }
+          return throwError(() => err);
+        })
+      );
+    }
+
+    return withChannelFilter;
   }
 
   /** Get a specific account by phone number */
@@ -221,12 +257,19 @@ export class AccountsService {
   }
 
   /** Index subscribed channels for an account */
-  indexAccountChannels(phone_number: string): Observable<{ message: string; channels_indexed: number }> {
+  indexAccountChannels(phone_number: string): Observable<ChannelSyncResponse> {
     return this.withPhoneFallback(phone_number, (normalized) =>
-      this.http.post<{ message: string; channels_indexed: number }>(
-        `${this.apiUrl}/${encodeURIComponent(normalized)}/index-channels`,
+      this.http.post<ChannelSyncResponse>(
+        `${this.apiUrl}/${encodeURIComponent(normalized)}/channels/sync`,
         {}
       )
+    );
+  }
+
+  /** Get channels an account is subscribed to. */
+  getAccountSubscribedChannels(phone_number: string): Observable<AccountSubscribedChannel[]> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.get<AccountSubscribedChannel[]>(`${this.apiUrl}/${encodeURIComponent(normalized)}/channels`)
     );
   }
 

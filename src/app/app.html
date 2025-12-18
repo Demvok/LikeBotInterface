@@ -2,6 +2,12 @@
   <!-- Sidebar (hidden on login/register pages) -->
    <aside class="sidebar" *ngIf="showSidebar">
     <div class="sidebar-content">
+      <div class="theme-toggle theme-toggle--sidebar-top">
+        <button class="theme-btn" (click)="toggleTheme()" [title]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          {{ isDarkTheme ? '☀️' : '🌙' }}
+        </button>
+      </div>
+
       <div class="sidebar-title">
         <a routerLink="/home" routerLinkActive="active"><h2>Menu</h2></a>
         <hr>
@@ -57,11 +63,6 @@
 
       <!-- User info and logout -->
       <div class="sidebar-footer">
-        <div class="theme-toggle">
-          <button class="theme-btn" (click)="toggleTheme()" [title]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
-            {{ isDarkTheme ? '☀️' : '🌙' }}
-          </button>
-        </div>
         <div class="user-info" *ngIf="currentUser">
           <div class="user-details">
             <div class="username">{{ currentUser.username }}</div>

@@ -75,6 +75,23 @@ header {
   align-items: stretch;
 }
 
+.header-nav {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.return-link {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+}
+
+.return-link:hover {
+  text-decoration: underline;
+}
+
 header form {
   display: flex;
   justify-content: center;
