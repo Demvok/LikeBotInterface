@@ -109,6 +109,7 @@ export class PalettePage implements OnInit {
     if (this.isGuest()) return;
     this.showCreateForm = true;
     this.showEditForm = false;
+    this.showEmojiPicker = false;
     this.formName = '';
     this.formDescription = '';
     this.formEmojis = '';
@@ -119,6 +120,7 @@ export class PalettePage implements OnInit {
 
   cancelCreateForm() {
     this.showCreateForm = false;
+    this.showEmojiPicker = false;
     this.formName = '';
     this.formDescription = '';
     this.formEmojis = '';
@@ -206,6 +208,7 @@ export class PalettePage implements OnInit {
     });
     this.showEditForm = true;
     this.showCreateForm = false;
+    this.showEmojiPicker = false;
     this.formError = '';
     this.isEditingEmojis = true;
     // Force change detection to ensure checkbox state is rendered
@@ -214,6 +217,7 @@ export class PalettePage implements OnInit {
 
   cancelEditForm() {
     this.showEditForm = false;
+    this.showEmojiPicker = false;
     this.editingPalette = null;
     this.formName = '';
     this.formDescription = '';
@@ -342,7 +346,7 @@ export class PalettePage implements OnInit {
 
   // Emoji picker methods
   openEmojiPicker() {
-    this.showEmojiPicker = true;
+    this.showEmojiPicker = !this.showEmojiPicker;
   }
 
   closeEmojiPicker() {

@@ -33,6 +33,21 @@ export interface ValidateAccountResponse {
   has_session: boolean;
 }
 
+export interface ChannelSyncResponse {
+  message: string;
+  phone_number: string;
+  channels_count: number;
+  chat_ids: number[];
+  synced_at: string;
+}
+
+export interface AccountSubscribedChannel {
+  chat_id: number;
+  channel_name: string;
+  is_private: boolean;
+  tags: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
   private apiUrl = `${environment.apiUrl}/accounts`;
@@ -242,12 +257,19 @@ export class AccountsService {
   }
 
   /** Index subscribed channels for an account */
-  indexAccountChannels(phone_number: string): Observable<{ message: string; channels_indexed: number }> {
+  indexAccountChannels(phone_number: string): Observable<ChannelSyncResponse> {
     return this.withPhoneFallback(phone_number, (normalized) =>
-      this.http.post<{ message: string; channels_indexed: number }>(
+      this.http.post<ChannelSyncResponse>(
         `${this.apiUrl}/${encodeURIComponent(normalized)}/channels/sync`,
         {}
       )
+    );
+  }
+
+  /** Get channels an account is subscribed to. */
+  getAccountSubscribedChannels(phone_number: string): Observable<AccountSubscribedChannel[]> {
+    return this.withPhoneFallback(phone_number, (normalized) =>
+      this.http.get<AccountSubscribedChannel[]>(`${this.apiUrl}/${encodeURIComponent(normalized)}/channels`)
     );
   }
 

@@ -2,13 +2,31 @@
   <!-- Header with Filters -->
   <header class="header-with-filters">
     <div class="header-top">
-      <h2>Channels Management</h2>
+      <div class="header-title">
+        <h2>Channels Management</h2>
+        <span *ngIf="subscribedPhoneFilter" class="filter-badge">
+          Filtering by Account: <strong>{{ subscribedPhoneFilter }}</strong>
+          <button type="button" class="btn-clear-filter" (click)="clearSubscribedFilter()">✕</button>
+        </span>
+      </div>
       <div class="header-actions">
         <button class="btn-primary" (click)="openAddModal()" [disabled]="isGuest()">
           ➕ Add Channel
         </button>
-        <button class="btn-secondary" (click)="getChannels()">🔄 Refresh</button>
+        <button class="btn-secondary" (click)="refreshAll()">🔄 Refresh</button>
       </div>
+    </div>
+
+    <!-- KPIs (Stage 3) -->
+    <div class="kpi-row" *ngIf="statsLoading || statsError || channelStats">
+      <div class="kpi-item" *ngIf="statsLoading">Loading KPIs...</div>
+      <div class="kpi-item kpi-error" *ngIf="!statsLoading && statsError">{{ statsError }}</div>
+      <ng-container *ngIf="!statsLoading && channelStats">
+        <div class="kpi-item">Total: <strong>{{ channelStats.total_channels }}</strong></div>
+        <div class="kpi-item">Public: <strong>{{ channelStats.public_channels }}</strong></div>
+        <div class="kpi-item">Private: <strong>{{ channelStats.private_channels }}</strong></div>
+        <div class="kpi-item">With reactions: <strong>{{ channelStats.channels_with_reactions }}</strong></div>
+      </ng-container>
     </div>
 
     <div class="header-filters">
@@ -72,6 +90,14 @@
         <ng-container matColumnDef="channel_name">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Channel Name</th>
           <td mat-cell *matCellDef="let channel">{{ channel.channel_name }}</td>
+        </ng-container>
+
+        <!-- Post Count Column (Stage 3) -->
+        <ng-container matColumnDef="post_count">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Posts</th>
+          <td mat-cell *matCellDef="let channel">
+            {{ channel.post_count === null || channel.post_count === undefined ? '-' : channel.post_count }}
+          </td>
         </ng-container>
 
         <!-- Private Column -->
@@ -148,6 +174,52 @@
       </mat-paginator>
     </div>
   </main>
+</div>
+
+<!-- Subscribers Modal (Stage 3) -->
+<div class="modal-overlay" *ngIf="showSubscribersModal" (click)="closeSubscribersModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Subscribers</h3>
+      <button class="modal-close" (click)="closeSubscribersModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="subscribersChannel" style="margin-bottom: 0.75rem; color: var(--color-text-light);">
+        <strong style="color: var(--color-text);">{{ subscribersChannel.channel_name }}</strong>
+        <span style="margin-left: 0.5rem;">({{ subscribersChannel.chat_id }})</span>
+      </div>
+
+      <div *ngIf="subscribersLoading" class="loading-spinner" style="padding: 1.5rem;">
+        <mat-spinner diameter="30"></mat-spinner>
+        <p>Loading subscribers...</p>
+      </div>
+
+      <div *ngIf="!subscribersLoading && subscribersError" class="error-message">
+        ❌ {{ subscribersError }}
+      </div>
+
+      <div *ngIf="!subscribersLoading && !subscribersError">
+        <div *ngIf="subscriberAccounts.length === 0" class="success-message" style="background: rgba(255, 255, 255, 0.06); border-left-color: var(--color-border);">
+          No subscribers found.
+        </div>
+
+        <div *ngIf="subscriberAccounts.length > 0" class="subscribers-list">
+          <div class="subscriber-row" *ngFor="let acc of subscriberAccounts">
+            <div class="subscriber-main">
+              <strong>{{ acc.phone_number }}</strong>
+              <span class="subscriber-meta">{{ acc.status || 'UNKNOWN' }}</span>
+            </div>
+            <div class="subscriber-sub" *ngIf="acc.session_name">{{ acc.session_name }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeSubscribersModal()">Close</button>
+    </div>
+  </div>
 </div>
 
 <!-- Add/Edit Channel Modal -->

@@ -87,6 +87,9 @@
                             <button mat-menu-item (click)="indexAccountChannels(account)" [disabled]="isGuest()">
                                 <span>Fetch Channels</span>
                             </button>
+                            <button mat-menu-item (click)="viewSubscribedChannels(account)" [disabled]="isGuest()">
+                                <span>Subscribed Channels</span>
+                            </button>
                         </mat-menu>
                     </div>
                 </td>

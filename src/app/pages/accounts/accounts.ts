@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -90,7 +90,7 @@ export class Accounts {
   validateModalMessage: string = '';
   validateModalIsError: boolean = false;
 
-  // Channel indexing modal state
+  // Channel fetching (sync) modal state
   showChannelIndexModal: boolean = false;
   channelIndexing: boolean = false;
   channelIndexTargetPhone: string = '';
@@ -124,7 +124,13 @@ export class Accounts {
   bulkAutoAssignDesiredCount: number = 1;
   bulkAutoAssignActiveOnly: boolean = true;
 
-  constructor(private accountsService: AccountsService, private authService: AuthService, private route: ActivatedRoute, private proxiesService: ProxiesService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private proxiesService: ProxiesService
+  ) {}
 
   private formatApiError(err: any): string {
     const detail = err?.error?.detail;
@@ -1162,31 +1168,39 @@ export class Accounts {
     this.detailsPasswordError = '';
   }
 
+  viewSubscribedChannels(account: Account) {
+    const phone = this.sanitizePhoneNumber(account.phone_number);
+    if (!phone) return;
+
+    this.router.navigate(['/channels'], {
+      queryParams: { subscribed_phone: phone }
+    });
+  }
+
   // Index subscribed channels for an account
   indexAccountChannels(account: Account) {
     const phone = this.sanitizePhoneNumber(account.phone_number);
     if (!phone) return;
 
-    if (!confirm(`Index subscribed channels for account ${account.phone_number}? This may take a while.`)) {
-      return;
-    }
+    if (!confirm(`Sync subscribed channels for account ${account.phone_number}? This may take a while.`)) return;
 
     if (this.channelIndexing) return;
 
     this.showChannelIndexModal = true;
     this.channelIndexing = true;
     this.channelIndexTargetPhone = account.phone_number;
-    this.channelIndexMessage = 'Fetching channels... Please wait.';
+    this.channelIndexMessage = 'Syncing channels... Please wait.';
     this.channelIndexIsError = false;
 
     this.accountsService.indexAccountChannels(phone).subscribe(
       (res) => {
-        this.channelIndexMessage = `Success! Indexed ${res.channels_indexed} channels.`;
+        this.channelIndexMessage = `Success! Synced ${res.channels_count} channels.`;
         this.channelIndexIsError = false;
         this.channelIndexing = false;
+        this.getAccounts();
       },
       (err) => {
-        this.channelIndexMessage = 'Failed to fetch channels: ' + this.formatApiError(err);
+        this.channelIndexMessage = 'Failed to sync channels: ' + this.formatApiError(err);
         this.channelIndexIsError = true;
         this.channelIndexing = false;
       }
